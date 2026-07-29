@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" role="img" aria-label="530 Spray Foam">
+  <defs>
+    <linearGradient id="nv" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#33507f"/>
+      <stop offset="1" stop-color="#1f3557"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e6ebf2"/>
+      <stop offset="0.5" stop-color="#8f9bad"/>
+      <stop offset="1" stop-color="#2b3444"/>
+    </linearGradient>
+  </defs>
+
+  <!-- badge -->
+  <path d="M210 6c92 0 168 38 168 86 0 46-70 102-168 102S42 138 42 92C42 44 118 6 210 6z"
+        fill="#12161d" stroke="#f4f6fa" stroke-width="5"/>
+  <path d="M210 16c84 0 156 34 156 76 0 40-66 92-156 92S54 132 54 92c0-42 72-76 156-76z"
+        fill="none" stroke="url(#nv)" stroke-width="7"/>
+
+  <!-- house -->
+  <path d="M118 96l82-52 82 52v6h-24l-58-37-58 37h-24z" fill="#f4f6fa"/>
+  <path d="M140 100l60-38 60 38z" fill="#232a35"/>
+  <rect x="186" y="76" width="26" height="22" fill="#33507f" stroke="#f4f6fa" stroke-width="3"/>
+  <path d="M199 76v22M186 87h26" stroke="#f4f6fa" stroke-width="3"/>
+
+  <!-- foam spray -->
+  <path d="M292 74c-40 4-78 16-112 32 34 2 74-4 112-16z" fill="#eae6dd" opacity=".95"/>
+  <g fill="#f7f5f0">
+    <circle cx="196" cy="104" r="4"/><circle cx="214" cy="99" r="5"/><circle cx="234" cy="94" r="4"/>
+    <circle cx="252" cy="88" r="5"/><circle cx="270" cy="82" r="4"/><circle cx="286" cy="77" r="3"/>
+  </g>
+
+  <!-- spray gun -->
+  <rect x="296" y="58" width="62" height="26" rx="8" fill="url(#steel)" stroke="#12161d" stroke-width="3"/>
+  <rect x="330" y="62" width="20" height="18" rx="3" fill="#33507f"/>
+  <path d="M300 84l-4 34 20 6 8-40z" fill="#2b3444" stroke="#12161d" stroke-width="3"/>
+  <path d="M312 92c10 6 12 20 4 30" fill="none" stroke="#8f9bad" stroke-width="5"/>
+  <path d="M296 66l-14 4 14 6z" fill="url(#steel)" stroke="#12161d" stroke-width="2"/>
+  <path d="M322 122c14 10 18 30 6 44" fill="none" stroke="#33507f" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- wordmark: textLength pins the layout regardless of which font resolves -->
+  <g font-family="Archivo Black, Impact, Haettenschweiler, sans-serif" font-size="74"
+     font-weight="900" font-style="italic" text-anchor="middle"
+     stroke="#12161d" stroke-width="11" paint-order="stroke" letter-spacing="-2">
+    <text x="164" y="152" textLength="200" lengthAdjust="spacingAndGlyphs" fill="url(#nv)">530</text>
+  </g>
+  <text x="210" y="186" font-family="Archivo, Arial Narrow, sans-serif" font-size="30"
+        font-style="italic" font-weight="800" text-anchor="middle" letter-spacing="2"
+        textLength="216" lengthAdjust="spacingAndGlyphs"
+        fill="#f4f6fa" stroke="#12161d" stroke-width="6" paint-order="stroke">SPRAY FOAM</text>
+</svg>
