@@ -3,120 +3,115 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#12161d">
-<title>Admin — 530 Spray Foam</title>
+<meta name="theme-color" content="#16234A">
+<title>Crew inbox — 530 Spray Foam</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="assets/logo-530.svg">
+<link rel="icon" href="assets/logo-530-tight.png">
+<link rel="apple-touch-icon" href="assets/logo-530-tight.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="530 Admin">
-<link rel="icon" href="assets/logo-530.svg">
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-title" content="530 Crew">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;1,800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="admin.css">
 </head>
 <body class="admin">
 
-<!-- ── lock screen ────────────────────────────────────── -->
+<!-- ══ lock screen ═════════════════════════════════════════ -->
 <div class="lock" id="lock">
   <form class="lock-card" id="lockForm">
-    <img src="assets/logo-530.png" alt="530 Spray Foam"
-         onerror="this.onerror=null;this.src='assets/logo-530.svg'">
-    <h1>Admin access</h1>
+    <img src="assets/logo-530.png" alt="530 Spray Foam" width="900" height="661">
+    <h1>Crew login</h1>
     <p class="lock-sub">Enter the crew password to open the lead inbox.</p>
     <label class="sr" for="pw">Password</label>
     <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
-    <p class="err" id="pwErr"></p>
-    <button class="btn btn-primary btn-block" type="submit">Unlock</button>
-    <label class="switch remember"><input type="checkbox" id="remember" checked>
+    <span class="msg" id="pwErr"></span>
+    <button class="btn btn-navy btn-block" type="submit">Unlock</button>
+    <label class="remember"><input type="checkbox" id="remember" checked>
       <span>Keep me signed in on this device</span></label>
     <p class="lock-fine">Client-side gate only — it keeps casual visitors out, it is not real
-      security. Move auth server-side before this handles anything sensitive.</p>
+      security. Move authentication server-side before this holds anything sensitive.</p>
   </form>
 </div>
 
-<!-- ── admin app ──────────────────────────────────────── -->
+<!-- ══ inbox ═══════════════════════════════════════════════ -->
 <div class="app" id="app" hidden>
   <header class="ahdr">
     <div class="ahdr-in">
-      <a class="brand" href="index.html">
-        <img src="assets/logo-530.png" alt="530 Spray Foam"
-             onerror="this.onerror=null;this.src='assets/logo-530.svg'">
+      <a class="lock-mark" href="index.html" aria-label="530 Spray Foam — public site">
+        <img src="assets/logo-530.png" alt="" width="900" height="661">
+        <span>Crew inbox</span>
       </a>
       <span class="pill" id="newPill" hidden>0 new</span>
       <div class="ahdr-right">
-        <button class="ibtn" id="notifBtn" title="Enable notifications">🔔</button>
-        <button class="ibtn" id="installBtn" title="Install app" hidden>⤓</button>
-        <button class="ibtn" id="themeBtn" title="Toggle theme">◐</button>
-        <button class="ibtn" id="lockBtn" title="Lock">⏻</button>
+        <button class="ibtn" id="notifBtn" title="Enable notifications" aria-label="Notifications">🔔</button>
+        <button class="ibtn" id="installBtn" title="Install app" aria-label="Install app" hidden>⤓</button>
+        <button class="ibtn" id="lockBtn" title="Sign out" aria-label="Sign out">⏻</button>
       </div>
     </div>
   </header>
 
   <div class="banner" id="notifBanner" hidden>
     <span id="notifMsg">Turn on notifications to get alerted the moment a lead comes in.</span>
-    <button class="btn btn-sm btn-primary" id="notifEnable">Enable</button>
+    <button class="btn btn-sm" id="notifEnable">Enable</button>
     <button class="ibtn sm" id="notifDismiss" aria-label="Dismiss">✕</button>
   </div>
 
   <main class="awrap">
-    <!-- stats -->
     <section class="tiles" id="tiles"></section>
 
-    <!-- controls -->
     <section class="ctrl">
-      <div class="tabs" id="statusTabs" role="tablist">
-        <button class="on" data-status="all" role="tab">All</button>
-        <button data-status="new" role="tab">New</button>
-        <button data-status="contacted" role="tab">Contacted</button>
-        <button data-status="quoted" role="tab">Quoted</button>
-        <button data-status="won" role="tab">Won</button>
-        <button data-status="lost" role="tab">Lost</button>
+      <div class="tabs" id="statusTabs" role="tablist" aria-label="Filter by status">
+        <button class="on" data-status="all" role="tab" aria-selected="true">All</button>
+        <button data-status="new" role="tab" aria-selected="false">New</button>
+        <button data-status="contacted" role="tab" aria-selected="false">Contacted</button>
+        <button data-status="quoted" role="tab" aria-selected="false">Quoted</button>
+        <button data-status="won" role="tab" aria-selected="false">Won</button>
+        <button data-status="lost" role="tab" aria-selected="false">Lost</button>
       </div>
       <div class="ctrl-right">
-        <input type="search" id="search" placeholder="Search name, city, ZIP, phone…" aria-label="Search leads">
+        <input type="search" id="search" placeholder="Search name, ZIP, phone, notes…" aria-label="Search leads">
         <select id="sort" aria-label="Sort leads">
           <option value="new">Newest first</option>
           <option value="old">Oldest first</option>
           <option value="sqft">Largest sq ft</option>
           <option value="value">Highest est. savings</option>
         </select>
-        <button class="btn btn-sm btn-ghost" id="exportBtn">Export CSV</button>
-        <button class="btn btn-sm btn-ghost" id="seedBtn">Add sample lead</button>
+        <button class="ghost" id="exportBtn">Export CSV</button>
+        <button class="ghost" id="seedBtn">Add sample lead</button>
       </div>
     </section>
 
-    <!-- leads -->
     <section class="leads" id="leads"></section>
-    <p class="empty" id="empty" hidden>No leads match this view yet. Submissions from the
-      public quote form land here automatically.</p>
+    <p class="empty" id="empty" hidden>No leads in this view yet. Submissions from the public quote
+      form land here automatically.</p>
 
-    <!-- manual entry -->
     <section class="panel">
       <h2>Log a lead by hand</h2>
-      <p class="sub">For calls that come in over the phone.</p>
+      <p class="note">For calls that come in over the phone.</p>
       <form class="mform" id="manualForm">
         <div class="mrow">
           <label>Name<input name="name" required></label>
           <label>Phone<input name="phone" required></label>
         </div>
         <div class="mrow">
-          <label>City<input name="city"></label>
-          <label>Approx. sq ft<input name="sqft" type="number" min="0"></label>
+          <label>Town<input name="city" placeholder="Redding"></label>
+          <label>Approx. sq ft<input name="sqft" type="number" min="0" inputmode="numeric"></label>
         </div>
         <label>Notes<textarea name="notes" rows="2"></textarea></label>
-        <button class="btn btn-primary btn-sm" type="submit">Save lead</button>
+        <button class="btn btn-navy btn-sm" type="submit">Save lead</button>
       </form>
     </section>
 
     <p class="storenote">Leads are stored in this browser's local storage — one device, no server.
-      Wire <code>saveLead()</code> in <code>admin.js</code> to an API when you're ready for a
-      shared inbox and true push notifications.</p>
+      Wire <code>saveLead()</code> in <code>admin.js</code> to an API for a shared inbox and true
+      background push.</p>
   </main>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
 <script src="admin.js"></script>
 </body>
 </html>

@@ -33,10 +33,6 @@ function toast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-/* ── theme (shared with the public site) ───────────────── */
-const savedTheme = localStorage.getItem('sf-theme');
-if (savedTheme) document.documentElement.dataset.theme = savedTheme;
-
 /* ── service worker / PWA ──────────────────────────────── */
 let swReg = null;
 if ('serviceWorker' in navigator) {
@@ -88,7 +84,7 @@ function notify(title, body, tag = 'sf-lead') {
   if (swReg && swReg.active) {
     swReg.active.postMessage({ type: 'notify', title, body, tag, url: './admin.html#new' });
   } else {
-    try { new Notification(title, { body, tag, icon: 'assets/logo-530.svg' }); } catch {}
+    try { new Notification(title, { body, tag, icon: 'assets/logo-530-tight.png' }); } catch {}
   }
   if (navigator.vibrate) navigator.vibrate([90, 40, 90]);
 }
@@ -120,11 +116,6 @@ $('#lockForm').addEventListener('submit', e => {
 $('#lockBtn').addEventListener('click', () => {
   localStorage.removeItem(AUTH_KEY); sessionStorage.removeItem(AUTH_KEY);
   app.hidden = true; lock.hidden = false; $('#pw').value = ''; $('#pwErr').textContent = '';
-});
-$('#themeBtn').addEventListener('click', () => {
-  const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-  document.documentElement.dataset.theme = next;
-  localStorage.setItem('sf-theme', next);
 });
 
 /* ── new-lead watcher (cross-tab + poll) ───────────────── */
@@ -194,7 +185,7 @@ function render() {
 
   $('#newPill').hidden = !unread;
   $('#newPill').textContent = `${unread} new`;
-  document.title = unread ? `(${unread}) Admin — 530 Spray Foam` : 'Admin — 530 Spray Foam';
+  document.title = unread ? `(${unread}) Crew inbox — 530 Spray Foam` : 'Crew inbox — 530 Spray Foam';
   syncBadge(unread);
 
   $('#tiles').innerHTML = [

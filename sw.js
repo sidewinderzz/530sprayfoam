@@ -1,8 +1,8 @@
 /* 530 Spray Foam — service worker (offline shell + notifications) */
 const CACHE = '530sf-v1';
 const SHELL = [
-  './', './index.html', './admin.html', './styles.css', './app.js', './admin.js',
-  './manifest.webmanifest', './assets/logo-530.svg'
+  './', './index.html', './admin.html', './styles.css', './app.js', './admin.js', './admin.css',
+  './manifest.webmanifest', './assets/logo-530-tight.png'
 ];
 
 self.addEventListener('install', e => {
@@ -34,12 +34,27 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
-  e.respondWith(
-    caches.match(request).then(hit => hit || fetch(request).then(r => {
+  /* Images and icons never change under a fixed name — cache-first is fine.
+     CSS/JS do change on deploy, so they use stale-while-revalidate: fast from
+     cache, but every load refreshes the copy for next time. Cache-first here
+     would strand users on old code until the SW itself updated. */
+  const immutable = /\.(png|jpg|jpeg|webp|svg|woff2?)$/i.test(new URL(request.url).pathname);
+
+  if (immutable) {
+    e.respondWith(caches.match(request).then(hit => hit || fetch(request).then(r => {
       if (r.ok) caches.open(CACHE).then(c => c.put(request, r.clone()));
       return r;
-    }))
-  );
+    })));
+    return;
+  }
+
+  e.respondWith(caches.match(request).then(hit => {
+    const net = fetch(request).then(r => {
+      if (r.ok) caches.open(CACHE).then(c => c.put(request, r.clone()));
+      return r;
+    }).catch(() => hit);
+    return hit || net;
+  }));
 });
 
 /* the admin page asks the SW to raise a notification (works when installed
@@ -51,8 +66,8 @@ self.addEventListener('message', e => {
     body: d.body || '',
     tag: d.tag || 'sf-lead',
     renotify: true,
-    icon: './assets/logo-530.svg',
-    badge: './assets/logo-530.svg',
+    icon: './assets/logo-530-tight.png',
+    badge: './assets/logo-530-tight.png',
     data: { url: d.url || './admin.html#new' },
     vibrate: [90, 40, 90],
     requireInteraction: false
@@ -66,7 +81,7 @@ self.addEventListener('push', e => {
   e.waitUntil(self.registration.showNotification(p.title || 'New lead — 530 Spray Foam', {
     body: p.body || 'Open the admin inbox to review it.',
     tag: p.tag || 'sf-lead', renotify: true,
-    icon: './assets/logo-530.svg', badge: './assets/logo-530.svg',
+    icon: './assets/logo-530-tight.png', badge: './assets/logo-530-tight.png',
     data: { url: p.url || './admin.html#new' }
   }));
 });
