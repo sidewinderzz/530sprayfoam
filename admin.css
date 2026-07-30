@@ -266,3 +266,41 @@ body.admin{background:var(--wash)}
 .cms-devices button svg{width:15px;height:15px;display:block;stroke:currentColor;fill:none}
 .banner .ibtn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
 .banner .ibtn:hover{background:rgba(255,255,255,.22)}
+
+
+/* ═══ admin header on phones ══════════════════════════════
+   Logo + wordmark + two tabs + pill + three buttons will not
+   fit one 390px row. Split it: identity and actions on top,
+   the section tabs full width underneath. */
+@media (max-width:680px){
+  .ahdr-in{flex-wrap:wrap;min-height:0;padding:8px 14px 10px;gap:8px 10px;
+    max-width:none;margin-inline:0}
+  .ahdr .lock-mark{order:1;gap:8px}
+  .ahdr .lock-mark img{height:30px}
+  .ahdr .lock-mark span{display:none}
+  .pill{order:2;font-size:11px;padding:4px 9px}
+  .ahdr-right{order:3;margin-left:auto;gap:6px}
+  .ibtn{width:36px;height:36px;border-radius:9px}
+  .views{order:4;width:100%;justify-content:stretch}
+  .views button{flex:1;text-align:center;padding:9px 8px}
+
+  .banner{padding:10px 14px;font-size:13.5px;gap:8px}
+  .banner span{min-width:0;flex:1 1 100%}
+  .banner .btn{font-size:14px;padding:9px 14px}
+
+  .awrap{padding:16px 14px calc(40px + env(safe-area-inset-bottom))}
+  .mode-note{margin:12px 14px 0;padding:11px 13px;font-size:13px}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:18px}
+  .tile{padding:12px 13px}
+  .tile b{font-size:24px}
+  .cms-hd{gap:12px;margin-bottom:16px}
+  .cms-actions{width:100%;gap:6px}
+  .cms-actions .ghost,.cms-actions .btn{flex:1;padding:10px 8px;font-size:13px;white-space:nowrap}
+  .cms-dirty{width:100%;text-align:center}
+  .ctrl-right{width:100%}
+  .ctrl-right input{min-width:0;flex:1 1 100%}
+  .cms-sec-hd{padding:13px 14px;gap:10px}
+  .cms-sec-t{font-size:18px}
+  .cms-sec-body{padding:0 14px 16px}
+  .panel{padding:18px 15px}
+}

@@ -105,8 +105,17 @@ p{margin:0}
 .strip i{color:var(--navy-rule);font-style:normal}
 @media (max-width:1024px){
   .strip{font-size:12.5px}
-  .strip-in{height:34px;gap:10px;justify-content:space-between}
+  /* min-height, not height: if the text ever wraps it must push the bar
+     taller rather than spill out from under it */
+  .strip-in{height:auto;min-height:34px;padding-block:6px;gap:10px;justify-content:space-between}
   .strip .hide-sm{display:none}
+}
+@media (max-width:600px){
+  /* one message, on one line — two will not fit a phone */
+  .strip{font-size:12px}
+  .strip-in{justify-content:center;gap:8px}
+  .strip .hide-xs{display:none}
+  .strip span{white-space:nowrap}
 }
 
 /* ══ header ════════════════════════════════════════════════ */
@@ -159,10 +168,18 @@ p{margin:0}
   .nav{
     position:fixed;left:0;right:0;top:calc(var(--hdr) + 34px);flex-direction:column;align-items:stretch;
     gap:0;background:#fff;border-bottom:1px solid var(--line);padding:8px var(--pad) 20px;
-    box-shadow:0 20px 40px rgba(14,17,22,.14);transform:translateY(-120%);
-    transition:transform .3s var(--ease);z-index:99;font-size:22px
+    box-shadow:0 20px 40px rgba(14,17,22,.14);z-index:99;font-size:22px;
+    /* Closed state uses visibility, not a percentage transform. translateY(-120%)
+       only moves the drawer 120% of ITS OWN height — with a tall drawer that left
+       its bottom edge sitting ~20px down the screen, a white sliver pinned over
+       the top bar on every page. */
+    visibility:hidden;opacity:0;transform:translateY(-10px);
+    transition:transform .28s var(--ease),opacity .2s var(--ease),visibility 0s linear .28s
   }
-  .nav.open{transform:translateY(0)}
+  .nav.open{
+    visibility:visible;opacity:1;transform:none;
+    transition:transform .28s var(--ease),opacity .2s var(--ease),visibility 0s
+  }
   .nav a{padding:16px 0;border-bottom:1px solid var(--line)}
   .nav a::after{display:none}
   .nav>.btn{display:inline-flex;margin-top:16px;font-size:20px}
