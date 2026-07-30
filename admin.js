@@ -39,6 +39,7 @@ function ago(iso) {
 }
 
 let toastTimer;
+window.sfToast = msg => toast(msg);
 function toast(msg) {
   const t = $('#toast');
   t.textContent = msg; t.classList.add('show');
@@ -110,9 +111,14 @@ function syncBadge(count) {
 
 /* ── lock screen ───────────────────────────────────────── */
 const lock = $('#lock'), app = $('#app');
+let editorBooted = false;
 function unlock() {
   lock.hidden = true; app.hidden = false;
   render(); syncNotifUi(); startWatch();
+  if (!editorBooted && window.SFEditor) {
+    editorBooted = true;
+    window.SFEditor.boot().catch(() => toast('Could not load website content'));
+  }
   if (!store.ok) toast('This browser is blocking site storage — leads cannot be saved here');
 }
 if (store.get(AUTH_KEY) === '1' || store.sGet(AUTH_KEY) === '1') unlock();
@@ -137,6 +143,20 @@ $('#lockForm').addEventListener('submit', e => {
 $('#lockBtn').addEventListener('click', () => {
   store.del(AUTH_KEY); store.sDel(AUTH_KEY);
   app.hidden = true; lock.hidden = false; $('#pw').value = ''; $('#pwErr').textContent = '';
+});
+
+/* ── view switcher: leads vs website content ───────────── */
+const VIEWS = { viewLeads: 'leadsView', viewContent: 'contentView' };
+Object.keys(VIEWS).forEach(btnId => {
+  $('#' + btnId).addEventListener('click', () => {
+    Object.entries(VIEWS).forEach(([b, v]) => {
+      const on = b === btnId;
+      $('#' + b).classList.toggle('on', on);
+      $('#' + b).setAttribute('aria-selected', String(on));
+      $('#' + v).hidden = !on;
+    });
+    $('#newPill').hidden = btnId !== 'viewLeads' || !load().filter(l => !l.read).length;
+  });
 });
 
 /* ── new-lead watcher (cross-tab + poll) ───────────────── */

@@ -38,6 +38,9 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 | `index.html` / `styles.css` / `app.js` | Public site |
 | `admin.html` / `admin.css` / `admin.js` | Crew inbox (password gated) |
 | `sw.js` / `manifest.webmanifest` | PWA shell, offline cache, notifications |
+| `content.json` | Every editable word and photo on the site |
+| `content.js` | Loads content and binds it over the HTML |
+| `editor.js` | The admin content editor |
 | `assets/logo-530*.png` | Logos from the handoff (resized to 900px, ~300KB each) |
 | `assets/icon-*.png` | PWA icons generated from `logo-530-tight.png` |
 
@@ -84,12 +87,46 @@ control, review carousel, form validation and submit, mobile drawer, and the adm
 (wrong-then-correct password, seed, expand, status change, filter, search, manual entry, sign out).
 Manifest icons all return 200.
 
+## Content editor
+
+`/admin.html` → **Website** tab. Eleven sections covering what a contractor actually changes:
+contact details, headline, numbers and claims, job photos, reviews, service cards, service area,
+process steps, financing, quote form, and the Google listing. Layout, colours and structure stay
+in code — the editor cannot break the design.
+
+- Photos upload from a phone and are resized in the browser to 1600×1200 JPEG before storage
+- Reviews, towns and financing points can be added, reordered and deleted
+- **Preview** opens the public site with unpublished edits applied; the draft is never shown to
+  real visitors
+- **Publish** POSTs to `/api/content`. Until that endpoint exists, the editor says so plainly and
+  offers **Download content.json** — commit that file and redeploy to publish.
+
+### How content reaches the page
+
+`index.html` contains the full copy as static markup, so the page is complete and indexable with
+JavaScript off. `content.js` loads `content.json` (then `/api/content` if present) and overrides
+any `[data-c="path"]` element. Nothing flashes and there is no SEO cost.
+
+**Not built yet:** the `/api/content` endpoint. Publishing straight from the editor needs a
+backend — see below.
+
+## To make the editor publish by itself
+
+Netlify DB (Postgres, auto-provisioned by `@netlify/database` on deploy) plus two functions:
+
+1. `GET/POST /api/content` — read and write the content row; POST behind real auth
+2. `POST /api/leads` — store a lead and send the alert
+
+That same backend is what lead notifications need. Until it exists, two things are true and worth
+repeating: **form submissions never reach you**, and **editor changes are not live for visitors**.
+
 ## Known limits — read before going live
 
 1. **The admin password is client-side.** `PASSWORD` sits in `admin.js`, readable in devtools. It
-   keeps casual visitors out; it is not security. Move authentication server-side.
-2. **Leads live in `localStorage`.** One browser, one device, no shared inbox; clearing site data
-   wipes them. Export CSV for a copy.
+   keeps casual visitors out; it is not security. Move authentication server-side — especially now
+   that the same login edits the public website.
+2. **Leads and content edits live in `localStorage`.** One browser, one device. Clearing site data
+   wipes them. Export CSV for leads; download `content.json` for content.
 3. **Notifications only fire while a browser or the installed app has run the page recently.**
    Background delivery ("a lead arrives at 2am and the phone buzzes") needs a server sending Web
    Push.

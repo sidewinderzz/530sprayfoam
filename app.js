@@ -3,12 +3,32 @@
    Implements mockups 1B (390px) / 2A (1440px) from the
    Claude Design handoff.
    ═══════════════════════════════════════════════════════════ */
-(() => {
+(async () => {
 'use strict';
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const num = n => Math.round(n).toLocaleString('en-US');
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Content comes from content.json (or the API once deployed). The page
+   already contains the same copy as static markup, so if this fails the
+   site simply keeps what is in the HTML. */
+const previewing = new URLSearchParams(location.search).has('preview');
+const C = (window.SFContent
+  ? await window.SFContent.load({ preferDraft: previewing }).catch(() => null) : null) || {};
+if (window.SFContent) window.SFContent.bind(C);
+if (previewing) {
+  const tag = document.createElement('div');
+  tag.textContent = 'Preview — unpublished changes';
+  tag.style.cssText = 'position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:300;' +
+    'background:#E9A13B;color:#0E1116;font:700 13px Barlow,sans-serif;padding:9px 18px;' +
+    'border-radius:999px;box-shadow:0 8px 22px rgba(14,17,22,.3)';
+  addEventListener('DOMContentLoaded', () => document.body.appendChild(tag));
+  if (document.readyState !== 'loading') document.body.appendChild(tag);
+}
+const pick = (v, fallback) => (v === undefined || v === null ? fallback : v);
 
 /* ── reveal on scroll ───────────────────────────────────── */
 const io = new IntersectionObserver(es => {
@@ -54,9 +74,10 @@ addEventListener('keydown', e => { if (e.key === 'Escape') setNav(false); });
    Calibrated so the mockup's defaults — 2,150 sq ft, no
    existing insulation, attic only — land on $148/month.
    ═══════════════════════════════════════════════════════════ */
-const RATE = 0.0688;                                     // $/mo per sq ft, attic, uninsulated
-const INS  = { none: 1.00, batts: 0.62, blown: 0.70 };   // existing insulation discount
-const ZONE = { attic: 1.00, crawl: 0.45, walls: 0.55 };  // additive by area sprayed
+const EST  = C.estimator || {};
+const RATE = pick(EST.rate, 0.0688);                                  // $/mo per sq ft, attic, uninsulated
+const INS  = pick(EST.insulation, { none: 1.00, batts: 0.62, blown: 0.70 });
+const ZONE = pick(EST.zones, { attic: 1.00, crawl: 0.45, walls: 0.55 });
 const ZONE_LABEL = { attic: 'Attic / roofline', crawl: 'Crawlspace', walls: 'Walls / new build' };
 
 const sqft = $('#sqft'), sqftOut = $('#sqftOut'), saveOut = $('#save'), estFine = $('#estFine');
@@ -121,21 +142,25 @@ disclose($('#finBtn'), $('#finMore'));
 
 /* ── 40% counter ────────────────────────────────────────── */
 const pct = $('#pct');
+/* count up to whatever figure the content says, keeping any suffix */
+const pctRaw = pct.textContent.trim();
+const pctNum = parseFloat(pctRaw.replace(/[^0-9.]/g, ''));
+const pctSuffix = pctRaw.replace(/^[0-9.]+/, '');
 const pio = new IntersectionObserver(es => {
   if (!es[0].isIntersecting) return;
   pio.disconnect();
-  if (reduced) return;
+  if (reduced || !isFinite(pctNum)) return;
   const t0 = performance.now(), dur = 1100;
   (function tick(t) {
     const p = Math.min(1, (t - t0) / dur);
-    pct.textContent = Math.round(40 * (1 - Math.pow(1 - p, 3))) + '%';
+    pct.textContent = Math.round(pctNum * (1 - Math.pow(1 - p, 3))) + pctSuffix;
     if (p < 1) requestAnimationFrame(tick);
   })(t0);
 }, { threshold: .5 });
 pio.observe(pct);
 
 /* ═══ service-area map ══════════════════════════════════════ */
-const TOWNS = [
+const TOWNS = pick(C.area && C.area.towns, [
   { name: 'Redding',    x: 258, y: 104, hq: true, meta: 'Home base · 2 crews · same-week walkthroughs' },
   { name: 'Anderson',   x: 236, y: 158, meta: '18 min out · 60+ crawlspaces sealed' },
   { name: 'Palo Cedro', x: 316, y: 128, meta: '15 min out · ranch retrofits, wide lots' },
@@ -143,18 +168,18 @@ const TOWNS = [
   { name: 'Red Bluff',  x: 246, y: 262, meta: '40 min out · weekly route' },
   { name: 'Chico',      x: 292, y: 330, meta: '75 min out · new construction and multi-family' },
   { name: 'Orland',     x: 196, y: 316, meta: '70 min out · ag buildings and cold storage' }
-];
+]);
 const pins = $('#pins'), townWrap = $('#towns');
 pins.innerHTML = TOWNS.map((t, i) => `
   <g class="pin ${t.hq ? 'hq' : ''}${i === 0 ? ' on' : ''}" data-i="${i}" tabindex="0" role="button"
-     aria-label="${t.name}">
+     aria-label="${esc(t.name)}">
     <circle class="halo" cx="${t.x}" cy="${t.y}" r="14"></circle>
     <circle class="dot" cx="${t.x}" cy="${t.y}" r="${t.hq ? 8 : 6.5}"></circle>
-    <text x="${t.x + 13}" y="${t.y + 5}">${t.name}</text>
+    <text x="${t.x + 13}" y="${t.y + 5}">${esc(t.name)}</text>
   </g>`).join('');
 townWrap.innerHTML = TOWNS.map((t, i) =>
-  `<button type="button" data-i="${i}"${i === 0 ? ' class="on"' : ''}>${t.name}</button>`).join('') +
-  `<button type="button" class="ask" disabled>Anywhere in the 530 — ask</button>`;
+  `<button type="button" data-i="${i}"${i === 0 ? ' class="on"' : ''}>${esc(t.name)}</button>`).join('') +
+  `<button type="button" class="ask" disabled>${pick(C.area && C.area.askLabel, 'Anywhere in the 530 — ask')}</button>`;
 
 function pickTown(i) {
   const t = TOWNS[i];
@@ -179,7 +204,7 @@ $$('#towns button[data-i]').forEach(b => {
    Placeholder art stands in for the job photos the design
    marks out. Swap `art` for `<img src="...">` per job.
    ═══════════════════════════════════════════════════════════ */
-const JOBS = [
+const JOBS = pick(C.work && C.work.jobs, [
   { title: 'Attic', place: 'Redding', meta: '1996 two-story · 2,400 sq ft · open cell R-49 · one day',
     art: ['#2c3446', '#5b6a86', '#efece2'] },
   { title: 'Crawlspace', place: 'Anderson', meta: '1978 ranch · 1,650 sq ft · closed cell · one day',
@@ -188,9 +213,16 @@ const JOBS = [
     art: ['#26374a', '#4d6a83', '#f2efe6'] },
   { title: 'New build', place: 'Chico', meta: 'Framing stage · walls + roofline · scheduled to the framer',
     art: ['#3a3226', '#6d5c44', '#f7f4ec'] }
-];
-const artCss = ([a, b, c]) =>
-  `background:linear-gradient(150deg,${a} 0%,${b} 52%,${c} 100%);`;
+]);
+const ART_FALLBACK = ['#2c3446', '#5b6a86', '#efece2'];
+const artCss = (art) => {
+  const [a, b, c] = (Array.isArray(art) && art.length === 3) ? art : ART_FALLBACK;
+  return `background:linear-gradient(150deg,${a} 0%,${b} 52%,${c} 100%);`;
+};
+/* a job with an uploaded photo uses it; otherwise the placeholder art */
+const jobArt = j => j && j.photo
+  ? `background-image:url("${String(j.photo).replace(/"/g, '&quot;')}");background-size:cover;background-position:center;`
+  : artCss(j && j.art) + artFoam((j && j.art && j.art[2]) || ART_FALLBACK[2]);
 const artFoam = c =>
   `background-image:radial-gradient(circle at 22% 78%,${c}cc 0 8px,transparent 9px),` +
   `radial-gradient(circle at 38% 88%,${c}aa 0 12px,transparent 13px),` +
@@ -200,8 +232,8 @@ const artFoam = c =>
 
 $('#shots').innerHTML = JOBS.map((j, i) => `
   <button class="shot" data-i="${i}" type="button">
-    <span class="shot-art" style="${artCss(j.art)}${artFoam(j.art[2])}"></span>
-    <span class="shot-cap"><b>${j.title}</b>${j.place}</span>
+    <span class="shot-art" style="${jobArt(j)}"></span>
+    <span class="shot-cap"><b>${esc(j.title)}</b>${esc(j.place)}</span>
   </button>`).join('');
 
 /* lightbox */
@@ -210,7 +242,7 @@ let lbi = 0, lbOpen = false, lbTimer;
 function openLb(i) {
   lbi = (i + JOBS.length) % JOBS.length;
   const j = JOBS[lbi];
-  $('#lbArt').style.cssText = artCss(j.art) + artFoam(j.art[2]);
+  $('#lbArt').style.cssText = jobArt(j);
   $('#lbTitle').textContent = `${j.title} — ${j.place}`;
   $('#lbMeta').textContent = j.meta;
   if (lbOpen) return;                    // already up: just swap the contents
@@ -245,9 +277,13 @@ addEventListener('keydown', e => {
 
 /* ═══ before / after ════════════════════════════════════════ */
 const ba = $('#ba'), baBar = $('#baBar');
-$('#baB').style.cssText += 'background:linear-gradient(150deg,#2a3140,#59667f 60%,#8b98ad);';
-$('#baA').style.cssText += 'background:linear-gradient(150deg,#e8e5db,#f7f5f0 55%,#fffdf8);' +
-  artFoam('#dcd7c8');
+const BA = pick(C.work && C.work.beforeAfter, {});
+$('#baB').style.cssText += BA.beforePhoto
+  ? `background-image:url("${String(BA.beforePhoto).replace(/"/g, '&quot;')}");background-size:cover;background-position:center;`
+  : 'background:linear-gradient(150deg,#2a3140,#59667f 60%,#8b98ad);';
+$('#baA').style.cssText += BA.afterPhoto
+  ? `background-image:url("${String(BA.afterPhoto).replace(/"/g, '&quot;')}");background-size:cover;background-position:center;`
+  : 'background:linear-gradient(150deg,#e8e5db,#f7f5f0 55%,#fffdf8);' + artFoam('#dcd7c8');
 let drag = false;
 const setX = v => {
   const x = Math.max(0, Math.min(100, v));
@@ -275,15 +311,15 @@ ba.addEventListener('keydown', e => {
 setX(50);
 
 /* ═══ reviews ═══════════════════════════════════════════════ */
-const REVIEWS = [
-  ['Crew masked everything, sprayed the whole crawlspace in a day, and my floors aren’t freezing anymore. Bill dropped $90 the first month.', 'Dana R., Anderson CA'],
-  ['Upstairs used to run ten degrees hotter than down. They foamed the roof deck and the AC finally shuts off in the afternoon.', 'Marcus T., Redding CA'],
-  ['Sprayed our 40×60 shop in two days, masked the whole slab, and the condensation drip off the metal is completely gone.', 'Loretta M., Cottonwood CA'],
-  ['Fixed price, showed up when they said, and filed the rebate paperwork without me chasing it. Framers had zero delay.', 'Kyle D., general contractor, Chico CA']
-];
+const REVIEWS = (pick(C.reviews && C.reviews.items, [
+  { quote: 'Crew masked everything, sprayed the whole crawlspace in a day, and my floors aren\u2019t freezing anymore. Bill dropped $90 the first month.', who: 'Dana R., Anderson CA' },
+  { quote: 'Upstairs used to run ten degrees hotter than down. They foamed the roof deck and the AC finally shuts off in the afternoon.', who: 'Marcus T., Redding CA' },
+  { quote: 'Sprayed our 40\u00d760 shop in two days, masked the whole slab, and the condensation drip off the metal is completely gone.', who: 'Loretta M., Cottonwood CA' },
+  { quote: 'Fixed price, showed up when they said, and filed the rebate paperwork without me chasing it. Framers had zero delay.', who: 'Kyle D., general contractor, Chico CA' }
+])).map(r => Array.isArray(r) ? { quote: r[0], who: r[1] } : r);
 const rt = $('#revTrack'), rd = $('#revDots');
-rt.innerHTML = REVIEWS.map(([q, who]) =>
-  `<li><blockquote>“${q}”</blockquote><p class="rev-who">— ${who}</p></li>`).join('');
+rt.innerHTML = REVIEWS.map(r =>
+  `<li><blockquote>“${esc(r.quote)}”</blockquote><p class="rev-who">— ${esc(r.who)}</p></li>`).join('');
 rd.innerHTML = REVIEWS.map((_, i) =>
   `<button type="button" role="tab" aria-label="Review ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('');
 let ri = 0, rtimer;

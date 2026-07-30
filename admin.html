@@ -44,6 +44,10 @@
         <img src="assets/logo-530.png" alt="" width="900" height="661">
         <span>Crew inbox</span>
       </a>
+      <nav class="views" role="tablist" aria-label="Admin sections">
+        <button class="on" id="viewLeads" role="tab" aria-selected="true">Leads</button>
+        <button id="viewContent" role="tab" aria-selected="false">Website</button>
+      </nav>
       <span class="pill" id="newPill" hidden>0 new</span>
       <div class="ahdr-right">
         <button class="ibtn" id="notifBtn" title="Enable notifications" aria-label="Notifications">🔔</button>
@@ -59,7 +63,7 @@
     <button class="ibtn sm" id="notifDismiss" aria-label="Dismiss">✕</button>
   </div>
 
-  <main class="awrap">
+  <main class="awrap" id="leadsView">
     <section class="tiles" id="tiles"></section>
 
     <section class="ctrl">
@@ -109,9 +113,38 @@
       Wire <code>saveLead()</code> in <code>admin.js</code> to an API for a shared inbox and true
       background push.</p>
   </main>
+
+  <!-- ══ website content editor ═══════════════════════════ -->
+  <main class="awrap" id="contentView" hidden>
+    <div class="cms-hd">
+      <div>
+        <h2>Website content</h2>
+        <p class="note">Edit the words and photos on your public site. Layout and colours stay
+          fixed &mdash; you cannot break the design from here.</p>
+      </div>
+      <div class="cms-actions">
+        <span class="cms-dirty" id="cmsDirty" hidden>Unpublished changes</span>
+        <button class="ghost" id="cmsPreview">Preview</button>
+        <button class="ghost" id="cmsRevert" disabled>Discard</button>
+        <button class="btn btn-navy btn-sm" id="cmsSave" disabled>Publish changes</button>
+      </div>
+    </div>
+
+    <div class="cms-note" id="cmsNoApi" hidden>
+      <b>No publish server connected yet.</b>
+      <p>Your edits are saved in this browser, but they are not live for visitors until the
+        site has a backend. Until then: download the file and send it to your developer, who
+        commits it and redeploys.</p>
+      <button class="ghost" id="cmsDownload">Download content.json</button>
+    </div>
+
+    <div id="cmsBody"></div>
+  </main>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="content.js"></script>
+<script src="editor.js"></script>
 <script src="admin.js"></script>
 </body>
 </html>
