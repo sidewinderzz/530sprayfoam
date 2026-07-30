@@ -339,6 +339,23 @@ fieldset.est-grp{border:0;margin:0;padding:0;min-width:0}
   box-shadow:var(--sh-card);pointer-events:none}
 .map-legend::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;
   background:rgba(30,49,96,.14);border:2px solid var(--navy);margin-right:7px;vertical-align:-1px}
+
+/* town pins drawn in brand colours, no image assets */
+.map-pin{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;
+  padding:0;cursor:pointer;font:inherit;line-height:1}
+.map-pin i{width:13px;height:13px;border-radius:50%;background:var(--navy);
+  border:2.5px solid #fff;box-shadow:0 2px 6px rgba(14,17,22,.45);transition:.16s var(--ease)}
+.map-pin span{font:700 11.5px var(--txt);color:var(--ink);background:rgba(255,255,255,.9);
+  padding:2px 7px;border-radius:99px;white-space:nowrap;box-shadow:0 1px 4px rgba(14,17,22,.18)}
+.map-pin.hq i{width:17px;height:17px;background:var(--amber)}
+.map-pin:hover i,.map-pin.on i{background:var(--amber);transform:scale(1.25)}
+.map-pin.on span{background:var(--navy);color:#fff}
+
+/* keep MapLibre's own chrome on-brand and out of the way */
+.maplibregl-ctrl-attrib{font:400 10px var(--txt)!important;background:rgba(255,255,255,.82)!important}
+.maplibregl-ctrl-attrib a{color:var(--muted)!important}
+.maplibregl-ctrl-group{border-radius:8px!important;box-shadow:0 2px 8px rgba(14,17,22,.18)!important}
+.maplibregl-canvas{outline:none}
 @media (max-width:1024px){.map-legend{left:10px;top:10px;font-size:11px;padding:6px 11px}}
 .map-shape{fill:#dbe2ec;stroke:var(--ph-line);stroke-width:1.5}
 .map-road{stroke:#c3ccd9;stroke-width:2;fill:none}

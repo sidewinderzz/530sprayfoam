@@ -69,8 +69,8 @@
   </div>
 
   <p class="mode-note" id="modeNote" hidden>
-    <b>Local mode.</b> Supabase is not connected yet, so leads and content edits are stored in
-    this browser only — they are not shared between devices and visitors do not see them.
+    <b>Local mode.</b> This browser cannot reach the site's server, so leads and content edits
+    are stored here only — they are not shared between devices and visitors do not see them.
   </p>
 
   <main class="awrap" id="leadsView">
@@ -164,8 +164,10 @@
           <button class="ibtn sm" id="cmsPreviewReload" title="Refresh preview" aria-label="Refresh preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
         </div>
         <div class="cms-preview-stage" id="cmsPreviewStage">
-          <iframe id="cmsFrame" title="Preview of the public website"
-                  src="index.html?preview=1" loading="lazy"></iframe>
+          <div class="cms-preview-shell" id="cmsPreviewShell">
+            <iframe id="cmsFrame" title="Preview of the public website"
+                    src="index.html?preview=1"></iframe>
+          </div>
         </div>
       </aside>
     </div>
