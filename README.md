@@ -197,16 +197,30 @@ and falls back to browser storage exactly as before. The admin shows a banner sa
 
 ## Service-area map
 
-`map.js` styles Google Maps with a modified **Snazzy Maps "Roads only" (#7846)**. Changes from the
-original: highways in the site's amber `#E9A13B` with a `#C7821F` casing, arterials and local roads
-pulled back to muted navy-greys so the highway network reads first, and water switched from
-`#12608d` to a soft `#dde4ee`. Administrative, landscape, POI and all labels stay off, as in the
-original. A **100-mile service radius** is drawn from Redding, with town markers in brand colours.
+`map.js` uses **MapLibre GL + OpenFreeMap** vector tiles (OpenStreetMap data). **No API key, no
+billing account, no usage caps** — which is why it replaced an earlier Google Maps version.
 
-It needs a Google Maps JavaScript API key, set in **Admin → Website → Map settings** (restrict the
-key to your domain first). With no key, or if the key is rejected, the hand-drawn SVG map already
-in the page is used instead — the section never breaks. Radius, centre and zoom are editable in
-the same panel.
+The style is written against the OpenMapTiles schema rather than borrowed, carrying the same
+"roads only" idea as Snazzy Maps #7846 into the brand:
+
+| Feature | Treatment |
+| --- | --- |
+| motorway, trunk | amber `#E9A13B` with a `#C7821F` casing |
+| primary | muted `#9FB0D0` |
+| secondary, tertiary, minor | faint `#C7D2E6` |
+| water | soft `#dde4ee` |
+| labels, POI, boundaries, landcover | off |
+
+A **100-mile service radius** is drawn as a true geodesic polygon (128 points, accurate to
+0.001 mi at every point) — not a pixel-radius circle, which would change size as you zoom. Town
+pins are brand-coloured HTML markers wired to the town list.
+
+Radius, centre, zoom and an on/off switch live in **Admin → Website → Map settings**. If MapLibre
+or the tile host cannot be reached, the hand-drawn SVG map already in the page stays — the section
+never breaks.
+
+Attribution to OpenFreeMap, OpenMapTiles and OpenStreetMap is required by their licences and is
+rendered by the map control; do not remove it.
 
 ## Known limits — read before going live
 

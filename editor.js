@@ -110,10 +110,10 @@ const SCHEMA = [
                  ['lat', 'Latitude'], ['lng', 'Longitude']] },
 
   { id: 'map', icon: ICON.map, anchor: '#area', title: 'Map settings',
-    hint: 'Leave the key blank and the site uses the simple drawn map. Paste a Google Maps ' +
-          'JavaScript API key to switch to the real one — restrict the key to this domain first.',
+    hint: 'The map uses OpenStreetMap data — no account or API key needed. ' +
+          'Set "enabled" to false to fall back to the simple drawn map.',
     fields: [
-      ['area.map.key', 'Google Maps API key', 'text'],
+      ['area.map.enabled', 'Show the real map (true / false)', 'text'],
       ['area.map.radiusMiles', 'Service radius (miles)', 'text'],
       ['area.map.lat', 'Centre latitude', 'text'],
       ['area.map.lng', 'Centre longitude', 'text'],
@@ -481,11 +481,36 @@ function refreshPreview(immediate) {
   }, immediate ? 0 : PREVIEW_DELAY);
 }
 
+/* Render the frame at a true device width, then scale it to fill the pane.
+   Without this the preview is either a tiny 390px sliver in a wide column
+   or a desktop page clipped to a third of itself. */
+const DEVICE = { phone: { w: 390, h: 1600 }, desktop: { w: 1280, h: 1500 } };
+let device = 'phone';
+
+function fitPreview() {
+  const stage = $('#cmsPreviewStage'), shell = $('#cmsPreviewShell'), frame = previewFrame();
+  if (!stage || !shell || !frame) return;
+  const d = DEVICE[device];
+  const availW = Math.max(120, stage.clientWidth - 24);
+  const availH = Math.max(120, stage.clientHeight - 24);
+  /* never magnify past 1:1 — a blown-up phone view just looks broken */
+  const scale = Math.min(1, availW / d.w);
+  frame.style.width = d.w + 'px';
+  frame.style.height = d.h + 'px';
+  frame.style.transform = `scale(${scale})`;
+  shell.style.width = Math.round(d.w * scale) + 'px';
+  shell.style.height = Math.round(Math.min(d.h * scale, availH)) + 'px';
+}
+
 function wirePreview() {
   const split = $('#cmsSplit');
   const stage = $('#cmsPreviewStage');
   const frame = previewFrame();
   if (!frame) return;
+
+  fitPreview();
+  addEventListener('resize', fitPreview);
+  if (window.ResizeObserver) new ResizeObserver(fitPreview).observe(stage);
 
   /* `load` waits on every subresource — including a third-party font CDN
      that may be slow. The preview is readable as soon as its DOM is
@@ -511,7 +536,7 @@ function wirePreview() {
     const hidden = split.classList.toggle('solo');
     e.target.textContent = hidden ? 'Show preview' : 'Hide preview';
     e.target.setAttribute('aria-pressed', String(!hidden));
-    if (!hidden) refreshPreview(true);
+    if (!hidden) { fitPreview(); refreshPreview(true); }
   });
 
   $('#cmsPreviewReload').addEventListener('click', () => refreshPreview(true));
@@ -527,7 +552,9 @@ function wirePreview() {
   $$('.cms-devices button').forEach(b => b.addEventListener('click', () => {
     $$('.cms-devices button').forEach(o => o.classList.remove('on'));
     b.classList.add('on');
-    stage.classList.toggle('desktop', b.dataset.device === 'desktop');
+    device = b.dataset.device === 'desktop' ? 'desktop' : 'phone';
+    stage.classList.toggle('desktop', device === 'desktop');
+    fitPreview();
   }));
 }
 

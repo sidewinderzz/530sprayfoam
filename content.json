@@ -197,11 +197,11 @@
       }
     ],
     "map": {
-      "key": "",
+      "enabled": true,
       "lat": 40.5865,
       "lng": -122.3917,
       "radiusMiles": 100,
-      "zoom": 7
+      "zoom": 6.4
     }
   },
   "process": {

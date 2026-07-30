@@ -1,177 +1,207 @@
 /* ═══════════════════════════════════════════════════════════
    530 Spray Foam — service-area map
 
-   Google Maps styled with a modified Snazzy Maps "Roads only"
-   (style #7846), rebranded: highways in the site's amber,
-   everything else pulled back so the road network and the
-   100-mile service radius are what you actually read.
+   MapLibre GL + OpenFreeMap vector tiles (OpenStreetMap data).
+   No API key, no billing account, no usage caps to babysit —
+   which is why this replaced the Google Maps version.
 
-   Needs a Google Maps JavaScript API key. Without one — or if
-   the key is rejected — the hand-drawn SVG map already in the
-   page stays exactly as it is. The section is never broken by
-   a missing or bad key.
+   The style is written here rather than borrowed: the same
+   "roads only" idea as Snazzy Maps #7846, rebuilt against the
+   OpenMapTiles schema so highways can carry the site's amber.
+
+     motorway / trunk  → amber, with a darker casing
+     primary/secondary → muted navy-grey
+     everything else   → faint
+     labels            → off, except town names we place ourselves
+
+   If the tile host or the library is unreachable, the hand-drawn
+   SVG map already in the page simply stays. The section is never
+   left blank.
    ═══════════════════════════════════════════════════════════ */
 (() => {
 'use strict';
 
-const MILES_TO_M = 1609.344;
+const LIB_JS  = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+const LIB_CSS = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
+const TILES   = 'https://tiles.openfreemap.org/planet';
 
-/* ── the style ────────────────────────────────────────────────
-   Base is Snazzy Maps #7846 "Roads only": administrative,
-   landscape and POI off, roads and water on, all labels off.
-   Changed from the original:
-     · highways    → amber #E9A13B with a darker casing
-     · arterials   → muted navy-grey, so highways dominate
-     · local roads → barely there
-     · water       → brand navy instead of #12608d
-   ═══════════════════════════════════════════════════════════ */
-const STYLE = [
-  /* --- unchanged from the original style --- */
-  { featureType: 'administrative', elementType: 'all', stylers: [{ visibility: 'off' }] },
-  { featureType: 'landscape', elementType: 'all', stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi', elementType: 'all', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road', elementType: 'all', stylers: [{ visibility: 'on' }] },
-  { featureType: 'road', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', elementType: 'all', stylers: [{ visibility: 'on' }] },
-  { featureType: 'transit', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-  { featureType: 'water', elementType: 'all', stylers: [{ visibility: 'on' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ visibility: 'off' }] },
-  { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ visibility: 'off' }] },
+const AMBER = '#E9A13B', AMBER_DK = '#C7821F';
+const NAVY = '#1E3160', NAVY_MID = '#9FB0D0', NAVY_FAINT = '#C7D2E6';
+const WASH = '#F4F6F9', WATER = '#dde4ee';
 
-  /* --- brand modifications --- */
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#dde4ee' }] },
+/* road width grows with zoom; [zoom, px] stops */
+const w = stops => ({ type: 'exponential', base: 1.6, stops });
 
-  /* highways: the hero. Amber fill, darker casing so they read at
-     any zoom without labels to help. */
-  { featureType: 'road.highway', elementType: 'geometry.fill',
-    stylers: [{ color: '#E9A13B' }, { weight: 2.2 }] },
-  { featureType: 'road.highway', elementType: 'geometry.stroke',
-    stylers: [{ color: '#C7821F' }, { weight: 0.6 }] },
-  { featureType: 'road.highway.controlled_access', elementType: 'geometry.fill',
-    stylers: [{ color: '#E9A13B' }] },
-  { featureType: 'road.highway.controlled_access', elementType: 'geometry.stroke',
-    stylers: [{ color: '#C7821F' }] },
+function buildStyle() {
+  return {
+    version: 8,
+    /* keep the OSM/OpenMapTiles attribution — it is a licence condition */
+    sources: {
+      ofm: { type: 'vector', url: TILES }
+    },
+    layers: [
+      { id: 'bg', type: 'background', paint: { 'background-color': WASH } },
 
-  /* everything else steps back */
-  { featureType: 'road.arterial', elementType: 'geometry',
-    stylers: [{ color: '#9FB0D0' }, { weight: 0.9 }] },
-  { featureType: 'road.local', elementType: 'geometry',
-    stylers: [{ color: '#C7D2E6' }, { weight: 0.5 }] },
-  { featureType: 'transit', elementType: 'geometry',
-    stylers: [{ color: '#C7D2E6' }, { visibility: 'simplified' }] }
-];
+      { id: 'water', type: 'fill', source: 'ofm', 'source-layer': 'water',
+        filter: ['==', '$type', 'Polygon'],
+        paint: { 'fill-color': WATER } },
 
-/* SVG pin drawn in brand colours, no image asset needed */
-const pinIcon = (fill, scale) => ({
-  path: 'M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z',
-  fillColor: fill, fillOpacity: 1,
-  strokeColor: '#ffffff', strokeWeight: 2.5,
-  scale, anchor: { x: 12, y: 36 }
-});
+      { id: 'waterway', type: 'line', source: 'ofm', 'source-layer': 'waterway',
+        paint: { 'line-color': WATER, 'line-width': w([[8, 0.6], [14, 2]]) } },
 
-let map = null, circle = null, markers = [], loaded = false;
+      /* --- roads, quiet to loud --- */
+      { id: 'road-minor', type: 'line', source: 'ofm', 'source-layer': 'transportation',
+        filter: ['in', 'class', 'minor', 'service', 'track'],
+        minzoom: 11,
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': NAVY_FAINT, 'line-width': w([[11, 0.4], [16, 3]]) } },
 
-function loadScript(key) {
+      { id: 'road-secondary', type: 'line', source: 'ofm', 'source-layer': 'transportation',
+        filter: ['in', 'class', 'secondary', 'tertiary'],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': NAVY_FAINT, 'line-width': w([[7, 0.5], [14, 3.5]]) } },
+
+      { id: 'road-primary', type: 'line', source: 'ofm', 'source-layer': 'transportation',
+        filter: ['==', 'class', 'primary'],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': NAVY_MID, 'line-width': w([[6, 0.7], [14, 5]]) } },
+
+      /* --- the highways: the whole point of the map --- */
+      { id: 'hwy-casing', type: 'line', source: 'ofm', 'source-layer': 'transportation',
+        filter: ['in', 'class', 'motorway', 'trunk'],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': AMBER_DK, 'line-width': w([[5, 2.2], [10, 6], [14, 12]]) } },
+
+      { id: 'hwy', type: 'line', source: 'ofm', 'source-layer': 'transportation',
+        filter: ['in', 'class', 'motorway', 'trunk'],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: { 'line-color': AMBER, 'line-width': w([[5, 1.2], [10, 3.6], [14, 8]]) } }
+    ]
+  };
+}
+
+/* A circle of fixed ground radius, as a polygon. MapLibre's circle
+   layer is sized in screen pixels, which is wrong here — the service
+   area is 100 miles whatever the zoom. */
+function circlePolygon(lat, lng, miles, points = 128) {
+  const R = 3958.7613;                       // earth radius, miles
+  const d = miles / R;
+  const latR = lat * Math.PI / 180, lngR = lng * Math.PI / 180;
+  const coords = [];
+  for (let i = 0; i <= points; i++) {
+    const brg = (i / points) * 2 * Math.PI;
+    const la = Math.asin(Math.sin(latR) * Math.cos(d) +
+                         Math.cos(latR) * Math.sin(d) * Math.cos(brg));
+    const lo = lngR + Math.atan2(Math.sin(brg) * Math.sin(d) * Math.cos(latR),
+                                 Math.cos(d) - Math.sin(latR) * Math.sin(la));
+    coords.push([lo * 180 / Math.PI, la * 180 / Math.PI]);
+  }
+  return { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] }, properties: {} };
+}
+
+function loadOnce(url, tag) {
   return new Promise((resolve, reject) => {
-    if (window.google && window.google.maps) return resolve();
-    /* Google calls this global when the library is ready */
-    window.__sfMapReady = () => resolve();
-    const s = document.createElement('script');
-    s.async = true;
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}` +
-            `&callback=__sfMapReady&loading=async`;
-    s.onerror = () => reject(new Error('Google Maps failed to load'));
-    document.head.appendChild(s);
-    /* a rejected key fires no callback and no error, so time out */
-    setTimeout(() => { if (!window.google || !window.google.maps) reject(new Error('timed out')); }, 8000);
+    const sel = tag === 'script' ? `script[src="${url}"]` : `link[href="${url}"]`;
+    if (document.querySelector(sel)) return resolve();
+    const el = document.createElement(tag);
+    if (tag === 'script') { el.src = url; el.async = true; }
+    else { el.rel = 'stylesheet'; el.href = url; }
+    el.onload = () => resolve();
+    el.onerror = () => reject(new Error(url + ' failed to load'));
+    document.head.appendChild(el);
   });
 }
 
+let map = null, markers = [], booted = false;
+
 const SFMap = {
-  style: STYLE,
+  buildStyle, circlePolygon,
   ready: false,
 
-  /* towns: [{name, lat, lng, hq, meta}]  onPick: (index) => void */
   async init(content, towns, onPick) {
     const cfg = (content && content.area && content.area.map) || {};
-    const key = cfg.key || '';
+    if (cfg.enabled === false || booted) return false;
+
     const host = document.getElementById('gmap');
-    if (!host || !key || loaded) return false;
+    if (!host) return false;
 
     const pts = (towns || []).filter(t => Number.isFinite(+t.lat) && Number.isFinite(+t.lng));
     if (!pts.length) return false;
 
-    try { await loadScript(key); }
-    catch (e) {
-      /* leave the SVG in place — a broken key must not blank the section */
+    try {
+      await loadOnce(LIB_CSS, 'link');
+      await loadOnce(LIB_JS, 'script');
+      if (!window.maplibregl) throw new Error('maplibre did not initialise');
+    } catch (e) {
       console.warn('service-area map:', e.message, '— keeping the drawn map');
       return false;
     }
-    loaded = true;
+    booted = true;
 
-    const g = window.google.maps;
     const hq = pts.find(t => t.hq) || pts[0];
-    const center = { lat: +(cfg.lat ?? hq.lat), lng: +(cfg.lng ?? hq.lng) };
-    const radiusMiles = +(cfg.radiusMiles ?? 100);
+    const center = [+(cfg.lng ?? hq.lng), +(cfg.lat ?? hq.lat)];
+    const miles = +(cfg.radiusMiles ?? 100);
 
-    map = new g.Map(host, {
-      center,
-      zoom: cfg.zoom ?? 7,
-      styles: STYLE,
-      backgroundColor: '#F4F6F9',
-      disableDefaultUI: true,
-      zoomControl: true,
-      gestureHandling: 'cooperative',   // page scroll wins over map zoom
-      keyboardShortcuts: true,
-      clickableIcons: false
-    });
-
-    /* the service radius */
-    circle = new g.Circle({
-      map, center, radius: radiusMiles * MILES_TO_M,
-      strokeColor: '#1E3160', strokeOpacity: 0.85, strokeWeight: 2,
-      fillColor: '#1E3160', fillOpacity: 0.07,
-      clickable: false
-    });
-
-    markers = pts.map((t, i) => {
-      const m = new g.Marker({
-        map,
-        position: { lat: +t.lat, lng: +t.lng },
-        title: t.name,
-        icon: pinIcon(t.hq ? '#E9A13B' : '#1E3160', t.hq ? 1.15 : 0.9),
-        zIndex: t.hq ? 10 : 1
+    try {
+      map = new window.maplibregl.Map({
+        container: host,
+        style: buildStyle(),
+        center,
+        zoom: +(cfg.zoom ?? 6.4),
+        attributionControl: { compact: true },
+        cooperativeGestures: true,   // a scroll over the map still scrolls the page
+        dragRotate: false,
+        pitchWithRotate: false
       });
-      m.addListener('click', () => { if (onPick) onPick(i); });
-      return m;
+      map.touchZoomRotate.disableRotation();
+      map.addControl(new window.maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    } catch (e) {
+      console.warn('service-area map failed to start:', e.message);
+      return false;
+    }
+
+    await new Promise(res => map.on('load', res));
+
+    /* service radius */
+    map.addSource('radius', { type: 'geojson', data: circlePolygon(center[1], center[0], miles) });
+    map.addLayer({ id: 'radius-fill', type: 'fill', source: 'radius',
+      paint: { 'fill-color': NAVY, 'fill-opacity': 0.07 } });
+    map.addLayer({ id: 'radius-line', type: 'line', source: 'radius',
+      paint: { 'line-color': NAVY, 'line-width': 2, 'line-opacity': 0.85, 'line-dasharray': [3, 2] } });
+
+    /* towns */
+    markers = pts.map((t, i) => {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'map-pin' + (t.hq ? ' hq' : '');
+      el.setAttribute('aria-label', t.name);
+      el.innerHTML = `<i></i><span>${String(t.name).replace(/[<>&]/g, '')}</span>`;
+      el.addEventListener('click', () => { if (onPick) onPick(i); });
+      return new window.maplibregl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([+t.lng, +t.lat]).addTo(map);
     });
 
-    /* frame the circle rather than trusting a fixed zoom */
-    if (circle.getBounds()) map.fitBounds(circle.getBounds(), 24);
+    /* frame the whole service area */
+    const ring = circlePolygon(center[1], center[0], miles).geometry.coordinates[0];
+    const b = ring.reduce((bb, c) => bb.extend(c),
+      new window.maplibregl.LngLatBounds(ring[0], ring[0]));
+    map.fitBounds(b, { padding: 26, duration: 0 });
 
-    /* swap the drawn map out only once the real one is up */
     const svg = host.parentElement.querySelector('svg');
     if (svg) svg.style.display = 'none';
     host.hidden = false;
     const legend = document.getElementById('mapLegend');
-    if (legend) {
-      legend.textContent = `${radiusMiles}-mile service radius`;
-      legend.hidden = false;
-    }
+    if (legend) { legend.textContent = `${miles}-mile service radius`; legend.hidden = false; }
 
+    map.resize();
     this.ready = true;
     return true;
   },
 
-  /* called when a town is chosen elsewhere on the page */
   focus(i) {
     if (!map || !markers[i]) return;
-    markers.forEach((m, n) => {
-      const t = n === i;
-      m.setIcon(pinIcon(t ? '#E9A13B' : '#1E3160', t ? 1.2 : 0.9));
-      m.setZIndex(t ? 20 : 1);
-    });
-    map.panTo(markers[i].getPosition());
+    markers.forEach((m, n) => m.getElement().classList.toggle('on', n === i));
+    map.flyTo({ center: markers[i].getLngLat(), zoom: Math.max(map.getZoom(), 8), duration: 700 });
   }
 };
 

@@ -1,5 +1,5 @@
 /* 530 Spray Foam — service worker (offline shell + notifications) */
-const CACHE = '530sf-v5';
+const CACHE = '530sf-v7';
 const SHELL = [
   './', './index.html', './admin.html', './styles.css', './app.js', './admin.js', './admin.css',
   './content.js', './content.json', './editor.js', './db.js', './map.js',
@@ -35,10 +35,11 @@ self.addEventListener('fetch', e => {
     );
     return;
   }
-  /* Images and icons never change under a fixed name — cache-first is fine.
-     CSS/JS do change on deploy, so they use stale-while-revalidate: fast from
-     cache, but every load refreshes the copy for next time. Cache-first here
-     would strand users on old code until the SW itself updated. */
+  /* Images never change under a fixed name — cache-first is fine.
+     CSS/JS/JSON change on every deploy, and serving a stale copy of one
+     against fresh HTML breaks the page in confusing ways (old editor.js
+     next to new admin.html, for instance). So those are network-first:
+     the cache is only a fallback for being offline. */
   const immutable = /\.(png|jpg|jpeg|webp|svg|woff2?)$/i.test(new URL(request.url).pathname);
 
   if (immutable) {
@@ -49,13 +50,14 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  e.respondWith(caches.match(request).then(hit => {
-    const net = fetch(request).then(r => {
-      if (r.ok) caches.open(CACHE).then(c => c.put(request, r.clone()));
-      return r;
-    }).catch(() => hit);
-    return hit || net;
-  }));
+  e.respondWith(
+    fetch(request)
+      .then(r => {
+        if (r.ok) caches.open(CACHE).then(c => c.put(request, r.clone()));
+        return r;
+      })
+      .catch(() => caches.match(request))
+  );
 });
 
 /* the admin page asks the SW to raise a notification (works when installed
