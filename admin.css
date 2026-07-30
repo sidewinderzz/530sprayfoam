@@ -1,3 +1,8 @@
+/* The `hidden` attribute must always win. Several components below set
+   display (flex/grid), which silently overrides it — that is how the
+   notification banner ended up impossible to dismiss. */
+[hidden]{display:none!important}
+
 /* ═══ 530 Spray Foam — admin PWA (brand tokens from styles.css) ═══ */
 body.admin{background:var(--wash)}
 
@@ -213,3 +218,44 @@ body.admin{background:var(--wash)}
   font-size:14px;line-height:1.55;color:var(--body)}
 .mode-note b{color:var(--ink)}
 @media (max-width:1320px){.mode-note{margin-inline:clamp(16px,4vw,28px)}}
+
+
+/* ═══ live preview pane ═══════════════════════════════════ */
+.cms-split{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:20px;align-items:start}
+.cms-split.solo{grid-template-columns:minmax(0,1fr)}
+.cms-split.solo .cms-preview{display:none}
+@media (max-width:1100px){
+  .cms-split{grid-template-columns:minmax(0,1fr)}
+  .cms-preview{order:-1}
+}
+
+.cms-preview{position:sticky;top:88px;background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-card);overflow:hidden;box-shadow:var(--sh-card)}
+.cms-preview-bar{display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-bottom:1px solid var(--line);background:var(--wash)}
+.cms-preview-title{font:700 12px var(--txt);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.cms-preview-state{font-size:11.5px;color:var(--dim);margin-right:auto}
+.cms-preview-state.busy{color:var(--amber-dk);font-weight:700}
+.cms-devices{display:flex;gap:3px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px}
+.cms-devices button{border:0;background:transparent;border-radius:999px;padding:4px 10px;
+  cursor:pointer;color:var(--muted);font-size:13px;line-height:1}
+.cms-devices button.on{background:var(--navy);color:#fff}
+.cms-preview-stage{height:min(72vh,760px);overflow:auto;background:var(--canvas);
+  display:flex;justify-content:center;padding:14px}
+.cms-preview-stage iframe{width:390px;height:1400px;border:0;background:#fff;
+  border-radius:10px;box-shadow:0 6px 24px rgba(14,17,22,.16);flex:none;
+  transition:width .2s var(--ease)}
+.cms-preview-stage.desktop iframe{width:1280px;height:1500px;transform:scale(.32);
+  transform-origin:top center;margin-bottom:-1000px}
+@media (max-width:1100px){.cms-preview{position:static}.cms-preview-stage{height:60vh}}
+
+
+/* ── inline icons (no emoji) ─────────────────────────────── */
+.ibtn svg{width:18px;height:18px}
+.ibtn.sm svg{width:14px;height:14px}
+.cms-ico{display:grid;place-items:center;width:26px;height:26px;flex:none;color:var(--navy)}
+.cms-ico svg{width:20px;height:20px}
+.cms-sec.open .cms-ico{color:var(--amber-dk)}
+.cms-devices button svg{width:14px;height:14px;display:block}
+.banner .ibtn{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
+.banner .ibtn:hover{background:rgba(255,255,255,.22)}

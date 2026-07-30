@@ -27,6 +27,18 @@ if (previewing) {
     'border-radius:999px;box-shadow:0 8px 22px rgba(14,17,22,.3)';
   addEventListener('DOMContentLoaded', () => document.body.appendChild(tag));
   if (document.readyState !== 'loading') document.body.appendChild(tag);
+
+  /* The editor reloads this frame on every edit. Without this the view
+     would snap back to the top mid-sentence, which makes editing the
+     lower half of the page miserable. */
+  const SCROLL_KEY = 'sf-preview-scroll';
+  try {
+    const y = parseInt(sessionStorage.getItem(SCROLL_KEY) || '0', 10);
+    if (y > 0) addEventListener('load', () => scrollTo(0, y));
+    addEventListener('scroll', () => {
+      sessionStorage.setItem(SCROLL_KEY, String(Math.round(scrollY)));
+    }, { passive: true });
+  } catch {}
 }
 const pick = (v, fallback) => (v === undefined || v === null ? fallback : v);
 
@@ -185,6 +197,7 @@ function pickTown(i) {
   const t = TOWNS[i];
   $('#mapTown').textContent = t.name;
   $('#mapMeta').textContent = t.meta;
+  if (window.SFMap && window.SFMap.ready) window.SFMap.focus(i);
   $$('#pins .pin').forEach(p => p.classList.toggle('on', +p.dataset.i === i));
   $$('#towns button[data-i]').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
 }
@@ -199,6 +212,13 @@ $$('#towns button[data-i]').forEach(b => {
   b.addEventListener('click', () => pickTown(+b.dataset.i));
   b.addEventListener('mouseenter', () => pickTown(+b.dataset.i));
 });
+
+/* Real map, if a Google Maps key is configured. Returns false and
+   leaves the drawn SVG alone when there is no key or the key is
+   rejected — the section works either way. */
+if (window.SFMap) {
+  window.SFMap.init(C, TOWNS, pickTown).catch(() => {});
+}
 
 /* ═══ job gallery ═══════════════════════════════════════════
    Placeholder art stands in for the job photos the design

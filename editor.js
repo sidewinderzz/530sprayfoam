@@ -13,10 +13,29 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+
+/* ── icons: small inline SVGs, no emoji ──────────────────── */
+const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ` +
+  `stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICON = {
+  contact:  svg('<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.4 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.8 2z"/>'),
+  hero:     svg('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>'),
+  numbers:  svg('<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>'),
+  photos:   svg('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/>'),
+  reviews:  svg('<path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.9 21l1.2-6.9-5-4.9 6.9-1z"/>'),
+  services: svg('<path d="M12 2l7 6v8l-7 6-7-6V8z"/><path d="M12 8v8"/><path d="M8.5 10.5h7"/>'),
+  area:     svg('<path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'),
+  process:  svg('<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1.5"/><circle cx="3.5" cy="12" r="1.5"/><circle cx="3.5" cy="18" r="1.5"/>'),
+  financing:svg('<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/>'),
+  form:     svg('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2.5 6.5l9.5 7 9.5-7"/>'),
+  seo:      svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>'),
+  map:      svg('<path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15M15 6v15"/>')
+};
+
 /* ── schema: what is editable, and how ───────────────────────
    Adding a field here is all it takes to expose it in the UI. */
 const SCHEMA = [
-  { id: 'contact', icon: '📞', title: 'Contact details',
+  { id: 'contact', icon: ICON.contact, anchor: 'header', title: 'Contact details',
     hint: 'Shown in the header, the call bar, the footer and every "call us" link.',
     fields: [
       ['business.phone',   'Phone number', 'text'],
@@ -30,7 +49,7 @@ const SCHEMA = [
       ['footer.blurb', 'Footer address block', 'textarea']
     ] },
 
-  { id: 'hero', icon: '🏠', title: 'Front page headline',
+  { id: 'hero', icon: ICON.hero, anchor: '#savings', title: 'Front page headline',
     hint: 'The first thing a visitor reads. Three short lines work best — the third is in blue.',
     fields: [
       ['hero.eyebrow', 'Small line above the headline', 'text'],
@@ -40,7 +59,7 @@ const SCHEMA = [
       ['hero.lede', 'Paragraph under the headline', 'textarea']
     ] },
 
-  { id: 'numbers', icon: '📊', title: 'Numbers &amp; claims',
+  { id: 'numbers', icon: ICON.numbers, anchor: '.trust', title: 'Numbers &amp; claims',
     hint: 'Every figure a customer might check. Keep these true — they read as factual claims.',
     list: 'kpis', listLabel: 'Headline stats', max: 3, min: 3,
     itemFields: [['value', 'Figure'], ['label', 'Caption']],
@@ -56,17 +75,17 @@ const SCHEMA = [
       ['band.note', 'Big statistic — source note', 'textarea']
     ] },
 
-  { id: 'photos', icon: '📸', title: 'Job photos',
+  { id: 'photos', icon: ICON.photos, anchor: '#work', title: 'Job photos',
     hint: 'Tap a slot to upload from your phone. Photos are resized automatically. These are what sell the job.',
     gallery: true },
 
-  { id: 'reviews', icon: '⭐', title: 'Customer reviews',
+  { id: 'reviews', icon: ICON.reviews, anchor: '#reviews', title: 'Customer reviews',
     hint: 'Add reviews as they come in. Only publish words a customer actually said.',
     fields: [['reviews.score', 'Rating line', 'text']],
     list: 'reviews.items', listLabel: 'Reviews', max: 12,
     itemFields: [['quote', 'What they said', 'textarea'], ['who', 'Name, town']] },
 
-  { id: 'services', icon: '🧴', title: 'Open vs closed cell',
+  { id: 'services', icon: ICON.services, anchor: '#foam', title: 'Open vs closed cell',
     hint: 'The two service cards and the spec table.',
     fields: [
       ['foam.heading', 'Section heading', 'text'],
@@ -80,16 +99,28 @@ const SCHEMA = [
       ['foam.specNote', 'Note under the spec table', 'textarea']
     ] },
 
-  { id: 'area', icon: '📍', title: 'Service area',
+  { id: 'area', icon: ICON.area, anchor: '#area', title: 'Service area',
     hint: 'Towns shown on the map. Drag order is the list order; the first one is home base.',
     fields: [
       ['area.heading', 'Section heading', 'text'],
       ['area.body', 'Section text', 'textarea']
     ],
     list: 'area.towns', listLabel: 'Towns', max: 12,
-    itemFields: [['name', 'Town'], ['meta', 'Detail shown when tapped']] },
+    itemFields: [['name', 'Town'], ['meta', 'Detail shown when tapped'],
+                 ['lat', 'Latitude'], ['lng', 'Longitude']] },
 
-  { id: 'process', icon: '🪜', title: 'How a job goes',
+  { id: 'map', icon: ICON.map, anchor: '#area', title: 'Map settings',
+    hint: 'Leave the key blank and the site uses the simple drawn map. Paste a Google Maps ' +
+          'JavaScript API key to switch to the real one — restrict the key to this domain first.',
+    fields: [
+      ['area.map.key', 'Google Maps API key', 'text'],
+      ['area.map.radiusMiles', 'Service radius (miles)', 'text'],
+      ['area.map.lat', 'Centre latitude', 'text'],
+      ['area.map.lng', 'Centre longitude', 'text'],
+      ['area.map.zoom', 'Starting zoom', 'text']
+    ] },
+
+  { id: 'process', icon: ICON.process, anchor: '#process', title: 'How a job goes',
     hint: 'The three steps. Keep them short.',
     fields: [
       ['process.heading', 'Section heading', 'text'],
@@ -101,7 +132,7 @@ const SCHEMA = [
       ['process.steps.2.body', 'Step 3 — text', 'textarea']
     ] },
 
-  { id: 'financing', icon: '💳', title: 'Financing &amp; rebates',
+  { id: 'financing', icon: ICON.financing, anchor: '#financing', title: 'Financing &amp; rebates',
     hint: 'Only promise terms your lender actually offers.',
     fields: [
       ['financing.heading', 'Heading', 'text'],
@@ -109,7 +140,7 @@ const SCHEMA = [
     ],
     list: 'financing.points', listLabel: 'Bullet points', max: 8, plain: true },
 
-  { id: 'form', icon: '✉️', title: 'Quote form',
+  { id: 'form', icon: ICON.form, anchor: '#quote', title: 'Quote form',
     fields: [
       ['quote.heading', 'Heading', 'text'],
       ['quote.body', 'Text above the form', 'textarea'],
@@ -117,7 +148,7 @@ const SCHEMA = [
       ['quote.consent', 'Consent checkbox wording', 'textarea']
     ] },
 
-  { id: 'seo', icon: '🔍', title: 'Google listing',
+  { id: 'seo', icon: ICON.seo, anchor: 'header', title: 'Google listing',
     hint: 'How the site appears in search results. Title under ~60 characters, description under ~155.',
     fields: [
       ['seo.title', 'Page title', 'text'],
@@ -184,7 +215,10 @@ function markDirty() {
   $('#cmsSave').disabled = !dirty;
   $('#cmsRevert').disabled = !dirty;
   $('#cmsDirty').hidden = !dirty;
-  if (dirty) window.SFContent.saveDraft(draft);
+  if (dirty) {
+    window.SFContent.saveDraft(draft);
+    refreshPreview();
+  }
 }
 
 /* ── render ──────────────────────────────────────────────── */
@@ -309,6 +343,10 @@ function wire() {
       const open = !sec.classList.contains('open');
       sec.classList.toggle('open', open);
       hd.setAttribute('aria-expanded', String(open));
+      if (open) {
+        const def = SCHEMA.find(s => s.id === sec.dataset.sec);
+        if (def && def.anchor) scrollPreviewTo(def.anchor);
+      }
       return;
     }
     const add = e.target.closest('[data-add]');
@@ -389,6 +427,110 @@ function wire() {
   });
 }
 
+/* ── live preview ─────────────────────────────────────────────
+   The pane shows index.html?preview=1, which reads the same draft
+   this editor writes. Every edit is debounced, then the frame is
+   reloaded; the page itself restores its own scroll position so a
+   refresh does not throw you back to the top. */
+let previewTimer = null;
+let SFEditorWatchSettle = null;
+const PREVIEW_DELAY = 550;
+
+function previewFrame() { return document.getElementById('cmsFrame'); }
+
+function setPreviewState(text, busy) {
+  const el = $('#cmsPreviewState');
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle('busy', !!busy);
+}
+
+/* Bring the matching part of the page into view when a section opens,
+   so the preview is showing whatever you are about to edit. */
+function scrollPreviewTo(selector) {
+  const frame = previewFrame();
+  if (!frame || !selector || $('#cmsSplit').classList.contains('solo')) return;
+  const go = () => {
+    try {
+      const doc = frame.contentDocument;
+      if (!doc) return false;
+      const el = selector === 'header' ? doc.querySelector('header, .strip') : doc.querySelector(selector);
+      if (!el) return false;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
+    } catch { return false; }
+  };
+  if (go()) return;
+  /* frame may still be loading — retry briefly, then give up quietly */
+  let tries = 0;
+  const t = setInterval(() => { if (go() || ++tries > 20) clearInterval(t); }, 150);
+}
+
+function refreshPreview(immediate) {
+  const frame = previewFrame();
+  if (!frame || $('#cmsSplit').classList.contains('solo')) return;
+  window.SFContent.saveDraft(draft);
+  clearTimeout(previewTimer);
+  setPreviewState('updating…', true);
+  previewTimer = setTimeout(() => {
+    try {
+      /* same origin, so this is a plain reload of the child document */
+      frame.contentWindow.location.reload();
+    } catch { frame.src = 'index.html?preview=1&t=' + Date.now(); }
+    if (SFEditorWatchSettle) SFEditorWatchSettle();
+  }, immediate ? 0 : PREVIEW_DELAY);
+}
+
+function wirePreview() {
+  const split = $('#cmsSplit');
+  const stage = $('#cmsPreviewStage');
+  const frame = previewFrame();
+  if (!frame) return;
+
+  /* `load` waits on every subresource — including a third-party font CDN
+     that may be slow. The preview is readable as soon as its DOM is
+     parsed, so key the label to that instead of leaving it stuck. */
+  let settleTimer = null;
+  const watchSettle = () => {
+    clearInterval(settleTimer);
+    let waited = 0;
+    settleTimer = setInterval(() => {
+      waited += 120;
+      let state = null;
+      try { state = frame.contentDocument && frame.contentDocument.readyState; } catch {}
+      if (state === 'interactive' || state === 'complete' || waited > 10000) {
+        clearInterval(settleTimer);
+        setPreviewState(waited > 10000 ? 'preview slow to load' : 'up to date', false);
+      }
+    }, 120);
+  };
+  frame.addEventListener('load', () => setPreviewState('up to date', false));
+  SFEditorWatchSettle = watchSettle;
+
+  $('#cmsPreviewToggle').addEventListener('click', e => {
+    const hidden = split.classList.toggle('solo');
+    e.target.textContent = hidden ? 'Show preview' : 'Hide preview';
+    e.target.setAttribute('aria-pressed', String(!hidden));
+    if (!hidden) refreshPreview(true);
+  });
+
+  $('#cmsPreviewReload').addEventListener('click', () => refreshPreview(true));
+
+  /* keep the preview parked on whatever section is open after a reload */
+  frame.addEventListener('load', () => {
+    const openSec = $('.cms-sec.open');
+    if (!openSec) return;
+    const def = SCHEMA.find(s => s.id === openSec.dataset.sec);
+    if (def && def.anchor) setTimeout(() => scrollPreviewTo(def.anchor), 120);
+  });
+
+  $$('.cms-devices button').forEach(b => b.addEventListener('click', () => {
+    $$('.cms-devices button').forEach(o => o.classList.remove('on'));
+    b.classList.add('on');
+    stage.classList.toggle('desktop', b.dataset.device === 'desktop');
+  }));
+}
+
 /* ── save / publish ──────────────────────────────────────── */
 function download(c) {
   const blob = new Blob([JSON.stringify(c, null, 2)], { type: 'application/json' });
@@ -423,6 +565,7 @@ async function publish() {
     base = clone(draft);
     window.SFContent.clearDraft();
     markDirty();
+    refreshPreview(true);
     window.sfToast && window.sfToast('Published — the site is updated');
   } else {
     /* No backend yet. The edits are real and saved locally; this is the
@@ -440,6 +583,7 @@ async function boot() {
   draft = d ? window.SFContent.merge(clone(base), d) : clone(base);
   render();
   wire();
+  wirePreview();
 
   $('#cmsSave').addEventListener('click', publish);
   $('#cmsDownload').addEventListener('click', () => { draft.updated = new Date().toISOString(); download(draft); });
@@ -448,6 +592,7 @@ async function boot() {
     draft = clone(base);
     window.SFContent.clearDraft();
     render();
+    refreshPreview(true);
     window.sfToast && window.sfToast('Changes discarded');
   });
   $('#cmsPreview').addEventListener('click', () => {

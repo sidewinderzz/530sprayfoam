@@ -80,16 +80,38 @@ addEventListener('appinstalled', () => toast('Installed — open it from your ho
 
 /* ── notifications ─────────────────────────────────────── */
 const notifBtn = $('#notifBtn');
+/* The banner is a nag, not a one-time notice: dismissing it snoozes for a
+   day so it comes back until alerts are actually on. Once permission is
+   granted it never appears again — and granting also clears any snooze,
+   so it cannot get stuck in a half state. */
+const SNOOZE_KEY = 'sf-notif-snooze';
+const SNOOZE_MS = 24 * 60 * 60 * 1000;
+
+function snoozed() {
+  const until = parseInt(store.get(SNOOZE_KEY) || '0', 10);
+  return Number.isFinite(until) && until > Date.now();
+}
+
 function syncNotifUi() {
   const p = 'Notification' in window ? Notification.permission : 'unsupported';
   notifBtn.classList.toggle('on', p === 'granted');
   notifBtn.title = p === 'granted' ? 'Notifications on'
     : p === 'denied' ? 'Notifications blocked in browser settings'
     : 'Enable notifications';
-  const dismissed = store.sGet('sf-notif-dismiss') === '1';
-  $('#notifBanner').hidden = p === 'granted' || p === 'unsupported' || dismissed;
-  if (p === 'denied') $('#notifMsg').textContent =
-    'Notifications are blocked for this site. Re-enable them in your browser or OS settings.';
+
+  if (p === 'granted') {
+    /* done nagging, for good */
+    store.del(SNOOZE_KEY);
+    $('#notifBanner').hidden = true;
+    return;
+  }
+  if (p === 'unsupported') { $('#notifBanner').hidden = true; return; }
+
+  $('#notifBanner').hidden = snoozed();
+  $('#notifMsg').textContent = p === 'denied'
+    ? 'Notifications are blocked for this site. Re-enable them in your browser or phone settings, then reload.'
+    : 'Turn on notifications to be alerted the moment a lead comes in.';
+  $('#notifEnable').hidden = p === 'denied';
 }
 /* base64url VAPID key → the Uint8Array the Push API wants */
 function urlB64ToUint8Array(base64String) {
@@ -149,7 +171,9 @@ async function askNotify() {
 notifBtn.addEventListener('click', askNotify);
 $('#notifEnable').addEventListener('click', askNotify);
 $('#notifDismiss').addEventListener('click', () => {
-  store.sSet('sf-notif-dismiss', '1'); $('#notifBanner').hidden = true;
+  store.set(SNOOZE_KEY, String(Date.now() + SNOOZE_MS));
+  $('#notifBanner').hidden = true;
+  toast('Reminder snoozed for a day');
 });
 
 function notify(title, body, tag = 'sf-lead') {
