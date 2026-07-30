@@ -1,0 +1,32 @@
+# 530 Spray Foam — static site plus API functions.
+# No build step: the site is plain HTML/CSS/JS served from the repo root.
+
+[build]
+  publish = "."
+  command = "echo 'static site — nothing to build'"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# The database provisions itself on deploy via @netlify/database;
+# migrations in netlify/database/migrations run before publish.
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Referrer-Policy = "same-origin"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# content.json must not be cached hard — it changes when content is published
+[[headers]]
+  for = "/content.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

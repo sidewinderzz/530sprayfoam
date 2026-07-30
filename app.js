@@ -404,7 +404,7 @@ form.addEventListener('submit', async e => {
   let saved = true, ref = rec.id;
   try {
     const res = await window.SFDB.createLead(rec);
-    saved = res.ok && !(window.SFDB.configured && res.mode === 'local');
+    saved = res.ok && !(window.SFDB.online && res.mode === 'local');
     if (res.ref) ref = res.ref;
   } catch { saved = false; }
 

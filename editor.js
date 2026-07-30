@@ -405,7 +405,8 @@ async function publish() {
 
   let ok = false;
   const DB = window.SFDB;
-  if (DB && DB.configured) {
+  if (DB) await DB.ready;
+  if (DB && DB.online) {
     const res = await DB.saveContent(draft);
     ok = res.ok;
     if (!ok && res.reason === 'signed-out') {

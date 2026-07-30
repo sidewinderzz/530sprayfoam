@@ -128,15 +128,19 @@ function unlock() {
   lock.hidden = true; app.hidden = false;
   try { cache = JSON.parse(store.get(STORE)) || []; } catch { cache = []; }
   render(); refresh(); syncNotifUi(); startWatch();
-  if (DB.mode === 'local') $('#modeNote').hidden = false;
+  if (!DB.online) $('#modeNote').hidden = false;
   if (!editorBooted && window.SFEditor) {
     editorBooted = true;
     window.SFEditor.boot().catch(() => toast('Could not load website content'));
   }
   if (!store.ok) toast('This browser is blocking site storage — leads cannot be saved here');
 }
-/* a remembered flag only counts if the session behind it is still valid */
-if ((store.get(AUTH_KEY) === '1' || store.sGet(AUTH_KEY) === '1') && DB.signedIn()) unlock();
+/* A remembered flag only counts if the session behind it is still valid.
+   With the API live that means a real cookie, checked server-side. */
+DB.ready.then(() => {
+  if ((store.get(AUTH_KEY) === '1' || store.sGet(AUTH_KEY) === '1') && DB.signedIn()) unlock();
+  if (DB.online) $('#modeNote').hidden = true;
+});
 
 function rejectLogin(msg) {
   $('#pwErr').textContent = msg;
@@ -209,11 +213,9 @@ function startWatch() {
   checkNew({ quiet: true });              // don't re-alert on first unlock
   clearInterval(watchTimer);
   watchTimer = setInterval(async () => {
-    if (DB.mode === 'supabase') {
-      try { cache = await DB.listLeads(); } catch {}
-    }
+    if (DB.online) { try { cache = await DB.listLeads(); } catch {} }
     checkNew();
-  }, DB.mode === 'supabase' ? 20000 : 5000);
+  }, DB.online ? 20000 : 5000);
 }
 addEventListener('storage', e => { if (e.key === STORE) checkNew(); });
 addEventListener('visibilitychange', () => { if (!document.hidden && !app.hidden) checkNew(); });
@@ -367,7 +369,7 @@ function saveLead(partial) {
   const list = load(); list.unshift(rec); save(list);
   const known = seen(); known.add(rec.id); markSeen(known);   // no self-notification
   render();
-  DB.createLead(rec).then(r => { if (r.mode === 'supabase') refresh(); })
+  DB.createLead(rec).then(r => { if (r.mode === 'api') refresh(); })
     .catch(e => toast('Saved locally only: ' + e.message));
   return rec;
 }

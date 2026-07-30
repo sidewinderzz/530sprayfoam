@@ -98,8 +98,8 @@ in code — the editor cannot break the design.
 - Reviews, towns and financing points can be added, reordered and deleted
 - **Preview** opens the public site with unpublished edits applied; the draft is never shown to
   real visitors
-- **Publish** POSTs to `/api/content`. Until that endpoint exists, the editor says so plainly and
-  offers **Download content.json** — commit that file and redeploy to publish.
+- **Publish** writes to the database through `/api/content` and is live at once. Without the API
+  the editor says so plainly and offers **Download content.json** instead.
 
 ### How content reaches the page
 
@@ -107,60 +107,71 @@ in code — the editor cannot break the design.
 JavaScript off. `content.js` loads `content.json` (then `/api/content` if present) and overrides
 any `[data-c="path"]` element. Nothing flashes and there is no SEO cost.
 
-**Not built yet:** the `/api/content` endpoint. Publishing straight from the editor needs a
-backend — see below.
+Publishing writes to `/api/content` and takes effect immediately — see the backend section.
 
-## Supabase backend
+## Backend — Netlify DB + Functions
 
-Written and wired, **not yet connected** — Supabase refused to create the project because the
-free tier allows 2 active projects per org and `nicfarms` + `farmsync` already fill both slots.
-Everything below applies the moment a slot is freed (pause a project or upgrade to Pro).
+The site already deploys to **530sprayfoam.netlify.app**. The database provisions itself on
+deploy; there is nothing to create by hand and no project limit to run into.
 
 | File | What it does |
 | --- | --- |
-| `supabase/migrations/0001_init.sql` | `content` + `leads` tables, RLS policies, `photos` storage bucket |
-| `supabase/migrations/0002_login_attempts.sql` | Login throttling table |
-| `supabase/functions/crew-login/index.ts` | Turns the short crew passcode into a real session |
-| `supabase-config.js` | The two public values to fill in |
-| `db.js` | The only module that talks to the database |
+| `netlify.toml` | Static publish from the repo root, functions dir, security headers |
+| `netlify/database/migrations/001_init/` | `content`, `leads`, `login_attempts` tables |
+| `netlify/functions/login.mjs` | Passcode → HttpOnly session cookie |
+| `netlify/functions/content.mjs` | `GET` public, `PUT` crew-only |
+| `netlify/functions/leads.mjs` | `POST` public, list/patch/delete crew-only |
+| `netlify/functions/photos.mjs` | Upload to Netlify Blobs, serve back cached |
+| `netlify/lib/auth.mjs` | HMAC session signing and verification |
+| `db.js` | The only front-end module that talks to storage |
+| `tools/mock-api.mjs` | Local stand-in for the API, for development |
 
-### How the `marc` passcode works with real auth
+### Two environment variables
 
-Supabase Auth requires 6+ characters, and short passwords are weak regardless. So `marc` is
-**not** the account password. It is a token checked by the `crew-login` edge function, which
-holds a long random password in its environment and, on a match, returns a genuine Supabase
-session. The crew types four characters; the browser gets real auth.
+Set both in **Site configuration → Environment variables**, then redeploy:
 
-That matters because every query is then governed by Row Level Security rather than a
-client-side `if`. The policies say: anyone may read site content and insert a lead; **only a
-signed-in session may read leads or change content**. A visitor cannot enumerate other people's
-phone numbers even with the anon key in hand, which is exactly the hole the old client-side
-password left open.
+```
+CREW_PASSCODE  = marc
+SESSION_SECRET = <a long random string>
+```
 
-### Connecting it
+`SESSION_SECRET` signs the session cookie. Anyone who learns it can forge a login, so generate
+it with `openssl rand -base64 32` and never commit it. Without these two the login function
+returns a 500 and says it is not configured, rather than letting anyone in.
+
+### How `marc` works without being a weak password
+
+The passcode is checked server-side and never stored as a credential. On a match the function
+issues an **HMAC-signed session in an HttpOnly cookie** — which JavaScript on the page cannot
+read, so an XSS bug cannot steal the session. Wrong guesses are rate limited to 8 per IP per 15
+minutes with a delay on each failure.
+
+The important shift is that the browser no longer decides anything. Reading leads requires a
+valid cookie the server verifies; a visitor viewing source learns nothing. Previously the
+password was in `admin.js` for anyone to read.
+
+### Local development
 
 ```bash
-supabase link --project-ref <ref>
-supabase db push                          # applies both migrations
-supabase functions deploy crew-login
-supabase secrets set CREW_PASSCODE=marc \
-  CREW_EMAIL=crew@530sprayfoam.com \
-  CREW_PASSWORD="$(openssl rand -base64 32)"
-# create that auth user once, with the same CREW_PASSWORD
+node tools/mock-api.mjs      # serves the site + the same /api contract on :8787
 ```
-Then put the project URL and anon key into `supabase-config.js` and redeploy. Both values are
-public by design; the service role key must never appear in the front end.
+In-memory, wiped on restart. Use `netlify dev` instead once the site is linked, to run the real
+functions against a real database branch.
 
-### Until then
+### Without the API
 
-`db.js` reports `mode: 'local'` and everything falls back to browser storage, exactly as before.
-The admin shows a banner saying so rather than implying it is connected. **Form submissions still
-do not reach you** in this state.
+Open the site from any plain static server and `db.js` finds no API, reports `mode: 'local'`,
+and falls back to browser storage exactly as before. The admin shows a banner saying so.
+
+> An earlier Supabase implementation of the same thing (schema, RLS policies and a passcode edge
+> function) is in git history at commit `35bff86` if this ever needs to move there. It was
+> abandoned because the free tier caps the org at 2 active projects.
 
 ## Known limits — read before going live
 
-1. **Auth is only as strong as the mode you are in.** Connected to Supabase, the passcode is
-   checked server-side and RLS enforces access. In local mode it is still a client-side check.
+1. **Auth is only as strong as the mode you are in.** With the API deployed the passcode is
+   checked server-side and the session is a signed HttpOnly cookie. In local mode it is still a
+   client-side check.
 2. **In local mode, leads and content edits live in `localStorage`.** One browser, one device.
    Export CSV for leads; download `content.json` for content.
 3. **Notifications only fire while a browser or the installed app has run the page recently.**

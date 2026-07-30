@@ -2,11 +2,10 @@
    530 Spray Foam — content layer
    Shared by the public site and the admin editor.
 
-   Load order, first hit wins:
-     1. /api/content   — the live database, once the Netlify
-                         function is deployed
+   Load order, later sources override earlier ones:
+     1. whatever is already written into index.html
      2. content.json   — the file in the repo
-     3. whatever is already written into index.html
+     3. /api/content   — the live database, once deployed
 
    index.html carries the same copy as static markup, so the page
    is complete and indexable before any of this runs. This layer
@@ -65,14 +64,15 @@ const SFContent = {
     let base = null;
     try { base = await fetchJSON('content.json'); this.source = 'file'; } catch {}
 
-    /* Live content from Supabase, if the project is wired up. Absent
-       until then, in which case content.json is the source of truth. */
+    /* Published content from the API, when it is deployed. Until then
+       content.json in the repo is the source of truth. */
     try {
       const DB = window.SFDB;
-      const live = DB && DB.configured ? await DB.getContent() : null;
+      if (DB) await DB.ready;
+      const live = DB && DB.online ? await DB.getContent() : null;
       if (live && typeof live === 'object' && Object.keys(live).length) {
         base = base ? merge(base, live) : live;
-        this.source = 'supabase';
+        this.source = 'api';
       }
     } catch {}
 
