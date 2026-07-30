@@ -91,13 +91,60 @@ function syncNotifUi() {
   if (p === 'denied') $('#notifMsg').textContent =
     'Notifications are blocked for this site. Re-enable them in your browser or OS settings.';
 }
+/* base64url VAPID key → the Uint8Array the Push API wants */
+function urlB64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+/* Register this device with the server so a lead raises a real push
+   even with the tab closed. Without this, "notifications" only fire
+   while the page happens to be open — which is not an alert. */
+async function registerPush() {
+  if (!DB.online) return { ok: false, reason: 'local' };
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    return { ok: false, reason: 'unsupported' };
+  }
+  const info = await DB.pushInfo();
+  if (!info.configured || !info.publicKey) return { ok: false, reason: 'server' };
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8Array(info.publicKey)
+      });
+    }
+    const label = `${navigator.platform || 'device'} · ${new Date().toLocaleDateString()}`;
+    return await DB.subscribePush(sub.toJSON(), label);
+  } catch (e) {
+    return { ok: false, reason: e.message };
+  }
+}
+
 async function askNotify() {
   if (!('Notification' in window)) return toast('This browser has no notification support');
   if (Notification.permission === 'denied') return toast('Blocked — re-enable in browser settings');
   const p = await Notification.requestPermission();
   syncNotifUi();
-  if (p === 'granted') { toast('Notifications on'); notify('Notifications enabled', 'You’ll be alerted the moment a lead comes in.'); }
-  else toast('Notifications not enabled');
+  if (p !== 'granted') return toast('Notifications not enabled');
+
+  const reg = await registerPush();
+  if (reg.ok) {
+    toast('Alerts on — this device is notified even when closed');
+    notify('Alerts enabled', 'You’ll be notified the moment a lead comes in.');
+  } else if (reg.reason === 'local' || reg.reason === 'server') {
+    /* Permission granted, but nothing can push to us. Say so rather than
+       letting them believe a lead at 2am will wake the phone. */
+    toast('Notifications on, but only while this page is open');
+    notify('Notifications enabled', 'Background alerts need the server set up.');
+  } else {
+    toast('Notifications on for this page (push unavailable: ' + reg.reason + ')');
+  }
 }
 notifBtn.addEventListener('click', askNotify);
 $('#notifEnable').addEventListener('click', askNotify);
@@ -129,6 +176,7 @@ function unlock() {
   try { cache = JSON.parse(store.get(STORE)) || []; } catch { cache = []; }
   render(); refresh(); syncNotifUi(); startWatch();
   if (!DB.online) $('#modeNote').hidden = false;
+  if (Notification.permission === 'granted') registerPush().catch(() => {});
   if (!editorBooted && window.SFEditor) {
     editorBooted = true;
     window.SFEditor.boot().catch(() => toast('Could not load website content'));

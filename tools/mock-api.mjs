@@ -22,7 +22,7 @@ const ROOT = process.cwd();
 const PASSCODE = process.env.CREW_PASSCODE || 'marc';
 const SECRET = process.env.SESSION_SECRET || 'dev-only-secret';
 
-const db = { content: {}, leads: [], attempts: [], photos: new Map() };
+const db = { content: {}, leads: [], attempts: [], photos: new Map(), subs: [], alerts: [] };
 let nextId = 1;
 
 /* ── session cookie, same scheme as netlify/lib/auth.mjs ──── */
@@ -133,6 +133,15 @@ const server = createServer(async (req, res) => {
           areas: b.areas || [], timeline: b.timeline, notes: b.notes, consent: !!b.consent,
           estimate: b.estimate, status: 'new', read: false
         });
+        /* record what the real functions would have sent */
+        db.alerts.push({
+          at: new Date().toISOString(),
+          ref,
+          pushTo: db.subs.length,
+          title: `New lead — ${b.name}`,
+          body: [b.buildingType, b.sqft ? `${b.sqft} sq ft` : null, b.city || b.zip]
+            .filter(Boolean).join(' · ')
+        });
         return send(res, 201, { ok: true, ref });
       }
 
@@ -158,6 +167,39 @@ const server = createServer(async (req, res) => {
       }
       return send(res, 405, { error: 'Method not allowed' });
     }
+
+    /* ── /api/push ── */
+    if (path === '/api/push') {
+      if (!authed(req)) return send(res, 401, { error: 'Not signed in.' });
+      if (req.method === 'GET') {
+        return send(res, 200, {
+          configured: !!process.env.VAPID_PUBLIC_KEY,
+          publicKey: process.env.VAPID_PUBLIC_KEY || null
+        });
+      }
+      if (req.method === 'POST') {
+        if (!process.env.VAPID_PUBLIC_KEY) {
+          return send(res, 503, { error: 'Push is not configured on the server.' });
+        }
+        const b = JSON.parse((await readBody(req)).toString() || '{}');
+        const ep = b?.subscription?.endpoint;
+        if (!ep || !b?.subscription?.keys?.p256dh || !b?.subscription?.keys?.auth) {
+          return send(res, 400, { error: 'Incomplete subscription.' });
+        }
+        db.subs = db.subs.filter(s => s.endpoint !== ep);
+        db.subs.push({ endpoint: ep, label: b.label });
+        return send(res, 200, { ok: true });
+      }
+      if (req.method === 'DELETE') {
+        const b = JSON.parse((await readBody(req)).toString() || '{}');
+        db.subs = db.subs.filter(s => s.endpoint !== b.endpoint);
+        return send(res, 200, { ok: true });
+      }
+      return send(res, 405, { error: 'Method not allowed' });
+    }
+
+    /* test helper: what alerts would have gone out */
+    if (path === '/api/_alerts') return send(res, 200, db.alerts);
 
     /* ── /api/photos ── */
     if (path === '/api/photos' || path.startsWith('/api/photos/')) {
