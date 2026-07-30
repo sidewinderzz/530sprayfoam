@@ -40,7 +40,8 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 | `sw.js` / `manifest.webmanifest` | PWA shell, offline cache, notifications |
 | `content.json` | Every editable word and photo on the site |
 | `content.js` | Loads content and binds it over the HTML |
-| `editor.js` | The admin content editor |
+| `editor.js` | The admin content editor and live preview |
+| `map.js` | Google Maps service-area map (modified Snazzy Maps #7846) |
 | `assets/logo-530*.png` | Logos from the handoff (resized to 900px, ~300KB each) |
 | `assets/icon-*.png` | PWA icons generated from `logo-530-tight.png` |
 
@@ -105,8 +106,9 @@ in code — the editor cannot break the design.
 
 - Photos upload from a phone and are resized in the browser to 1600×1200 JPEG before storage
 - Reviews, towns and financing points can be added, reordered and deleted
-- **Preview** opens the public site with unpublished edits applied; the draft is never shown to
-  real visitors
+- **Live preview** sits beside the editor and redraws as you type, in phone or desktop width.
+  Opening a section scrolls the preview to that part of the page, and the frame keeps its scroll
+  position across refreshes. Drafts are never shown to real visitors.
 - **Publish** writes to the database through `/api/content` and is live at once. Without the API
   the editor says so plainly and offers **Download content.json** instead.
 
@@ -192,6 +194,19 @@ and falls back to browser storage exactly as before. The admin shows a banner sa
 > An earlier Supabase implementation of the same thing (schema, RLS policies and a passcode edge
 > function) is in git history at commit `35bff86` if this ever needs to move there. It was
 > abandoned because the free tier caps the org at 2 active projects.
+
+## Service-area map
+
+`map.js` styles Google Maps with a modified **Snazzy Maps "Roads only" (#7846)**. Changes from the
+original: highways in the site's amber `#E9A13B` with a `#C7821F` casing, arterials and local roads
+pulled back to muted navy-greys so the highway network reads first, and water switched from
+`#12608d` to a soft `#dde4ee`. Administrative, landscape, POI and all labels stay off, as in the
+original. A **100-mile service radius** is drawn from Redding, with town markers in brand colours.
+
+It needs a Google Maps JavaScript API key, set in **Admin → Website → Map settings** (restrict the
+key to your domain first). With no key, or if the key is rejected, the hand-drawn SVG map already
+in the page is used instead — the section never breaks. Radius, centre and zoom are editable in
+the same panel.
 
 ## Known limits — read before going live
 
