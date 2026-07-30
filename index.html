@@ -20,11 +20,11 @@
 <!-- ══ utility strip ═══════════════════════════════════════ -->
 <div class="strip">
   <div class="strip-in">
-    <span>Free walkthrough &amp; fixed-price quote</span>
+    <span data-c="strip.a">Free walkthrough &amp; fixed-price quote</span>
     <i class="hide-sm">|</i>
-    <span class="hide-sm">CSLB #1091234 · Fully insured</span>
+    <span class="hide-sm" data-c="strip.b">CSLB #1091234 · Fully insured</span>
     <i>|</i>
-    <span>Mon–Sat 7a–6p</span>
+    <span data-c="strip.c">Mon–Sat 7a–6p</span>
   </div>
 </div>
 
@@ -46,7 +46,7 @@
         <a class="btn btn-sm" href="#quote">Get a quote</a>
       </nav>
       <div class="hdr-cta">
-        <a class="tel-lg" href="tel:+15305550182">(530) 555-0182</a>
+        <a class="tel-lg" href="tel:+15305550182" data-tel="text">(530) 555-0182</a>
         <a class="btn btn-sm" href="#quote">Get a quote</a>
         <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="nav">
           <i></i><i></i><i></i>
@@ -63,20 +63,20 @@
 <section class="hero" id="savings">
   <div class="wrap hero-in">
     <div class="hero-copy rv">
-      <p class="eyebrow">North valley insulation since 2013</p>
-      <h1 class="hero-h1">Your house is<br>leaking money<br><span>every hour</span></h1>
-      <p class="lede">A 2,000 sq ft home in Redding loses roughly a third of its conditioned air
+      <p class="eyebrow" data-c="hero.eyebrow">North valley insulation since 2013</p>
+      <h1 class="hero-h1"><span data-c="hero.line1">Your house is</span><br><span data-c="hero.line2">leaking money</span><br><span data-c="hero.line3">every hour</span></h1>
+      <p class="lede" data-c="hero.lede">A 2,000 sq ft home in Redding loses roughly a third of its conditioned air
         through the attic. Foam stops it in a day — and we file the utility rebate for you.</p>
       <div class="kpis">
-        <div class="kpi"><b>1 day</b><span>Typical home</span></div>
-        <div class="kpi"><b>10 yr</b><span>Workmanship warranty</span></div>
-        <div class="kpi"><b>4.9★</b><span>212 reviews</span></div>
+        <div class="kpi"><b data-c="kpis.0.value">1 day</b><span data-c="kpis.0.label">Typical home</span></div>
+        <div class="kpi"><b data-c="kpis.1.value">10 yr</b><span data-c="kpis.1.label">Workmanship warranty</span></div>
+        <div class="kpi"><b data-c="kpis.2.value">4.9★</b><span data-c="kpis.2.label">212 reviews</span></div>
       </div>
     </div>
 
     <!-- estimator -->
     <form class="est rv" data-d="1" id="est" aria-label="Estimate your savings">
-      <h2>Estimate your savings</h2>
+      <h2 data-c="estimator.heading">Estimate your savings</h2>
 
       <div class="est-grp">
         <label class="est-lbl" for="sqft">
@@ -105,10 +105,10 @@
 
       <div class="est-out" aria-live="polite">
         <span class="est-num">
-          <span>Est. monthly savings</span>
+          <span data-c="estimator.outLabel">Est. monthly savings</span>
           <b>$<span id="save">148</span></b>
         </span>
-        <button class="btn btn-white btn-sm" type="button" id="estGo">Get exact quote</button>
+        <button class="btn btn-white btn-sm" type="button" id="estGo" data-c="estimator.cta">Get exact quote</button>
       </div>
       <p class="est-fine" id="estFine">Roughly $1,776 a year. Ballpark from metered north-valley
         retrofits — your walkthrough gives the real number.</p>
@@ -119,9 +119,9 @@
 <!-- ══ trust bar ═══════════════════════════════════════════ -->
 <div class="trust">
   <div class="trust-in">
-    <div><b>LIC #1091234</b><span>Bonded &amp; insured</span></div>
-    <div><b>900+</b><span>Homes sealed</span></div>
-    <div><b>12 yrs</b><span>Locally owned</span></div>
+    <div><b data-c="trust.0.value">LIC #1091234</b><span data-c="trust.0.label">Bonded &amp; insured</span></div>
+    <div><b data-c="trust.1.value">900+</b><span data-c="trust.1.label">Homes sealed</span></div>
+    <div><b data-c="trust.2.value">12 yrs</b><span data-c="trust.2.label">Locally owned</span></div>
   </div>
 </div>
 
@@ -129,21 +129,21 @@
 <section class="sec sec-wash" id="foam">
   <div class="wrap">
     <header class="sec-hd rv">
-      <h2>Open cell or closed cell?</h2>
-      <p class="note">Both are foam. Which one you want comes down to where it's going and what it
+      <h2 data-c="foam.heading">Open cell or closed cell?</h2>
+      <p class="note" data-c="foam.sub">Both are foam. Which one you want comes down to where it's going and what it
         has to stop.</p>
     </header>
 
     <div class="foam rv">
       <article class="foam-card">
-        <div class="foam-top"><b>Open cell</b><span class="rval">R-3.7 / in</span></div>
-        <p>Softer, breathable, best value for attics and interior walls. Great sound damping
+        <div class="foam-top"><b data-c="foam.cards.0.name">Open cell</b><span class="rval" data-c="foam.cards.0.r">R-3.7 / in</span></div>
+        <p data-c="foam.cards.0.body">Softer, breathable, best value for attics and interior walls. Great sound damping
           between bedrooms and shops.</p>
         <div class="tags"><span>Attics</span><span>Interior walls</span><span>Sound control</span></div>
       </article>
       <article class="foam-card pick">
-        <div class="foam-top"><b>Closed cell</b><span class="rval">R-7 / in</span></div>
-        <p>Rigid, vapor-tight, adds structural rigidity. The pick for crawlspaces, metal buildings
+        <div class="foam-top"><b data-c="foam.cards.1.name">Closed cell</b><span class="rval" data-c="foam.cards.1.r">R-7 / in</span></div>
+        <p data-c="foam.cards.1.body">Rigid, vapor-tight, adds structural rigidity. The pick for crawlspaces, metal buildings
           and exterior assemblies.</p>
         <div class="tags"><span>Crawlspaces</span><span>Metal buildings</span><span>Exteriors</span></div>
       </article>
@@ -163,7 +163,7 @@
           <tr><th scope="row">Metal condensation</th><td class="off">Partial</td><td>Stopped</td></tr>
         </tbody>
       </table>
-      <p class="spec-note">Full submittal packet, ICC-ES reports and Title 24 docs available on request.</p>
+      <p class="spec-note" data-c="foam.specNote">Full submittal packet, ICC-ES reports and Title 24 docs available on request.</p>
     </div></div>
   </div>
 </section>
@@ -171,9 +171,9 @@
 <!-- ══ 40% band ════════════════════════════════════════════ -->
 <section class="band">
   <div class="wrap band-in rv">
-    <b id="pct">40%</b>
-    <h2>Average drop in heating and cooling load</h2>
-    <p>Based on 148 metered retrofits across the north valley, 2019–2025.</p>
+    <b id="pct" data-c="band.figure">40%</b>
+    <h2 data-c="band.heading">Average drop in heating and cooling load</h2>
+    <p data-c="band.note">Based on 148 metered retrofits across the north valley, 2019–2025.</p>
   </div>
 </section>
 
@@ -194,8 +194,8 @@
     </div>
 
     <div class="rv" data-d="1">
-      <h2>Where we work</h2>
-      <p class="lede" style="max-width:520px;margin:20px 0">Two crews out of Redding, on site
+      <h2 data-c="area.heading">Where we work</h2>
+      <p class="lede" data-c="area.body" style="max-width:520px;margin:20px 0">Two crews out of Redding, on site
         anywhere in the north valley. Same-week walkthroughs most of the year.</p>
       <div class="towns" id="towns"></div>
     </div>
@@ -205,22 +205,22 @@
 <!-- ══ process ═════════════════════════════════════════════ -->
 <section class="sec sec-wash" id="process">
   <div class="wrap">
-    <header class="sec-hd rv"><h2>How a job goes</h2></header>
+    <header class="sec-hd rv"><h2 data-c="process.heading">How a job goes</h2></header>
     <ol class="steps rv">
       <li class="step">
         <span class="step-rail"><span class="step-n">1</span><span class="line"></span></span>
-        <span class="step-txt"><h3>Walkthrough</h3>
-          <p>We crawl it, measure it, and hand you a fixed price. Free, no pressure.</p></span>
+        <span class="step-txt"><h3 data-c="process.steps.0.title">Walkthrough</h3>
+          <p data-c="process.steps.0.body">We crawl it, measure it, and hand you a fixed price. Free, no pressure.</p></span>
       </li>
       <li class="step">
         <span class="step-rail"><span class="step-n">2</span><span class="line"></span></span>
-        <span class="step-txt"><h3>Mask &amp; spray</h3>
-          <p>One day for most homes. You stay out of the space 4 hours after we finish.</p></span>
+        <span class="step-txt"><h3 data-c="process.steps.1.title">Mask &amp; spray</h3>
+          <p data-c="process.steps.1.body">One day for most homes. You stay out of the space 4 hours after we finish.</p></span>
       </li>
       <li class="step last">
         <span class="step-rail"><span class="step-n">3</span><span class="line"></span></span>
-        <span class="step-txt"><h3>Rebate filed</h3>
-          <p>We send the paperwork to your utility and warranty the work 10 years.</p></span>
+        <span class="step-txt"><h3 data-c="process.steps.2.title">Rebate filed</h3>
+          <p data-c="process.steps.2.body">We send the paperwork to your utility and warranty the work 10 years.</p></span>
       </li>
     </ol>
   </div>
@@ -230,26 +230,26 @@
 <section class="sec" id="work">
   <div class="wrap">
     <header class="sec-hd rv">
-      <h2>Recent work</h2>
-      <a class="link-up" href="#quote">See all jobs →</a>
+      <h2 data-c="work.heading">Recent work</h2>
+      <a class="link-up" href="#quote" data-c="work.linkLabel">See all jobs →</a>
     </header>
     <div class="shots rv" id="shots"></div>
 
-    <div class="ba-hd rv"><h2>Before / after</h2></div>
+    <div class="ba-hd rv"><h2 data-c="work.baHeading">Before / after</h2></div>
     <div class="ba rv" id="ba" tabindex="0" role="slider" aria-label="Before and after comparison"
          aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
       <div class="ba-pane before" id="baB"><span class="ba-tag">Before</span></div>
       <div class="ba-pane after" id="baA"><span class="ba-tag">After</span></div>
       <div class="ba-bar" id="baBar"><i>‹›</i></div>
     </div>
-    <p class="ba-meta">Palo Cedro · 1978 ranch · 2,150 sq ft · one day</p>
+    <p class="ba-meta" data-c="work.beforeAfter.caption">Palo Cedro · 1978 ranch · 2,150 sq ft · one day</p>
   </div>
 </section>
 
 <!-- ══ reviews ═════════════════════════════════════════════ -->
 <section class="sec sec-wash" id="reviews">
   <div class="wrap">
-    <p class="rev-score rv">★★★★★ 4.9 · 212 reviews</p>
+    <p class="rev-score rv" data-c="reviews.score">★★★★★ 4.9 · 212 reviews</p>
     <div class="rev-view rv" data-d="1" style="margin-top:14px">
       <ul class="rev-track" id="revTrack"></ul>
     </div>
@@ -264,8 +264,8 @@
 <!-- ══ financing ═══════════════════════════════════════════ -->
 <section class="sec" id="financing">
   <div class="wrap fin rv">
-    <h2>Financing &amp; rebates</h2>
-    <p>0% for 18 months on approved credit, and we file your utility rebate paperwork for you.</p>
+    <h2 data-c="financing.heading">Financing &amp; rebates</h2>
+    <p data-c="financing.body">0% for 18 months on approved credit, and we file your utility rebate paperwork for you.</p>
     <div class="fin-more" id="finMore"><div>
       <ul class="fin-list">
         <li>0% APR for 18 months, or fixed terms out to 84 months on approved credit.</li>
@@ -274,8 +274,7 @@
         <li>Quotes are fixed-price. No change orders unless you change the scope.</li>
       </ul>
     </div></div>
-    <button class="fin-btn" id="finBtn" aria-expanded="false" aria-controls="finMore">
-      See what you qualify for →
+    <button class="fin-btn" id="finBtn" aria-expanded="false" aria-controls="finMore" data-c="financing.toggleLabel">See what you qualify for →
     </button>
   </div>
 </section>
@@ -284,12 +283,12 @@
 <section class="cta" id="quote">
   <div class="wrap cta-in">
     <div class="cta-copy rv">
-      <h2>Get your number</h2>
-      <p>Tell us the basics and we'll come out, crawl it, and leave you with a fixed price —
+      <h2 data-c="quote.heading">Get your number</h2>
+      <p data-c="quote.body">Tell us the basics and we'll come out, crawl it, and leave you with a fixed price —
         usually within the week.</p>
       <div class="cta-tel">
-        <a href="tel:+15305550182">(530) 555-0182</a>
-        <span>or call us direct</span>
+        <a href="tel:+15305550182" data-tel="text">(530) 555-0182</a>
+        <span data-c="quote.telNote">or call us direct</span>
       </div>
     </div>
 
@@ -323,8 +322,8 @@
       <div class="fld"><label class="sr" for="qnotes">What are we looking at?</label>
         <textarea id="qnotes" name="notes" placeholder="What are we looking at?"></textarea></div>
       <label class="consent"><input type="checkbox" id="qconsent" name="consent" checked>
-        <span>OK to text me about scheduling. We never sell your info.</span></label>
-      <button class="btn btn-block" type="submit" id="qsend">Send it</button>
+        <span data-c="quote.consent">OK to text me about scheduling. We never sell your info.</span></label>
+      <button class="btn btn-block" type="submit" id="qsend" data-c="quote.cta">Send it</button>
     </form>
 
     <div class="sent rv" id="sent" hidden role="status">
@@ -343,7 +342,7 @@
     <div class="ftr-in">
       <div class="ftr-brand">
         <img src="assets/logo-530-halo.png" alt="530 Spray Foam" width="900" height="671">
-        <p>Redding, CA · CSLB #1091234 · Fully insured<br>Serving Shasta, Tehama, Butte &amp; Glenn<br>Mon–Sat 7a–6p</p>
+        <p data-c="footer.blurb">Redding, CA · CSLB #1091234 · Fully insured<br>Serving Shasta, Tehama, Butte &amp; Glenn<br>Mon–Sat 7a–6p</p>
       </div>
       <div class="ftr-cols">
         <div class="ftr-col">
@@ -368,8 +367,8 @@
 <!-- ══ sticky call bar ═════════════════════════════════════ -->
 <div class="callbar" id="callbar">
   <div class="callbar-in">
-    <div><span>Free estimate</span><b>(530) 555-0182</b></div>
-    <a href="tel:+15305550182">Tap to call</a>
+    <div><span>Free estimate</span><b data-tel="text">(530) 555-0182</b></div>
+    <a href="tel:+15305550182" data-tel="">Tap to call</a>
   </div>
 </div>
 <button class="totop" id="totop" aria-label="Back to top">↑</button>
@@ -385,6 +384,8 @@
   </div>
 </div>
 
+<script src="db.js"></script>
+<script src="content.js"></script>
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

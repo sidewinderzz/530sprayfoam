@@ -1,0 +1,160 @@
+{
+  "_comment": "Every editable word and photo on the public site. The admin Content editor writes this file. index.html carries the same text as static fallback so the page is still fully indexable before JS runs.",
+  "version": 1,
+  "updated": null,
+
+  "business": {
+    "name": "530 Spray Foam",
+    "phone": "(530) 555-0182",
+    "email": "info@530sprayfoam.com",
+    "license": "CSLB #1091234",
+    "hours": "Mon–Sat 7a–6p",
+    "city": "Redding, CA",
+    "area": "Serving Shasta, Tehama, Butte & Glenn"
+  },
+
+  "seo": {
+    "title": "530 Spray Foam — Insulation in Redding & the North Valley",
+    "description": "Closed-cell and open-cell spray foam insulation across Shasta, Tehama, Butte and Glenn. Free walkthrough, fixed-price quote, 10-year workmanship warranty."
+  },
+
+  "strip": {
+    "a": "Free walkthrough & fixed-price quote",
+    "b": "CSLB #1091234 · Fully insured",
+    "c": "Mon–Sat 7a–6p"
+  },
+
+  "hero": {
+    "eyebrow": "North valley insulation since 2013",
+    "line1": "Your house is",
+    "line2": "leaking money",
+    "line3": "every hour",
+    "lede": "A 2,000 sq ft home in Redding loses roughly a third of its conditioned air through the attic. Foam stops it in a day — and we file the utility rebate for you."
+  },
+
+  "kpis": [
+    { "value": "1 day", "label": "Typical home" },
+    { "value": "10 yr", "label": "Workmanship warranty" },
+    { "value": "4.9★", "label": "212 reviews" }
+  ],
+
+  "trust": [
+    { "value": "LIC #1091234", "label": "Bonded & insured" },
+    { "value": "900+", "label": "Homes sealed" },
+    { "value": "12 yrs", "label": "Locally owned" }
+  ],
+
+  "estimator": {
+    "heading": "Estimate your savings",
+    "outLabel": "Est. monthly savings",
+    "cta": "Get exact quote",
+    "rate": 0.0688,
+    "insulation": { "none": 1.0, "batts": 0.62, "blown": 0.7 },
+    "zones": { "attic": 1.0, "crawl": 0.45, "walls": 0.55 }
+  },
+
+  "foam": {
+    "heading": "Open cell or closed cell?",
+    "sub": "Both are foam. Which one you want comes down to where it's going and what it has to stop.",
+    "cards": [
+      {
+        "name": "Open cell",
+        "r": "R-3.7 / in",
+        "body": "Softer, breathable, best value for attics and interior walls. Great sound damping between bedrooms and shops.",
+        "tags": ["Attics", "Interior walls", "Sound control"],
+        "pick": false
+      },
+      {
+        "name": "Closed cell",
+        "r": "R-7 / in",
+        "body": "Rigid, vapor-tight, adds structural rigidity. The pick for crawlspaces, metal buildings and exterior assemblies.",
+        "tags": ["Crawlspaces", "Metal buildings", "Exteriors"],
+        "pick": true
+      }
+    ],
+    "specNote": "Full submittal packet, ICC-ES reports and Title 24 docs available on request.",
+    "spec": [
+      { "prop": "R / inch", "open": "3.7", "closed": "7.0" },
+      { "prop": "Vapor barrier", "open": "No", "closed": "Yes" },
+      { "prop": "Racking strength", "open": "—", "closed": "+300%" },
+      { "prop": "Metal condensation", "open": "Partial", "closed": "Stopped" }
+    ]
+  },
+
+  "band": {
+    "figure": "40%",
+    "heading": "Average drop in heating and cooling load",
+    "note": "Based on 148 metered retrofits across the north valley, 2019–2025."
+  },
+
+  "area": {
+    "heading": "Where we work",
+    "body": "Two crews out of Redding, on site anywhere in the north valley. Same-week walkthroughs most of the year.",
+    "askLabel": "Anywhere in the 530 — ask",
+    "towns": [
+      { "name": "Redding",    "x": 258, "y": 104, "hq": true,  "meta": "Home base · 2 crews · same-week walkthroughs" },
+      { "name": "Anderson",   "x": 236, "y": 158, "hq": false, "meta": "18 min out · 60+ crawlspaces sealed" },
+      { "name": "Palo Cedro", "x": 316, "y": 128, "hq": false, "meta": "15 min out · ranch retrofits, wide lots" },
+      { "name": "Cottonwood", "x": 214, "y": 200, "hq": false, "meta": "25 min out · shops and pole barns" },
+      { "name": "Red Bluff",  "x": 246, "y": 262, "hq": false, "meta": "40 min out · weekly route" },
+      { "name": "Chico",      "x": 292, "y": 330, "hq": false, "meta": "75 min out · new construction and multi-family" },
+      { "name": "Orland",     "x": 196, "y": 316, "hq": false, "meta": "70 min out · ag buildings and cold storage" }
+    ]
+  },
+
+  "process": {
+    "heading": "How a job goes",
+    "steps": [
+      { "title": "Walkthrough", "body": "We crawl it, measure it, and hand you a fixed price. Free, no pressure." },
+      { "title": "Mask & spray", "body": "One day for most homes. You stay out of the space 4 hours after we finish." },
+      { "title": "Rebate filed", "body": "We send the paperwork to your utility and warranty the work 10 years." }
+    ]
+  },
+
+  "work": {
+    "heading": "Recent work",
+    "linkLabel": "See all jobs →",
+    "jobs": [
+      { "title": "Attic",     "place": "Redding",    "meta": "1996 two-story · 2,400 sq ft · open cell R-49 · one day",        "photo": null, "art": ["#2c3446", "#5b6a86", "#efece2"] },
+      { "title": "Crawlspace","place": "Anderson",   "meta": "1978 ranch · 1,650 sq ft · closed cell · one day",               "photo": null, "art": ["#1d2430", "#41505f", "#e6e9ee"] },
+      { "title": "Shop",      "place": "Cottonwood", "meta": "40×60 steel · closed cell to the panels · two days",            "photo": null, "art": ["#26374a", "#4d6a83", "#f2efe6"] },
+      { "title": "New build", "place": "Chico",      "meta": "Framing stage · walls + roofline · scheduled to the framer",    "photo": null, "art": ["#3a3226", "#6d5c44", "#f7f4ec"] }
+    ],
+    "baHeading": "Before / after",
+    "beforeAfter": { "beforePhoto": null, "afterPhoto": null, "caption": "Palo Cedro · 1978 ranch · 2,150 sq ft · one day" }
+  },
+
+  "reviews": {
+    "score": "★★★★★ 4.9 · 212 reviews",
+    "items": [
+      { "quote": "Crew masked everything, sprayed the whole crawlspace in a day, and my floors aren't freezing anymore. Bill dropped $90 the first month.", "who": "Dana R., Anderson CA" },
+      { "quote": "Upstairs used to run ten degrees hotter than down. They foamed the roof deck and the AC finally shuts off in the afternoon.", "who": "Marcus T., Redding CA" },
+      { "quote": "Sprayed our 40×60 shop in two days, masked the whole slab, and the condensation drip off the metal is completely gone.", "who": "Loretta M., Cottonwood CA" },
+      { "quote": "Fixed price, showed up when they said, and filed the rebate paperwork without me chasing it. Framers had zero delay.", "who": "Kyle D., general contractor, Chico CA" }
+    ]
+  },
+
+  "financing": {
+    "heading": "Financing & rebates",
+    "body": "0% for 18 months on approved credit, and we file your utility rebate paperwork for you.",
+    "toggleLabel": "See what you qualify for →",
+    "points": [
+      "0% APR for 18 months, or fixed terms out to 84 months on approved credit.",
+      "We prepare and submit the utility rebate paperwork — you sign, we file.",
+      "Federal 25C energy-efficiency credit paperwork included with your invoice.",
+      "Quotes are fixed-price. No change orders unless you change the scope."
+    ]
+  },
+
+  "quote": {
+    "heading": "Get your number",
+    "body": "Tell us the basics and we'll come out, crawl it, and leave you with a fixed price — usually within the week.",
+    "telNote": "or call us direct",
+    "cta": "Send it",
+    "consent": "OK to text me about scheduling. We never sell your info."
+  },
+
+  "footer": {
+    "blurb": "Redding, CA · CSLB #1091234 · Fully insured\nServing Shasta, Tehama, Butte & Glenn\nMon–Sat 7a–6p"
+  }
+}

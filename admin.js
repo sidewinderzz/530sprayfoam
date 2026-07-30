@@ -7,7 +7,11 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const STORE     = 'sf-submissions';
 const SEEN_KEY  = 'sf-seen-ids';
 const AUTH_KEY  = 'sf-admin-auth';
-const PASSWORD  = 'marc';            // placeholder gate — move server-side for real auth
+/* Auth now goes through SFDB. With Supabase configured the passcode is
+   checked by the crew-login edge function and the browser gets a real
+   session; without it, SFDB falls back to the old local check so the
+   site still runs. */
+const DB = window.SFDB;
 const STATUSES  = ['new', 'contacted', 'quoted', 'won', 'lost'];
 
 /* Storage can throw outright — Safari private browsing, blocked site data,
@@ -25,8 +29,16 @@ const store = {
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const load = () => { try { return JSON.parse(store.get(STORE)) || []; } catch { return []; } };
-const save = list => store.set(STORE, JSON.stringify(list));
+/* `cache` mirrors what the server returned so render() can stay
+   synchronous; refresh() repopulates it. */
+let cache = [];
+const load = () => cache;
+const save = list => { cache = list; return store.set(STORE, JSON.stringify(list)); };
+async function refresh() {
+  try { cache = await DB.listLeads(); }
+  catch (e) { console.error('could not load leads:', e.message); }
+  render();
+}
 const money = n => Math.round(n).toLocaleString('en-US');
 
 function ago(iso) {
@@ -39,6 +51,7 @@ function ago(iso) {
 }
 
 let toastTimer;
+window.sfToast = msg => toast(msg);
 function toast(msg) {
   const t = $('#toast');
   t.textContent = msg; t.classList.add('show');
@@ -110,33 +123,70 @@ function syncBadge(count) {
 
 /* ── lock screen ───────────────────────────────────────── */
 const lock = $('#lock'), app = $('#app');
+let editorBooted = false;
 function unlock() {
   lock.hidden = true; app.hidden = false;
-  render(); syncNotifUi(); startWatch();
+  try { cache = JSON.parse(store.get(STORE)) || []; } catch { cache = []; }
+  render(); refresh(); syncNotifUi(); startWatch();
+  if (!DB.online) $('#modeNote').hidden = false;
+  if (!editorBooted && window.SFEditor) {
+    editorBooted = true;
+    window.SFEditor.boot().catch(() => toast('Could not load website content'));
+  }
   if (!store.ok) toast('This browser is blocking site storage — leads cannot be saved here');
 }
-if (store.get(AUTH_KEY) === '1' || store.sGet(AUTH_KEY) === '1') unlock();
+/* A remembered flag only counts if the session behind it is still valid.
+   With the API live that means a real cookie, checked server-side. */
+DB.ready.then(() => {
+  if ((store.get(AUTH_KEY) === '1' || store.sGet(AUTH_KEY) === '1') && DB.signedIn()) unlock();
+  if (DB.online) $('#modeNote').hidden = true;
+});
 
-$('#lockForm').addEventListener('submit', e => {
+function rejectLogin(msg) {
+  $('#pwErr').textContent = msg;
+  $('.lock-card').classList.remove('shake');
+  void $('.lock-card').offsetWidth;
+  $('.lock-card').classList.add('shake');
+  $('#pw').select();
+}
+
+$('#lockForm').addEventListener('submit', async e => {
   e.preventDefault();
-  /* tolerate what a phone keyboard does to a typed password */
-  const typed = $('#pw').value.trim().toLowerCase();
-  if (typed === PASSWORD) {
-    /* unlock FIRST — remembering the session must never gate getting in */
-    unlock();
-    const remembered = $('#remember').checked ? store.set(AUTH_KEY, '1') : store.sSet(AUTH_KEY, '1');
-    if (!remembered) toast('Signed in, but this browser is blocking site storage — you will have to sign in again next visit');
-  } else {
-    $('#pwErr').textContent = $('#pw').value ? 'Wrong password.' : 'Enter the crew password.';
-    $('.lock-card').classList.remove('shake');
-    void $('.lock-card').offsetWidth;
-    $('.lock-card').classList.add('shake');
-    $('#pw').select();
-  }
+  const typed = $('#pw').value;
+  if (!typed.trim()) return rejectLogin('Enter the crew password.');
+
+  const btn = $('#lockForm button[type=submit]');
+  btn.disabled = true; btn.textContent = 'Checking…';
+  let res;
+  try { res = await DB.login(typed); }
+  catch { res = { ok: false, error: 'Could not reach the server.' }; }
+  btn.disabled = false; btn.textContent = 'Unlock';
+
+  if (!res.ok) return rejectLogin(res.error || 'Wrong password.');
+
+  /* unlock FIRST — remembering the session must never gate getting in */
+  unlock();
+  const remembered = $('#remember').checked ? store.set(AUTH_KEY, '1') : store.sSet(AUTH_KEY, '1');
+  if (!remembered) toast('Signed in, but this browser is blocking site storage — you will have to sign in again next visit');
 });
 $('#lockBtn').addEventListener('click', () => {
+  DB.logout();
   store.del(AUTH_KEY); store.sDel(AUTH_KEY);
   app.hidden = true; lock.hidden = false; $('#pw').value = ''; $('#pwErr').textContent = '';
+});
+
+/* ── view switcher: leads vs website content ───────────── */
+const VIEWS = { viewLeads: 'leadsView', viewContent: 'contentView' };
+Object.keys(VIEWS).forEach(btnId => {
+  $('#' + btnId).addEventListener('click', () => {
+    Object.entries(VIEWS).forEach(([b, v]) => {
+      const on = b === btnId;
+      $('#' + b).classList.toggle('on', on);
+      $('#' + b).setAttribute('aria-selected', String(on));
+      $('#' + v).hidden = !on;
+    });
+    $('#newPill').hidden = btnId !== 'viewLeads' || !load().filter(l => !l.read).length;
+  });
 });
 
 /* ── new-lead watcher (cross-tab + poll) ───────────────── */
@@ -162,7 +212,10 @@ let watchTimer;
 function startWatch() {
   checkNew({ quiet: true });              // don't re-alert on first unlock
   clearInterval(watchTimer);
-  watchTimer = setInterval(() => checkNew(), 5000);
+  watchTimer = setInterval(async () => {
+    if (DB.online) { try { cache = await DB.listLeads(); } catch {} }
+    checkNew();
+  }, DB.online ? 20000 : 5000);
 }
 addEventListener('storage', e => { if (e.key === STORE) checkNew(); });
 addEventListener('visibilitychange', () => { if (!document.hidden && !app.hidden) checkNew(); });
@@ -270,11 +323,15 @@ $('#leads').addEventListener('click', e => {
     if (i < 0) return;
     if (act === 'del') {
       if (!confirm(`Delete the lead from ${list[i].name}? This cannot be undone.`)) return;
-      list.splice(i, 1); toast('Lead deleted');
+      const gone = list[i];
+      list.splice(i, 1); save(list); render();
+      DB.deleteLead(gone.id).catch(e => { toast('Delete failed: ' + e.message); refresh(); });
+      toast('Lead deleted');
     } else {
       list[i].read = !list[i].read;
+      save(list); render();
+      DB.updateLead(list[i].id, { read: list[i].read }).catch(() => refresh());
     }
-    save(list); render();
     return;
   }
   if (e.target.closest('.lead-acts')) return;         // links/selects act normally
@@ -298,6 +355,8 @@ $('#leads').addEventListener('change', e => {
   if (i < 0) return;
   list[i].status = e.target.value; list[i].read = true;
   save(list); render(); toast(`Marked ${e.target.value}`);
+  DB.updateLead(list[i].id, { status: list[i].status, read: true })
+    .catch(e2 => { toast('Could not save status: ' + e2.message); refresh(); });
 });
 
 /* ── saveLead: single write path (swap for an API call) ── */
@@ -310,6 +369,8 @@ function saveLead(partial) {
   const list = load(); list.unshift(rec); save(list);
   const known = seen(); known.add(rec.id); markSeen(known);   // no self-notification
   render();
+  DB.createLead(rec).then(r => { if (r.mode === 'api') refresh(); })
+    .catch(e => toast('Saved locally only: ' + e.message));
   return rec;
 }
 

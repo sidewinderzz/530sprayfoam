@@ -38,6 +38,9 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 | `index.html` / `styles.css` / `app.js` | Public site |
 | `admin.html` / `admin.css` / `admin.js` | Crew inbox (password gated) |
 | `sw.js` / `manifest.webmanifest` | PWA shell, offline cache, notifications |
+| `content.json` | Every editable word and photo on the site |
+| `content.js` | Loads content and binds it over the HTML |
+| `editor.js` | The admin content editor |
 | `assets/logo-530*.png` | Logos from the handoff (resized to 900px, ~300KB each) |
 | `assets/icon-*.png` | PWA icons generated from `logo-530-tight.png` |
 
@@ -84,12 +87,93 @@ control, review carousel, form validation and submit, mobile drawer, and the adm
 (wrong-then-correct password, seed, expand, status change, filter, search, manual entry, sign out).
 Manifest icons all return 200.
 
+## Content editor
+
+`/admin.html` → **Website** tab. Eleven sections covering what a contractor actually changes:
+contact details, headline, numbers and claims, job photos, reviews, service cards, service area,
+process steps, financing, quote form, and the Google listing. Layout, colours and structure stay
+in code — the editor cannot break the design.
+
+- Photos upload from a phone and are resized in the browser to 1600×1200 JPEG before storage
+- Reviews, towns and financing points can be added, reordered and deleted
+- **Preview** opens the public site with unpublished edits applied; the draft is never shown to
+  real visitors
+- **Publish** writes to the database through `/api/content` and is live at once. Without the API
+  the editor says so plainly and offers **Download content.json** instead.
+
+### How content reaches the page
+
+`index.html` contains the full copy as static markup, so the page is complete and indexable with
+JavaScript off. `content.js` loads `content.json` (then `/api/content` if present) and overrides
+any `[data-c="path"]` element. Nothing flashes and there is no SEO cost.
+
+Publishing writes to `/api/content` and takes effect immediately — see the backend section.
+
+## Backend — Netlify DB + Functions
+
+The site already deploys to **530sprayfoam.netlify.app**. The database provisions itself on
+deploy; there is nothing to create by hand and no project limit to run into.
+
+| File | What it does |
+| --- | --- |
+| `netlify.toml` | Static publish from the repo root, functions dir, security headers |
+| `netlify/database/migrations/001_init/` | `content`, `leads`, `login_attempts` tables |
+| `netlify/functions/login.mjs` | Passcode → HttpOnly session cookie |
+| `netlify/functions/content.mjs` | `GET` public, `PUT` crew-only |
+| `netlify/functions/leads.mjs` | `POST` public, list/patch/delete crew-only |
+| `netlify/functions/photos.mjs` | Upload to Netlify Blobs, serve back cached |
+| `netlify/lib/auth.mjs` | HMAC session signing and verification |
+| `db.js` | The only front-end module that talks to storage |
+| `tools/mock-api.mjs` | Local stand-in for the API, for development |
+
+### Two environment variables
+
+Set both in **Site configuration → Environment variables**, then redeploy:
+
+```
+CREW_PASSCODE  = marc
+SESSION_SECRET = <a long random string>
+```
+
+`SESSION_SECRET` signs the session cookie. Anyone who learns it can forge a login, so generate
+it with `openssl rand -base64 32` and never commit it. Without these two the login function
+returns a 500 and says it is not configured, rather than letting anyone in.
+
+### How `marc` works without being a weak password
+
+The passcode is checked server-side and never stored as a credential. On a match the function
+issues an **HMAC-signed session in an HttpOnly cookie** — which JavaScript on the page cannot
+read, so an XSS bug cannot steal the session. Wrong guesses are rate limited to 8 per IP per 15
+minutes with a delay on each failure.
+
+The important shift is that the browser no longer decides anything. Reading leads requires a
+valid cookie the server verifies; a visitor viewing source learns nothing. Previously the
+password was in `admin.js` for anyone to read.
+
+### Local development
+
+```bash
+node tools/mock-api.mjs      # serves the site + the same /api contract on :8787
+```
+In-memory, wiped on restart. Use `netlify dev` instead once the site is linked, to run the real
+functions against a real database branch.
+
+### Without the API
+
+Open the site from any plain static server and `db.js` finds no API, reports `mode: 'local'`,
+and falls back to browser storage exactly as before. The admin shows a banner saying so.
+
+> An earlier Supabase implementation of the same thing (schema, RLS policies and a passcode edge
+> function) is in git history at commit `35bff86` if this ever needs to move there. It was
+> abandoned because the free tier caps the org at 2 active projects.
+
 ## Known limits — read before going live
 
-1. **The admin password is client-side.** `PASSWORD` sits in `admin.js`, readable in devtools. It
-   keeps casual visitors out; it is not security. Move authentication server-side.
-2. **Leads live in `localStorage`.** One browser, one device, no shared inbox; clearing site data
-   wipes them. Export CSV for a copy.
+1. **Auth is only as strong as the mode you are in.** With the API deployed the passcode is
+   checked server-side and the session is a signed HttpOnly cookie. In local mode it is still a
+   client-side check.
+2. **In local mode, leads and content edits live in `localStorage`.** One browser, one device.
+   Export CSV for leads; download `content.json` for content.
 3. **Notifications only fire while a browser or the installed app has run the page recently.**
    Background delivery ("a lead arrives at 2am and the phone buzzes") needs a server sending Web
    Push.
