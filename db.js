@@ -173,6 +173,38 @@ const DB = {
     }
   },
 
+  /* --- push alerts ----------------------------------------- */
+  async pushInfo() {
+    await this.ready;
+    if (!this.online || !this.authed) return { configured: false, publicKey: null };
+    try { return await req('/api/push'); } catch { return { configured: false, publicKey: null }; }
+  },
+
+  async subscribePush(subscription, label) {
+    await this.ready;
+    if (!this.online) return { ok: false, reason: 'offline' };
+    try {
+      await req('/api/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription, label })
+      });
+      return { ok: true };
+    } catch (e) { return { ok: false, reason: e.message }; }
+  },
+
+  async unsubscribePush(endpoint) {
+    await this.ready;
+    if (!this.online) return;
+    try {
+      await req('/api/push', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint })
+      });
+    } catch {}
+  },
+
   /* --- photos ---------------------------------------------- */
   /* Uploads to Netlify Blobs and returns a URL. Without the API the
      image stays inline as a data URL, which works but only in this

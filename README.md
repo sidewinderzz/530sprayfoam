@@ -71,12 +71,21 @@ Password: **`marc`**
 - Manual entry for phone-in leads
 - Installable PWA with notifications and an app-icon badge count
 
-### Notifications
+### Lead alerts
 
-Tap the bell (or the banner) to grant permission. New submissions raise a notification via the
-service worker; the page also picks up leads from another tab through the `storage` event and a
-5-second poll. `sw.js` already handles real `push` events, so adding a backend with VAPID keys
-lights up true push without client changes.
+Tap the bell. With the server configured, that registers the device for **Web Push** — a lead
+raises a notification even with the tab closed and the phone locked. The device is stored in
+`push_subscriptions` and pruned automatically when the browser discards the subscription.
+
+If push is not available (local mode, or `VAPID_*` unset) the button still grants permission but
+the toast says *"only while this page is open"*, because that is the truth.
+
+**iPhone:** Web Push only works once the site is installed to the home screen — Share → Add to
+Home Screen. In a plain Safari tab, Apple delivers nothing. Worth pairing with email.
+
+Email alerts go out through Resend when `RESEND_API_KEY` and `ALERT_EMAIL_TO` are set. Both
+channels are independent, and **a failing alert never fails the lead** — by the time alerts run
+the lead is already saved.
 
 ## Verified
 
@@ -126,18 +135,35 @@ deploy; there is nothing to create by hand and no project limit to run into.
 | `db.js` | The only front-end module that talks to storage |
 | `tools/mock-api.mjs` | Local stand-in for the API, for development |
 
-### Two environment variables
+### Environment variables
 
-Set both in **Site configuration → Environment variables**, then redeploy:
+Set in **Site configuration → Environment variables**, then redeploy.
 
+**Required — login does not work without these:**
 ```
 CREW_PASSCODE  = marc
-SESSION_SECRET = <a long random string>
+SESSION_SECRET = <openssl rand -base64 32>
+```
+`SESSION_SECRET` signs the session cookie. Anyone who learns it can forge a login, so never
+commit it. Missing either, the login function returns 500 and says it is unconfigured rather
+than letting anyone in.
+
+**Push alerts** — generate a key pair with `npx web-push generate-vapid-keys`:
+```
+VAPID_PUBLIC_KEY  = <public key>
+VAPID_PRIVATE_KEY = <private key>
+VAPID_SUBJECT     = mailto:you@530sprayfoam.com
 ```
 
-`SESSION_SECRET` signs the session cookie. Anyone who learns it can forge a login, so generate
-it with `openssl rand -base64 32` and never commit it. Without these two the login function
-returns a 500 and says it is not configured, rather than letting anyone in.
+**Email alerts** — optional, via [Resend](https://resend.com) (free tier covers this easily):
+```
+RESEND_API_KEY   = re_...
+ALERT_EMAIL_TO   = you@example.com          (comma-separate for several)
+ALERT_EMAIL_FROM = leads@530sprayfoam.com   (must be a domain verified in Resend)
+```
+
+Each group is independent. No VAPID keys means no push, no Resend key means no email, and
+neither stops leads being saved.
 
 ### How `marc` works without being a weak password
 
