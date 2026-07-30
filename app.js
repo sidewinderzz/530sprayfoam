@@ -361,19 +361,22 @@ form.addEventListener('submit', e => {
     consent: $('#qconsent').checked,
     estimate: estimate ? { monthly: estimate.monthly, annual: estimate.annual } : null
   };
+  let saved = true;
   try {
     const all = JSON.parse(localStorage.getItem(STORE) || '[]');
     all.unshift(rec);
     localStorage.setItem(STORE, JSON.stringify(all));
-  } catch { /* private mode — the lead is lost, so say so */ }
+  } catch { saved = false; }
 
   const btn = $('#qsend');
   btn.disabled = true; btn.textContent = 'Sending…';
   setTimeout(() => {
     form.hidden = true; sent.hidden = false; sent.classList.add('in');
-    $('#sentMsg').textContent =
-      `Thanks ${rec.name.split(' ')[0]} — request ${rec.id} is in. We'll call ${rec.phone} to set ` +
-      `the walkthrough, usually same day.`;
+    $('#sentMsg').textContent = saved
+      ? `Thanks ${rec.name.split(' ')[0]} — request ${rec.id} is in. We'll call ${rec.phone} to set ` +
+        `the walkthrough, usually same day.`
+      : `Thanks ${rec.name.split(' ')[0]} — we could not store your request in this browser. ` +
+        `Please call us at (530) 555-0182 so we don't miss you.`;
   }, 650);
 });
 $('#again').addEventListener('click', () => {

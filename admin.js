@@ -10,10 +10,23 @@ const AUTH_KEY  = 'sf-admin-auth';
 const PASSWORD  = 'marc';            // placeholder gate — move server-side for real auth
 const STATUSES  = ['new', 'contacted', 'quoted', 'won', 'lost'];
 
+/* Storage can throw outright — Safari private browsing, blocked site data,
+   quota exceeded. An unguarded read at load time used to abort this whole
+   script, which left the Unlock button with no handler at all. */
+const store = {
+  ok: true,
+  get(k) { try { return localStorage.getItem(k); } catch { this.ok = false; return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); return true; } catch { this.ok = false; return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+  sGet(k) { try { return sessionStorage.getItem(k); } catch { return null; } },
+  sSet(k, v) { try { sessionStorage.setItem(k, v); return true; } catch { return false; } },
+  sDel(k) { try { sessionStorage.removeItem(k); } catch {} }
+};
+
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch { return []; } };
-const save = list => localStorage.setItem(STORE, JSON.stringify(list));
+const load = () => { try { return JSON.parse(store.get(STORE)) || []; } catch { return []; } };
+const save = list => store.set(STORE, JSON.stringify(list));
 const money = n => Math.round(n).toLocaleString('en-US');
 
 function ago(iso) {
@@ -60,7 +73,7 @@ function syncNotifUi() {
   notifBtn.title = p === 'granted' ? 'Notifications on'
     : p === 'denied' ? 'Notifications blocked in browser settings'
     : 'Enable notifications';
-  const dismissed = sessionStorage.getItem('sf-notif-dismiss') === '1';
+  const dismissed = store.sGet('sf-notif-dismiss') === '1';
   $('#notifBanner').hidden = p === 'granted' || p === 'unsupported' || dismissed;
   if (p === 'denied') $('#notifMsg').textContent =
     'Notifications are blocked for this site. Re-enable them in your browser or OS settings.';
@@ -76,7 +89,7 @@ async function askNotify() {
 notifBtn.addEventListener('click', askNotify);
 $('#notifEnable').addEventListener('click', askNotify);
 $('#notifDismiss').addEventListener('click', () => {
-  sessionStorage.setItem('sf-notif-dismiss', '1'); $('#notifBanner').hidden = true;
+  store.sSet('sf-notif-dismiss', '1'); $('#notifBanner').hidden = true;
 });
 
 function notify(title, body, tag = 'sf-lead') {
@@ -97,16 +110,24 @@ function syncBadge(count) {
 
 /* ── lock screen ───────────────────────────────────────── */
 const lock = $('#lock'), app = $('#app');
-function unlock() { lock.hidden = true; app.hidden = false; render(); syncNotifUi(); startWatch(); }
-if (localStorage.getItem(AUTH_KEY) === '1' || sessionStorage.getItem(AUTH_KEY) === '1') unlock();
+function unlock() {
+  lock.hidden = true; app.hidden = false;
+  render(); syncNotifUi(); startWatch();
+  if (!store.ok) toast('This browser is blocking site storage — leads cannot be saved here');
+}
+if (store.get(AUTH_KEY) === '1' || store.sGet(AUTH_KEY) === '1') unlock();
 
 $('#lockForm').addEventListener('submit', e => {
   e.preventDefault();
-  if ($('#pw').value === PASSWORD) {
-    ($('#remember').checked ? localStorage : sessionStorage).setItem(AUTH_KEY, '1');
+  /* tolerate what a phone keyboard does to a typed password */
+  const typed = $('#pw').value.trim().toLowerCase();
+  if (typed === PASSWORD) {
+    /* unlock FIRST — remembering the session must never gate getting in */
     unlock();
+    const remembered = $('#remember').checked ? store.set(AUTH_KEY, '1') : store.sSet(AUTH_KEY, '1');
+    if (!remembered) toast('Signed in, but this browser is blocking site storage — you will have to sign in again next visit');
   } else {
-    $('#pwErr').textContent = 'Wrong password.';
+    $('#pwErr').textContent = $('#pw').value ? 'Wrong password.' : 'Enter the crew password.';
     $('.lock-card').classList.remove('shake');
     void $('.lock-card').offsetWidth;
     $('.lock-card').classList.add('shake');
@@ -114,13 +135,13 @@ $('#lockForm').addEventListener('submit', e => {
   }
 });
 $('#lockBtn').addEventListener('click', () => {
-  localStorage.removeItem(AUTH_KEY); sessionStorage.removeItem(AUTH_KEY);
+  store.del(AUTH_KEY); store.sDel(AUTH_KEY);
   app.hidden = true; lock.hidden = false; $('#pw').value = ''; $('#pwErr').textContent = '';
 });
 
 /* ── new-lead watcher (cross-tab + poll) ───────────────── */
-const seen = () => { try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY)) || []); } catch { return new Set(); } };
-const markSeen = ids => localStorage.setItem(SEEN_KEY, JSON.stringify([...ids].slice(0, 500)));
+const seen = () => { try { return new Set(JSON.parse(store.get(SEEN_KEY)) || []); } catch { return new Set(); } };
+const markSeen = ids => store.set(SEEN_KEY, JSON.stringify([...ids].slice(0, 500)));
 
 function checkNew({ quiet = false } = {}) {
   const list = load(), known = seen();

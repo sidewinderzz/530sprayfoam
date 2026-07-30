@@ -1,5 +1,5 @@
 /* 530 Spray Foam — service worker (offline shell + notifications) */
-const CACHE = '530sf-v1';
+const CACHE = '530sf-v3';
 const SHELL = [
   './', './index.html', './admin.html', './styles.css', './app.js', './admin.js', './admin.css',
   './manifest.webmanifest', './assets/logo-530-tight.png'
