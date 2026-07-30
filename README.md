@@ -110,23 +110,59 @@ any `[data-c="path"]` element. Nothing flashes and there is no SEO cost.
 **Not built yet:** the `/api/content` endpoint. Publishing straight from the editor needs a
 backend — see below.
 
-## To make the editor publish by itself
+## Supabase backend
 
-Netlify DB (Postgres, auto-provisioned by `@netlify/database` on deploy) plus two functions:
+Written and wired, **not yet connected** — Supabase refused to create the project because the
+free tier allows 2 active projects per org and `nicfarms` + `farmsync` already fill both slots.
+Everything below applies the moment a slot is freed (pause a project or upgrade to Pro).
 
-1. `GET/POST /api/content` — read and write the content row; POST behind real auth
-2. `POST /api/leads` — store a lead and send the alert
+| File | What it does |
+| --- | --- |
+| `supabase/migrations/0001_init.sql` | `content` + `leads` tables, RLS policies, `photos` storage bucket |
+| `supabase/migrations/0002_login_attempts.sql` | Login throttling table |
+| `supabase/functions/crew-login/index.ts` | Turns the short crew passcode into a real session |
+| `supabase-config.js` | The two public values to fill in |
+| `db.js` | The only module that talks to the database |
 
-That same backend is what lead notifications need. Until it exists, two things are true and worth
-repeating: **form submissions never reach you**, and **editor changes are not live for visitors**.
+### How the `marc` passcode works with real auth
+
+Supabase Auth requires 6+ characters, and short passwords are weak regardless. So `marc` is
+**not** the account password. It is a token checked by the `crew-login` edge function, which
+holds a long random password in its environment and, on a match, returns a genuine Supabase
+session. The crew types four characters; the browser gets real auth.
+
+That matters because every query is then governed by Row Level Security rather than a
+client-side `if`. The policies say: anyone may read site content and insert a lead; **only a
+signed-in session may read leads or change content**. A visitor cannot enumerate other people's
+phone numbers even with the anon key in hand, which is exactly the hole the old client-side
+password left open.
+
+### Connecting it
+
+```bash
+supabase link --project-ref <ref>
+supabase db push                          # applies both migrations
+supabase functions deploy crew-login
+supabase secrets set CREW_PASSCODE=marc \
+  CREW_EMAIL=crew@530sprayfoam.com \
+  CREW_PASSWORD="$(openssl rand -base64 32)"
+# create that auth user once, with the same CREW_PASSWORD
+```
+Then put the project URL and anon key into `supabase-config.js` and redeploy. Both values are
+public by design; the service role key must never appear in the front end.
+
+### Until then
+
+`db.js` reports `mode: 'local'` and everything falls back to browser storage, exactly as before.
+The admin shows a banner saying so rather than implying it is connected. **Form submissions still
+do not reach you** in this state.
 
 ## Known limits — read before going live
 
-1. **The admin password is client-side.** `PASSWORD` sits in `admin.js`, readable in devtools. It
-   keeps casual visitors out; it is not security. Move authentication server-side — especially now
-   that the same login edits the public website.
-2. **Leads and content edits live in `localStorage`.** One browser, one device. Clearing site data
-   wipes them. Export CSV for leads; download `content.json` for content.
+1. **Auth is only as strong as the mode you are in.** Connected to Supabase, the passcode is
+   checked server-side and RLS enforces access. In local mode it is still a client-side check.
+2. **In local mode, leads and content edits live in `localStorage`.** One browser, one device.
+   Export CSV for leads; download `content.json` for content.
 3. **Notifications only fire while a browser or the installed app has run the page recently.**
    Background delivery ("a lead arrives at 2am and the phone buzzes") needs a server sending Web
    Push.

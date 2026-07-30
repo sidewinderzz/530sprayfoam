@@ -65,12 +65,14 @@ const SFContent = {
     let base = null;
     try { base = await fetchJSON('content.json'); this.source = 'file'; } catch {}
 
-    /* the API is optional — absent until the backend is deployed */
+    /* Live content from Supabase, if the project is wired up. Absent
+       until then, in which case content.json is the source of truth. */
     try {
-      const live = await fetchJSON(this.api);
-      if (live && typeof live === 'object') {
+      const DB = window.SFDB;
+      const live = DB && DB.configured ? await DB.getContent() : null;
+      if (live && typeof live === 'object' && Object.keys(live).length) {
         base = base ? merge(base, live) : live;
-        this.source = 'api';
+        this.source = 'supabase';
       }
     } catch {}
 

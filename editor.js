@@ -374,10 +374,13 @@ function wire() {
     drop.classList.add('busy');
     try {
       const { dataUrl, w, h } = await readImage(inp.files[0]);
-      put(draft, path, dataUrl);
+      const DB = window.SFDB;
+      const up = DB ? await DB.uploadPhoto(dataUrl, inp.files[0].name) : { url: dataUrl, mode: 'inline' };
+      put(draft, path, up.url);
       markDirty();
       refresh(inp.closest('.cms-sec').dataset.sec);
-      window.sfToast && window.sfToast(`Photo added (${w}×${h})`);
+      window.sfToast && window.sfToast(
+        `Photo added (${w}×${h})` + (up.mode === 'inline' ? ' — stored in this browser only' : ''));
     } catch (err) {
       window.sfToast && window.sfToast(err.message);
     } finally {
@@ -400,7 +403,19 @@ async function publish() {
   btn.disabled = true; btn.textContent = 'Publishing…';
   draft.updated = new Date().toISOString();
 
-  const ok = await window.SFContent.publish(draft);
+  let ok = false;
+  const DB = window.SFDB;
+  if (DB && DB.configured) {
+    const res = await DB.saveContent(draft);
+    ok = res.ok;
+    if (!ok && res.reason === 'signed-out') {
+      btn.disabled = false; btn.textContent = 'Publish changes';
+      window.sfToast && window.sfToast('Your session expired — sign in again to publish');
+      return;
+    }
+  } else {
+    ok = await window.SFContent.publish(draft);
+  }
   btn.textContent = 'Publish changes';
 
   if (ok) {

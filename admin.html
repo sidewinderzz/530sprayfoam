@@ -63,6 +63,11 @@
     <button class="ibtn sm" id="notifDismiss" aria-label="Dismiss">✕</button>
   </div>
 
+  <p class="mode-note" id="modeNote" hidden>
+    <b>Local mode.</b> Supabase is not connected yet, so leads and content edits are stored in
+    this browser only — they are not shared between devices and visitors do not see them.
+  </p>
+
   <main class="awrap" id="leadsView">
     <section class="tiles" id="tiles"></section>
 
@@ -143,6 +148,8 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="supabase-config.js"></script>
+<script src="db.js"></script>
 <script src="content.js"></script>
 <script src="editor.js"></script>
 <script src="admin.js"></script>

@@ -377,7 +377,7 @@ $('#qphone').addEventListener('input', e => {
 });
 
 const STORE = 'sf-submissions';
-form.addEventListener('submit', e => {
+form.addEventListener('submit', async e => {
   e.preventDefault();
   const ok = Object.keys(RULES).map(check).every(Boolean);
   if (!ok) { $('.fld.bad input, .fld.bad select')?.focus(); return; }
@@ -397,11 +397,15 @@ form.addEventListener('submit', e => {
     consent: $('#qconsent').checked,
     estimate: estimate ? { monthly: estimate.monthly, annual: estimate.annual } : null
   };
-  let saved = true;
+  /* "saved" means the business will actually see this lead. A local-only
+     copy while a server is configured means the insert failed — the lead
+     is sitting in the visitor's browser where nobody will ever read it,
+     so we must not tell them it arrived. */
+  let saved = true, ref = rec.id;
   try {
-    const all = JSON.parse(localStorage.getItem(STORE) || '[]');
-    all.unshift(rec);
-    localStorage.setItem(STORE, JSON.stringify(all));
+    const res = await window.SFDB.createLead(rec);
+    saved = res.ok && !(window.SFDB.configured && res.mode === 'local');
+    if (res.ref) ref = res.ref;
   } catch { saved = false; }
 
   const btn = $('#qsend');
@@ -409,10 +413,10 @@ form.addEventListener('submit', e => {
   setTimeout(() => {
     form.hidden = true; sent.hidden = false; sent.classList.add('in');
     $('#sentMsg').textContent = saved
-      ? `Thanks ${rec.name.split(' ')[0]} — request ${rec.id} is in. We'll call ${rec.phone} to set ` +
+      ? `Thanks ${rec.name.split(' ')[0]} — request ${ref} is in. We'll call ${rec.phone} to set ` +
         `the walkthrough, usually same day.`
-      : `Thanks ${rec.name.split(' ')[0]} — we could not store your request in this browser. ` +
-        `Please call us at (530) 555-0182 so we don't miss you.`;
+      : `Thanks ${rec.name.split(' ')[0]} — we could not get your request through to us just now. ` +
+        `Please call ${(C.business && C.business.phone) || '(530) 555-0182'} so we don't miss you.`;
   }, 650);
 });
 $('#again').addEventListener('click', () => {
