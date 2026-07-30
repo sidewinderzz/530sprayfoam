@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16234A">
+<title>530 Spray Foam — Insulation in Redding &amp; the North Valley</title>
+<meta name="description" content="Closed-cell and open-cell spray foam insulation across Shasta, Tehama, Butte and Glenn. Free walkthrough, fixed-price quote, 10-year workmanship warranty. CSLB #1091234.">
+<link rel="icon" href="assets/logo-530-tight.png">
+<link rel="apple-touch-icon" href="assets/logo-530-tight.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ══ utility strip ═══════════════════════════════════════ -->
+<div class="strip">
+  <div class="strip-in">
+    <span>Free walkthrough &amp; fixed-price quote</span>
+    <i class="hide-sm">|</i>
+    <span class="hide-sm">CSLB #1091234 · Fully insured</span>
+    <i>|</i>
+    <span>Mon–Sat 7a–6p</span>
+  </div>
+</div>
+
+<!-- ══ header ══════════════════════════════════════════════ -->
+<header class="hdr" id="hdr">
+  <div class="hdr-in">
+    <a class="lock" href="#top" aria-label="530 Spray Foam — home">
+      <img src="assets/logo-530.png" alt="" width="900" height="661">
+      <span class="lock-txt"><b>530</b><span>SPRAY FOAM</span></span>
+    </a>
+
+    <div class="hdr-right">
+      <nav class="nav" id="nav" aria-label="Main navigation">
+        <a href="#savings">Savings</a>
+        <a href="#foam">Open vs closed</a>
+        <a href="#area">Service area</a>
+        <a href="#process">How it goes</a>
+        <a href="#work">Work</a>
+        <a class="btn btn-sm" href="#quote">Get a quote</a>
+      </nav>
+      <div class="hdr-cta">
+        <a class="tel-lg" href="tel:+15305550182">(530) 555-0182</a>
+        <a class="btn btn-sm" href="#quote">Get a quote</a>
+        <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="nav">
+          <i></i><i></i><i></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="scrim" id="scrim" hidden></div>
+
+<main id="main"><span id="top"></span>
+
+<!-- ══ hero + estimator ════════════════════════════════════ -->
+<section class="hero" id="savings">
+  <div class="wrap hero-in">
+    <div class="hero-copy rv">
+      <p class="eyebrow">North valley insulation since 2013</p>
+      <h1 class="hero-h1">Your house is<br>leaking money<br><span>every hour</span></h1>
+      <p class="lede">A 2,000 sq ft home in Redding loses roughly a third of its conditioned air
+        through the attic. Foam stops it in a day — and we file the utility rebate for you.</p>
+      <div class="kpis">
+        <div class="kpi"><b>1 day</b><span>Typical home</span></div>
+        <div class="kpi"><b>10 yr</b><span>Workmanship warranty</span></div>
+        <div class="kpi"><b>4.9★</b><span>212 reviews</span></div>
+      </div>
+    </div>
+
+    <!-- estimator -->
+    <form class="est rv" data-d="1" id="est" aria-label="Estimate your savings">
+      <h2>Estimate your savings</h2>
+
+      <div class="est-grp">
+        <label class="est-lbl" for="sqft">
+          <span>Home size</span><output id="sqftOut">2,150 sq ft</output>
+        </label>
+        <input class="slider" type="range" id="sqft" min="800" max="4000" step="50" value="2150">
+      </div>
+
+      <fieldset class="est-grp">
+        <span id="insLbl">Current insulation</span>
+        <div class="opts" role="radiogroup" aria-labelledby="insLbl">
+          <label class="opt"><input type="radio" name="ins" value="none" checked><span>None</span></label>
+          <label class="opt"><input type="radio" name="ins" value="batts"><span>Batts</span></label>
+          <label class="opt"><input type="radio" name="ins" value="blown"><span>Blown-in</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="est-grp">
+        <span id="areaLbl">What we're foaming</span>
+        <div class="opts" role="group" aria-labelledby="areaLbl">
+          <label class="opt"><input type="checkbox" name="zone" value="attic" checked><span>Attic</span></label>
+          <label class="opt"><input type="checkbox" name="zone" value="crawl"><span>Crawlspace</span></label>
+          <label class="opt"><input type="checkbox" name="zone" value="walls"><span>Walls</span></label>
+        </div>
+      </fieldset>
+
+      <div class="est-out" aria-live="polite">
+        <span class="est-num">
+          <span>Est. monthly savings</span>
+          <b>$<span id="save">148</span></b>
+        </span>
+        <button class="btn btn-white btn-sm" type="button" id="estGo">Get exact quote</button>
+      </div>
+      <p class="est-fine" id="estFine">Roughly $1,776 a year. Ballpark from metered north-valley
+        retrofits — your walkthrough gives the real number.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ══ trust bar ═══════════════════════════════════════════ -->
+<div class="trust">
+  <div class="trust-in">
+    <div><b>LIC #1091234</b><span>Bonded &amp; insured</span></div>
+    <div><b>900+</b><span>Homes sealed</span></div>
+    <div><b>12 yrs</b><span>Locally owned</span></div>
+  </div>
+</div>
+
+<!-- ══ open vs closed ══════════════════════════════════════ -->
+<section class="sec sec-wash" id="foam">
+  <div class="wrap">
+    <header class="sec-hd rv">
+      <h2>Open cell or closed cell?</h2>
+      <p class="note">Both are foam. Which one you want comes down to where it's going and what it
+        has to stop.</p>
+    </header>
+
+    <div class="foam rv">
+      <article class="foam-card">
+        <div class="foam-top"><b>Open cell</b><span class="rval">R-3.7 / in</span></div>
+        <p>Softer, breathable, best value for attics and interior walls. Great sound damping
+          between bedrooms and shops.</p>
+        <div class="tags"><span>Attics</span><span>Interior walls</span><span>Sound control</span></div>
+      </article>
+      <article class="foam-card pick">
+        <div class="foam-top"><b>Closed cell</b><span class="rval">R-7 / in</span></div>
+        <p>Rigid, vapor-tight, adds structural rigidity. The pick for crawlspaces, metal buildings
+          and exterior assemblies.</p>
+        <div class="tags"><span>Crawlspaces</span><span>Metal buildings</span><span>Exteriors</span></div>
+      </article>
+    </div>
+
+    <button class="spec-toggle" id="specBtn" aria-expanded="false" aria-controls="specWrap">
+      <i>›</i> See the full spec sheet
+    </button>
+    <div class="spec-wrap" id="specWrap"><div class="spec-inner">
+      <table class="spec">
+        <thead><tr><th scope="col"><span class="sr">Property</span></th>
+          <th scope="col">Open</th><th scope="col" class="hi">Closed</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">R / inch</th><td>3.7</td><td>7.0</td></tr>
+          <tr><th scope="row">Vapor barrier</th><td class="off">No</td><td>Yes</td></tr>
+          <tr><th scope="row">Racking strength</th><td class="off">—</td><td>+300%</td></tr>
+          <tr><th scope="row">Metal condensation</th><td class="off">Partial</td><td>Stopped</td></tr>
+        </tbody>
+      </table>
+      <p class="spec-note">Full submittal packet, ICC-ES reports and Title 24 docs available on request.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ══ 40% band ════════════════════════════════════════════ -->
+<section class="band">
+  <div class="wrap band-in rv">
+    <b id="pct">40%</b>
+    <h2>Average drop in heating and cooling load</h2>
+    <p>Based on 148 metered retrofits across the north valley, 2019–2025.</p>
+  </div>
+</section>
+
+<!-- ══ service area ════════════════════════════════════════ -->
+<section class="sec" id="area">
+  <div class="wrap area">
+    <div class="map rv" id="map">
+      <!-- interactive service-area map: pins are wired in app.js -->
+      <svg viewBox="0 0 520 420" role="img" aria-label="Service area map for the north valley">
+        <path class="map-shape" d="M120 14c74-10 168 2 214 42 40 34 52 96 44 158-8 62-40 122-92 160-46 34-116 46-170 22-52-24-84-84-90-152C20 176 30 96 62 54 78 32 96 18 120 14z"/>
+        <path class="map-road" d="M258 8v404M104 132h318M92 268h340"/>
+        <g id="pins"></g>
+      </svg>
+      <div class="map-card" id="mapCard" aria-live="polite">
+        <b id="mapTown">Redding</b>
+        <span id="mapMeta">Home base · 2 crews · same-week walkthroughs</span>
+      </div>
+    </div>
+
+    <div class="rv" data-d="1">
+      <h2>Where we work</h2>
+      <p class="lede" style="max-width:520px;margin:20px 0">Two crews out of Redding, on site
+        anywhere in the north valley. Same-week walkthroughs most of the year.</p>
+      <div class="towns" id="towns"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ process ═════════════════════════════════════════════ -->
+<section class="sec sec-wash" id="process">
+  <div class="wrap">
+    <header class="sec-hd rv"><h2>How a job goes</h2></header>
+    <ol class="steps rv">
+      <li class="step">
+        <span class="step-rail"><span class="step-n">1</span><span class="line"></span></span>
+        <span class="step-txt"><h3>Walkthrough</h3>
+          <p>We crawl it, measure it, and hand you a fixed price. Free, no pressure.</p></span>
+      </li>
+      <li class="step">
+        <span class="step-rail"><span class="step-n">2</span><span class="line"></span></span>
+        <span class="step-txt"><h3>Mask &amp; spray</h3>
+          <p>One day for most homes. You stay out of the space 4 hours after we finish.</p></span>
+      </li>
+      <li class="step last">
+        <span class="step-rail"><span class="step-n">3</span><span class="line"></span></span>
+        <span class="step-txt"><h3>Rebate filed</h3>
+          <p>We send the paperwork to your utility and warranty the work 10 years.</p></span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══ work ════════════════════════════════════════════════ -->
+<section class="sec" id="work">
+  <div class="wrap">
+    <header class="sec-hd rv">
+      <h2>Recent work</h2>
+      <a class="link-up" href="#quote">See all jobs →</a>
+    </header>
+    <div class="shots rv" id="shots"></div>
+
+    <div class="ba-hd rv"><h2>Before / after</h2></div>
+    <div class="ba rv" id="ba" tabindex="0" role="slider" aria-label="Before and after comparison"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+      <div class="ba-pane before" id="baB"><span class="ba-tag">Before</span></div>
+      <div class="ba-pane after" id="baA"><span class="ba-tag">After</span></div>
+      <div class="ba-bar" id="baBar"><i>‹›</i></div>
+    </div>
+    <p class="ba-meta">Palo Cedro · 1978 ranch · 2,150 sq ft · one day</p>
+  </div>
+</section>
+
+<!-- ══ reviews ═════════════════════════════════════════════ -->
+<section class="sec sec-wash" id="reviews">
+  <div class="wrap">
+    <p class="rev-score rv">★★★★★ 4.9 · 212 reviews</p>
+    <div class="rev-view rv" data-d="1" style="margin-top:14px">
+      <ul class="rev-track" id="revTrack"></ul>
+    </div>
+    <div class="rev-foot rv" data-d="1">
+      <div class="rev-dots" id="revDots" role="tablist" aria-label="Choose a review"></div>
+      <button class="rev-arw" id="revPrev" aria-label="Previous review">‹</button>
+      <button class="rev-arw" id="revNext" aria-label="Next review">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ financing ═══════════════════════════════════════════ -->
+<section class="sec" id="financing">
+  <div class="wrap fin rv">
+    <h2>Financing &amp; rebates</h2>
+    <p>0% for 18 months on approved credit, and we file your utility rebate paperwork for you.</p>
+    <div class="fin-more" id="finMore"><div>
+      <ul class="fin-list">
+        <li>0% APR for 18 months, or fixed terms out to 84 months on approved credit.</li>
+        <li>We prepare and submit the utility rebate paperwork — you sign, we file.</li>
+        <li>Federal 25C energy-efficiency credit paperwork included with your invoice.</li>
+        <li>Quotes are fixed-price. No change orders unless you change the scope.</li>
+      </ul>
+    </div></div>
+    <button class="fin-btn" id="finBtn" aria-expanded="false" aria-controls="finMore">
+      See what you qualify for →
+    </button>
+  </div>
+</section>
+
+<!-- ══ quote ═══════════════════════════════════════════════ -->
+<section class="cta" id="quote">
+  <div class="wrap cta-in">
+    <div class="cta-copy rv">
+      <h2>Get your number</h2>
+      <p>Tell us the basics and we'll come out, crawl it, and leave you with a fixed price —
+        usually within the week.</p>
+      <div class="cta-tel">
+        <a href="tel:+15305550182">(530) 555-0182</a>
+        <span>or call us direct</span>
+      </div>
+    </div>
+
+    <form class="qform rv" data-d="1" id="quoteForm" novalidate>
+      <div class="qrow">
+        <div class="fld"><label class="sr" for="qname">Name</label>
+          <input id="qname" name="name" placeholder="Name" autocomplete="name" required>
+          <span class="msg" data-for="qname"></span></div>
+        <div class="fld"><label class="sr" for="qphone">Phone</label>
+          <input id="qphone" name="phone" type="tel" inputmode="tel" placeholder="Phone" autocomplete="tel" required>
+          <span class="msg" data-for="qphone"></span></div>
+      </div>
+      <div class="qrow three">
+        <div class="fld"><label class="sr" for="qzip">ZIP</label>
+          <input id="qzip" name="zip" inputmode="numeric" maxlength="5" placeholder="ZIP" autocomplete="postal-code" required>
+          <span class="msg" data-for="qzip"></span></div>
+        <div class="fld"><label class="sr" for="qsqft">Sq ft</label>
+          <input id="qsqft" name="sqft" type="number" inputmode="numeric" min="100" max="200000" placeholder="Sq ft" required>
+          <span class="msg" data-for="qsqft"></span></div>
+        <div class="fld"><label class="sr" for="qzone">What we're foaming</label>
+          <select id="qzone" name="zone" required>
+            <option value="">Attic</option>
+            <option>Attic / roofline</option>
+            <option>Crawlspace</option>
+            <option>Walls / new build</option>
+            <option>Shop or barn</option>
+            <option>Not sure yet</option>
+          </select>
+          <span class="msg" data-for="qzone"></span></div>
+      </div>
+      <div class="fld"><label class="sr" for="qnotes">What are we looking at?</label>
+        <textarea id="qnotes" name="notes" placeholder="What are we looking at?"></textarea></div>
+      <label class="consent"><input type="checkbox" id="qconsent" name="consent" checked>
+        <span>OK to text me about scheduling. We never sell your info.</span></label>
+      <button class="btn btn-block" type="submit" id="qsend">Send it</button>
+    </form>
+
+    <div class="sent rv" id="sent" hidden role="status">
+      <div class="sent-tick">✓</div>
+      <h3>Got it</h3>
+      <p id="sentMsg">We'll call you to set the walkthrough.</p>
+      <button class="btn btn-out btn-sm" type="button" id="again">Send another</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ══ footer ══════════════════════════════════════════════ -->
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr-in">
+      <div class="ftr-brand">
+        <img src="assets/logo-530-halo.png" alt="530 Spray Foam" width="900" height="671">
+        <p>Redding, CA · CSLB #1091234 · Fully insured<br>Serving Shasta, Tehama, Butte &amp; Glenn<br>Mon–Sat 7a–6p</p>
+      </div>
+      <div class="ftr-cols">
+        <div class="ftr-col">
+          <h4>Services</h4>
+          <a href="#foam">Attic foam</a><a href="#foam">Crawlspace</a>
+          <a href="#foam">Metal buildings</a><a href="#foam">New construction</a>
+        </div>
+        <div class="ftr-col">
+          <h4>Company</h4>
+          <a href="#process">About the crew</a><a href="#reviews">Reviews</a>
+          <a href="#financing">Financing &amp; rebates</a><a href="#quote">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="ftr-bot">
+      <p>© <span id="yr"></span> 530 Spray Foam. All rights reserved.</p>
+      <a href="admin.html">Crew login</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ sticky call bar ═════════════════════════════════════ -->
+<div class="callbar" id="callbar">
+  <div class="callbar-in">
+    <div><span>Free estimate</span><b>(530) 555-0182</b></div>
+    <a href="tel:+15305550182">Tap to call</a>
+  </div>
+</div>
+<button class="totop" id="totop" aria-label="Back to top">↑</button>
+
+<!-- ══ lightbox ════════════════════════════════════════════ -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Job photo" hidden>
+  <button class="lb-x" id="lbX" aria-label="Close">✕</button>
+  <button class="lb-nav p" id="lbP" aria-label="Previous">‹</button>
+  <button class="lb-nav n" id="lbN" aria-label="Next">›</button>
+  <div class="lb-box">
+    <div class="lb-art" id="lbArt"></div>
+    <div class="lb-txt"><b id="lbTitle"></b><span id="lbMeta"></span></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+</script>
+</body>
+</html>
