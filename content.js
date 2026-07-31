@@ -101,10 +101,18 @@ const SFContent = {
   bind(c, root = document) {
     if (!c) return;
     root.querySelectorAll('[data-c]').forEach(el => {
-      const v = dig(c, el.dataset.c);
-      if (v === undefined || v === null || v === '') return;
+      const raw = dig(c, el.dataset.c);
+      /* Only an absent key falls back to the static markup. An explicitly
+         emptied field must clear the element — otherwise deleting a line in
+         the CMS looks like it worked and the old copy stays on the site. */
+      if (raw === undefined) return;
+      const v = raw === null ? '' : raw;
       const attr = el.dataset.cAttr;
-      if (attr) { el.setAttribute(attr, v); return; }
+      if (attr) {
+        /* src="" re-requests the page itself, so empty means remove */
+        if (v === '') el.removeAttribute(attr); else el.setAttribute(attr, v);
+        return;
+      }
       /* multi-line values keep their line breaks */
       if (String(v).includes('\n')) {
         el.innerHTML = '';
@@ -136,6 +144,18 @@ const SFContent = {
       if (c.seo.title) document.title = c.seo.title;
       const d = document.querySelector('meta[name=description]');
       if (d && c.seo.description) d.setAttribute('content', c.seo.description);
+    }
+    /* keep the search-results markup in step with the edited contact details,
+       so the JSON-LD is never a second place someone has to remember */
+    const ld = document.getElementById('ldBiz');
+    if (ld) {
+      try {
+        const j = JSON.parse(ld.textContent);
+        if (b.name)  j.name = b.name;
+        if (b.phone) j.telephone = b.phone;
+        if (b.email) j.email = b.email;
+        ld.textContent = JSON.stringify(j);
+      } catch { /* leave the static block alone */ }
     }
   },
 

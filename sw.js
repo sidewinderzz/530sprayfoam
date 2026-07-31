@@ -1,9 +1,9 @@
 /* 530 Spray Foam — service worker (offline shell + notifications) */
-const CACHE = '530sf-v10';
+const CACHE = '530sf-v11';
 const SHELL = [
   './', './index.html', './admin.html', './styles.css', './app.js', './admin.js', './admin.css',
   './content.js', './content.json', './editor.js', './db.js', './map.js',
-  './manifest.webmanifest', './assets/icon-192.png', './assets/apple-touch-icon.png',
+  './manifest.webmanifest', './public.webmanifest', './assets/icon-192.png', './assets/apple-touch-icon.png',
   './assets/favicon-32.png'
 ];
 
@@ -27,12 +27,31 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const { request } = e;
   if (request.method !== 'GET' || new URL(request.url).origin !== location.origin) return;
+  const url = new URL(request.url);
+
+  /* Never touch the API. Lead records are customer names, phone numbers and
+     addresses; caching them writes that to disk where it survives sign-out,
+     and replaying a cached /api/login offline would show a signed-in inbox
+     for a session the server may since have revoked. */
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/.netlify/')) return;
 
   if (request.mode === 'navigate') {
+    /* Fall back to the shell for the page actually being asked for — serving
+       the crew lock screen to a homeowner who tapped a link on a dead cell is
+       worse than showing nothing. ignoreSearch so ?utm_source=… still matches. */
+    const shell = url.pathname.includes('admin') ? './admin.html' : './index.html';
     e.respondWith(
       fetch(request)
-        .then(r => { caches.open(CACHE).then(c => c.put(request, r.clone())); return r; })
-        .catch(() => caches.match(request).then(r => r || caches.match('./admin.html')))
+        .then(r => {
+          /* r.ok keeps 404s and deploy-time 500s out of the cache, where they
+             would otherwise be served forever. Redirects come back opaque and
+             cannot be put(), hence the catch. */
+          if (r.ok && r.type === 'basic') {
+            caches.open(CACHE).then(c => c.put(request, r.clone())).catch(() => {});
+          }
+          return r;
+        })
+        .catch(() => caches.match(request, { ignoreSearch: true }).then(r => r || caches.match(shell)))
     );
     return;
   }
@@ -41,7 +60,7 @@ self.addEventListener('fetch', e => {
      against fresh HTML breaks the page in confusing ways (old editor.js
      next to new admin.html, for instance). So those are network-first:
      the cache is only a fallback for being offline. */
-  const immutable = /\.(png|jpg|jpeg|webp|svg|woff2?)$/i.test(new URL(request.url).pathname);
+  const immutable = /\.(png|jpg|jpeg|webp|svg|woff2?)$/i.test(url.pathname);
 
   if (immutable) {
     e.respondWith(caches.match(request).then(hit => hit || fetch(request).then(r => {

@@ -212,6 +212,13 @@ function unlock() {
 DB.ready.then(() => {
   if ((store.get(AUTH_KEY) === '1' || store.sGet(AUTH_KEY) === '1') && DB.signedIn()) unlock();
   if (DB.online) $('#modeNote').hidden = true;
+  /* Be honest on the lock screen: with no server there is nothing to check
+     a password against, and pretending otherwise would mean shipping the
+     real crew passcode inside a file anyone can read. */
+  else {
+    $('#lockSub').textContent = 'No connection to the server, so there is nothing here yet — ' +
+      'anything you type will open this browser\u2019s own copy.';
+  }
 });
 
 function rejectLogin(msg) {
@@ -278,6 +285,13 @@ function checkNew({ quiet = false } = {}) {
   }
   fresh.forEach(l => known.add(l.id));
   markSeen(known);
+  /* The 20s poll must not yank a <select> out from under someone mid-change
+     or wipe a selection they were copying — repaint when they step away. */
+  const busy = document.activeElement && document.activeElement.closest('#leads');
+  if (busy) {
+    busy.addEventListener('focusout', () => render(), { once: true });
+    return;
+  }
   render();
 }
 let watchTimer;
@@ -294,15 +308,23 @@ addEventListener('visibilitychange', () => { if (!document.hidden && !app.hidden
 
 /* ── filtering / sorting ───────────────────────────────── */
 const state = { status: 'all', q: '', sort: 'new' };
+/* the class alone leaves a screen reader announcing "All, selected" no
+   matter which filter is actually applied */
+function setStatusTab(status) {
+  $$('#statusTabs button').forEach(o => {
+    const on = o.dataset.status === status;
+    o.classList.toggle('on', on);
+    o.setAttribute('aria-selected', String(on));
+  });
+}
 $$('#statusTabs button').forEach(b => b.addEventListener('click', () => {
-  $$('#statusTabs button').forEach(o => o.classList.remove('on'));
-  b.classList.add('on'); state.status = b.dataset.status; render();
+  setStatusTab(b.dataset.status); state.status = b.dataset.status; render();
 }));
 $('#search').addEventListener('input', e => { state.q = e.target.value.toLowerCase().trim(); render(); });
 $('#sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
 if (location.hash === '#new') {
   state.status = 'new';
-  $$('#statusTabs button').forEach(b => b.classList.toggle('on', b.dataset.status === 'new'));
+  setStatusTab('new');
 }
 
 function visible(list) {
@@ -342,11 +364,15 @@ function render() {
 
   const list = visible(all);
   $('#empty').hidden = list.length > 0;
+  /* Every caller of render() replaces the whole list, so remember which
+     cards were expanded — otherwise opening a fourth lead collapses the
+     three the user was comparing it against. */
+  const openIds = new Set($$('#leads .lead.open').map(el => el.dataset.id));
   $('#leads').innerHTML = list.map(l => {
     const st = l.status || 'new';
     const est = l.estimate ? `$${money(l.estimate.annual)}/yr · ${esc(l.estimate.range)}` : '—';
     return `
-    <article class="lead ${l.read ? '' : 'unread'}" data-id="${esc(l.id)}">
+    <article class="lead ${l.read ? '' : 'unread'}${openIds.has(l.id) ? ' open' : ''}" data-id="${esc(l.id)}">
       <div class="lead-hd">
         <div class="lead-who">
           <b>${esc(l.name)}</b>
@@ -412,11 +438,7 @@ $('#leads').addEventListener('click', e => {
     const open = card.classList.toggle('open');
     if (open) {
       const list = load(), i = list.findIndex(l => l.id === id);
-      if (i >= 0 && !list[i].read) { list[i].read = true; save(list); }
-      const wasOpen = card;
-      render();
-      $(`.lead[data-id="${CSS.escape(id)}"]`)?.classList.add('open');
-      void wasOpen;
+      if (i >= 0 && !list[i].read) { list[i].read = true; save(list); render(); }
     }
   }
 });

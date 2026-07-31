@@ -112,7 +112,7 @@ function loadOnce(url, tag) {
   });
 }
 
-let map = null, markers = [], booted = false;
+let map = null, markers = null, booted = false;
 
 const SFMap = {
   buildStyle, circlePolygon,
@@ -120,12 +120,21 @@ const SFMap = {
 
   async init(content, towns, onPick) {
     const cfg = (content && content.area && content.area.map) || {};
-    if (cfg.enabled === false || booted) return false;
+    /* the CMS stores this field as text, so "false" is what actually
+       arrives — comparing against the boolean alone made the off switch
+       do nothing */
+    const off = cfg.enabled === false || String(cfg.enabled).trim().toLowerCase() === 'false';
+    if (off || booted) return false;
 
     const host = document.getElementById('gmap');
     if (!host) return false;
 
-    const pts = (towns || []).filter(t => Number.isFinite(+t.lat) && Number.isFinite(+t.lng));
+    /* Carry each town's original index: onPick and focus() are both called
+       with positions in the UNFILTERED list, so dropping a town without
+       coordinates would shift every marker after it onto the wrong name. */
+    const pts = (towns || [])
+      .map((t, i) => ({ t, i }))
+      .filter(({ t }) => Number.isFinite(+t.lat) && Number.isFinite(+t.lng));
     if (!pts.length) return false;
 
     try {
@@ -138,7 +147,7 @@ const SFMap = {
     }
     booted = true;
 
-    const hq = pts.find(t => t.hq) || pts[0];
+    const hq = (pts.find(({ t }) => t.hq) || pts[0]).t;   // first town is home base
     const center = [+(cfg.lng ?? hq.lng), +(cfg.lat ?? hq.lat)];
     const miles = +(cfg.radiusMiles ?? 100);
 
@@ -170,15 +179,16 @@ const SFMap = {
       paint: { 'line-color': NAVY, 'line-width': 2, 'line-opacity': 0.85, 'line-dasharray': [3, 2] } });
 
     /* towns */
-    markers = pts.map((t, i) => {
+    markers = new Map();
+    pts.forEach(({ t, i }) => {
       const el = document.createElement('button');
       el.type = 'button';
       el.className = 'map-pin' + (t.hq ? ' hq' : '');
       el.setAttribute('aria-label', t.name);
       el.innerHTML = `<i></i><span>${String(t.name).replace(/[<>&]/g, '')}</span>`;
       el.addEventListener('click', () => { if (onPick) onPick(i); });
-      return new window.maplibregl.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([+t.lng, +t.lat]).addTo(map);
+      markers.set(i, new window.maplibregl.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([+t.lng, +t.lat]).addTo(map));
     });
 
     /* frame the whole service area */
@@ -199,9 +209,10 @@ const SFMap = {
   },
 
   focus(i) {
-    if (!map || !markers[i]) return;
-    markers.forEach((m, n) => m.getElement().classList.toggle('on', n === i));
-    map.flyTo({ center: markers[i].getLngLat(), zoom: Math.max(map.getZoom(), 8), duration: 700 });
+    const m = markers && markers.get(i);
+    if (!map || !m) return;
+    markers.forEach((mk, n) => mk.getElement().classList.toggle('on', n === i));
+    map.flyTo({ center: m.getLngLat(), zoom: Math.max(map.getZoom(), 8), duration: 700 });
   }
 };
 

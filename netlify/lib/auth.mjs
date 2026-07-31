@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════
    Session handling for the crew login.
 
-   The crew types a short passcode ("marc"). That passcode is
+   The crew types a short passcode. That passcode is
    never a password hash and never grants access on its own —
    it is checked server-side, and on a match this issues a
    signed session token.
