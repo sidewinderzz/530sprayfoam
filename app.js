@@ -487,6 +487,40 @@ ba.addEventListener('keydown', e => {
 });
 setX(50);
 
+/* ═══ about ═════════════════════════════════════════════════ */
+const A = C.about || {};
+const aboutArt = $('#aboutArt');
+if (aboutArt && safePhoto(A.photo)) {
+  aboutArt.style.backgroundImage = `url("${safePhoto(A.photo)}")`;
+}
+const aboutPts = $('#aboutPts');
+if (aboutPts) {
+  const pts = pick(A.points, [
+    'Spray foam insulation — attics, crawlspaces, walls, shops and barns',
+    'Roof coatings that seal and reflect, on metal and flat roofs',
+    'Free walkthrough and a fixed price before we start'
+  ]).filter(p => String(p || '').trim());
+  aboutPts.innerHTML = pts.map(p => `<li>${esc(p)}</li>`).join('');
+  aboutPts.hidden = !pts.length;
+}
+
+/* The Facebook links stay hidden until there is a page to link to — an
+   empty or broken social link costs more trust than a missing one. */
+const fbUrl = (() => {
+  const raw = String((C.social && C.social.facebook) || '').trim();
+  if (!raw) return '';
+  const url = /^https?:\/\//i.test(raw) ? raw : 'https://' + raw.replace(/^\/+/, '');
+  try {
+    const u = new URL(url);
+    return /(^|\.)facebook\.com$|(^|\.)fb\.com$/i.test(u.hostname) ? u.href : '';
+  } catch { return ''; }
+})();
+$$('#fbLink, .ftr-fb').forEach(a => {
+  if (!fbUrl) { a.hidden = true; return; }
+  a.href = fbUrl;
+  a.hidden = false;
+});
+
 /* ═══ reviews ═══════════════════════════════════════════════ */
 const REVIEWS = (pick(C.reviews && C.reviews.items, [
   { quote: 'Crew masked everything, sprayed the whole crawlspace in a day, and my floors aren\u2019t freezing anymore. Bill dropped $90 the first month.', who: 'Dana R., Anderson CA' },
