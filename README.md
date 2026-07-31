@@ -129,8 +129,11 @@ in code — the editor cannot break the design.
 - Photos upload from a phone and are resized in the browser to 1600×1200 JPEG before storage
 - Reviews, towns and financing points can be added, reordered and deleted
 - **Live preview** sits beside the editor and redraws as you type, in phone or desktop width.
-  Opening a section scrolls the preview to that part of the page, and the frame keeps its scroll
-  position across refreshes. Drafts are never shown to real visitors.
+  Opening a section scrolls **the preview only** to that part of the page — the editor stays
+  exactly where it is, so the field you are typing in never slides away. (`scrollIntoView` walks
+  up every ancestor scrollport, including the editor page, which is why `scrollPreviewTo` moves
+  the frame's own window instead.) The frame keeps its scroll position across refreshes, and
+  drafts are never shown to real visitors.
 - **Publish** writes to the database through `/api/content` and is live at once. Without the API
   the editor says so plainly and offers **Download content.json** instead.
 

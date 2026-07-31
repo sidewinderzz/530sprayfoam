@@ -521,7 +521,12 @@ function scrollPreviewTo(selector) {
       if (!doc) return false;
       const el = selector === 'header' ? doc.querySelector('header, .strip') : doc.querySelector(selector);
       if (!el) return false;
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      /* Scroll the preview's own window, never scrollIntoView(): that walks
+         up every ancestor scrollport, including this page, and drags the
+         editor away from the field being typed in. */
+      const win = frame.contentWindow;
+      const top = el.getBoundingClientRect().top + win.scrollY;
+      win.scrollTo({ top: Math.max(0, top - 8), behavior: 'smooth' });
       return true;
     } catch { return false; }
   };
