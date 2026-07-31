@@ -270,6 +270,24 @@ const pio = new IntersectionObserver(es => {
 pio.observe(pct);
 
 /* ═══ service-area map ══════════════════════════════════════ */
+/* Published content replaces the towns array wholesale, so a copy saved
+   before coordinates existed arrives with none — and the real map needs
+   them. Fill the gaps by name; anything not listed still works from its
+   own lat/lng or its stored pixel position. */
+const GEO = {
+  redding: [40.5865, -122.3917], anderson: [40.4482, -122.2978],
+  'palo cedro': [40.5646, -122.2386], cottonwood: [40.3866, -122.2811],
+  'red bluff': [40.1785, -122.2358], chico: [39.7285, -121.8375],
+  orland: [39.7474, -122.1961], willows: [39.5243, -122.1936],
+  shasta_lake: [40.6807, -122.3706], 'shasta lake': [40.6807, -122.3706],
+  corning: [39.9277, -122.1792], paradise: [39.7596, -121.6219],
+  oroville: [39.5138, -121.5564], sacramento: [38.5816, -121.4944]
+};
+const withGeo = t => {
+  if (Number.isFinite(+t.lat) && Number.isFinite(+t.lng)) return t;
+  const hit = GEO[String(t.name || '').trim().toLowerCase()];
+  return hit ? { ...t, lat: hit[0], lng: hit[1] } : t;
+};
 const TOWNS = pick(C.area && C.area.towns, [
   { name: 'Redding',    x: 258, y: 104, hq: true, meta: 'Home base · 2 crews · same-week walkthroughs' },
   { name: 'Anderson',   x: 236, y: 158, meta: '18 min out · 60+ crawlspaces sealed' },
@@ -278,7 +296,7 @@ const TOWNS = pick(C.area && C.area.towns, [
   { name: 'Red Bluff',  x: 246, y: 262, meta: '40 min out · weekly route' },
   { name: 'Chico',      x: 292, y: 330, meta: '75 min out · new construction and multi-family' },
   { name: 'Orland',     x: 196, y: 316, meta: '70 min out · ag buildings and cold storage' }
-]);
+]).map(withGeo);
 /* The drawn map is an SVG with a 520x420 viewBox. Rather than storing pixel
    coordinates a crew user could never reason about, project the town's real
    lat/lng into that box, so a town added in the CMS lands in the right place
@@ -521,7 +539,36 @@ $$('#fbLink, .ftr-fb').forEach(a => {
   a.hidden = false;
 });
 
-/* ═══ reviews ═══════════════════════════════════════════════ */
+/* ═══ reviews ═══════════════════════════════════════════════
+   Off until there are real reviews to show. A star rating nobody
+   earned is the most exposed claim a contractor site can carry, and
+   an empty carousel looks worse than no carousel. Admin → Website →
+   Customer reviews → "Show the reviews section" turns it on. */
+const R = C.reviews || {};
+const REVIEWS_ON = (R.enabled === true || R.enabled === 'true')
+  && Array.isArray(R.items) && R.items.length > 0;
+/* A published copy of the content can still carry the mockup's "4.9★ /
+   212 reviews" headline stat. With no reviews on the site that is a claim
+   nobody can back up, so it is replaced rather than shown — the CMS can
+   set it to anything true, but it can never advertise a rating while the
+   reviews section is empty. */
+const RATING_RE = /★|\bstars?\b|\breviews?\b|\b\d\.\d\s*(?:★|stars?|out of)/i;
+const KPI_FALLBACK = { value: 'Free', label: 'Walkthrough & quote' };
+const revSection = $('#reviews');
+if (!REVIEWS_ON) {
+  if (revSection) revSection.hidden = true;
+  $$('.rev-link').forEach(a => { a.hidden = true; });
+  $$('.kpis .kpi').forEach(k => {
+    if (!RATING_RE.test(k.textContent)) return;
+    const b = $('b', k), s = $('span', k);
+    if (b) b.textContent = KPI_FALLBACK.value;
+    if (s) s.textContent = KPI_FALLBACK.label;
+  });
+} else {
+  if (revSection) revSection.hidden = false;
+  $$('.rev-link').forEach(a => { a.hidden = false; });
+}
+
 const REVIEWS = (pick(C.reviews && C.reviews.items, [
   { quote: 'Crew masked everything, sprayed the whole crawlspace in a day, and my floors aren\u2019t freezing anymore. Bill dropped $90 the first month.', who: 'Dana R., Anderson CA' },
   { quote: 'Upstairs used to run ten degrees hotter than down. They foamed the roof deck and the AC finally shuts off in the afternoon.', who: 'Marcus T., Redding CA' },

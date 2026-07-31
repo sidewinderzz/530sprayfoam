@@ -96,8 +96,13 @@ const SCHEMA = [
     list: 'about.points', listLabel: 'Bullet points', max: 6, plain: true },
 
   { id: 'reviews', icon: ICON.reviews, anchor: '#reviews', title: 'Customer reviews',
-    hint: 'Add reviews as they come in. Only publish words a customer actually said.',
-    fields: [['reviews.score', 'Rating line', 'text']],
+    hint: 'The section is hidden until you switch it on AND there is at least one review — ' +
+          'an empty carousel looks worse than none. Only publish words a customer actually ' +
+          'said, and only a star rating you can point at real reviews for.',
+    fields: [
+      ['reviews.enabled', 'Show the reviews section (true / false)', 'text'],
+      ['reviews.score', 'Rating line', 'text']
+    ],
     list: 'reviews.items', listLabel: 'Reviews', max: 12,
     itemFields: [['quote', 'What they said', 'textarea'], ['who', 'Name, town']] },
 

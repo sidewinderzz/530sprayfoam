@@ -37,8 +37,8 @@
       "label": "Workmanship warranty"
     },
     {
-      "value": "4.9★",
-      "label": "212 reviews"
+      "value": "Free",
+      "label": "Walkthrough & quote"
     }
   ],
   "trust": [
@@ -292,25 +292,9 @@
     "photo": ""
   },
   "reviews": {
-    "score": "★★★★★ 4.9 · 212 reviews",
-    "items": [
-      {
-        "quote": "Crew masked everything, sprayed the whole crawlspace in a day, and my floors aren't freezing anymore. Bill dropped $90 the first month.",
-        "who": "Dana R., Anderson CA"
-      },
-      {
-        "quote": "Upstairs used to run ten degrees hotter than down. They foamed the roof deck and the AC finally shuts off in the afternoon.",
-        "who": "Marcus T., Redding CA"
-      },
-      {
-        "quote": "Sprayed our 40×60 shop in two days, masked the whole slab, and the condensation drip off the metal is completely gone.",
-        "who": "Loretta M., Cottonwood CA"
-      },
-      {
-        "quote": "Fixed price, showed up when they said, and filed the rebate paperwork without me chasing it. Framers had zero delay.",
-        "who": "Kyle D., general contractor, Chico CA"
-      }
-    ]
+    "enabled": false,
+    "score": "",
+    "items": []
   },
   "financing": {
     "heading": "Financing & rebates",
