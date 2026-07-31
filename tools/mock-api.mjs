@@ -19,7 +19,11 @@ import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 const PORT = Number(process.env.PORT || 8787);
 const ROOT = process.cwd();
-const PASSCODE = process.env.CREW_PASSCODE || 'marc';
+const PASSCODE = process.env.CREW_PASSCODE;
+if (!PASSCODE) {
+  console.error('CREW_PASSCODE is not set. Run:  CREW_PASSCODE=... node tools/mock-api.mjs');
+  process.exit(1);
+}
 const SECRET = process.env.SESSION_SECRET || 'dev-only-secret';
 
 const db = { content: {}, leads: [], attempts: [], photos: new Map(), subs: [], alerts: [] };

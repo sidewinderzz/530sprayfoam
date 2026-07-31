@@ -37,7 +37,9 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 | --- | --- |
 | `index.html` / `styles.css` / `app.js` | Public site |
 | `admin.html` / `admin.css` / `admin.js` | Crew inbox (password gated) |
-| `sw.js` / `manifest.webmanifest` | PWA shell, offline cache, notifications |
+| `sw.js` | PWA shell, offline cache, notifications |
+| `public.webmanifest` / `manifest.webmanifest` | Installable app metadata — the marketing site and the crew inbox install as separate apps |
+| `robots.txt` / `sitemap.xml` | Search-engine basics; `admin.html` is excluded |
 | `content.json` | Every editable word and photo on the site |
 | `content.js` | Loads content and binds it over the HTML |
 | `editor.js` | The admin content editor and live preview |
@@ -69,7 +71,8 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 
 ## Crew inbox (`/admin.html`)
 
-Password: **`marc`**
+Password: whatever `CREW_PASSCODE` is set to on the site. It is never stored in this repo and
+never reaches the browser.
 
 - Lock screen with optional "stay signed in"
 - Stat tiles, status filters, search, four sort orders, CSV export
@@ -149,7 +152,7 @@ Set in **Site configuration → Environment variables**, then redeploy.
 
 **Required — login does not work without these:**
 ```
-CREW_PASSCODE  = marc
+CREW_PASSCODE  = <the crew password>
 SESSION_SECRET = <openssl rand -base64 32>
 ```
 `SESSION_SECRET` signs the session cookie. Anyone who learns it can forge a login, so never
@@ -173,7 +176,7 @@ ALERT_EMAIL_FROM = leads@530sprayfoam.com   (must be a domain verified in Resend
 Each group is independent. No VAPID keys means no push, no Resend key means no email, and
 neither stops leads being saved.
 
-### How `marc` works without being a weak password
+### How a short passcode works without being a weak password
 
 The passcode is checked server-side and never stored as a credential. On a match the function
 issues an **HMAC-signed session in an HttpOnly cookie** — which JavaScript on the page cannot
@@ -227,6 +230,15 @@ never breaks.
 
 Attribution to OpenFreeMap, OpenMapTiles and OpenStreetMap is required by their licences and is
 rendered by the map control; do not remove it.
+
+## Search-engine metadata
+
+`index.html` carries a canonical URL, Open Graph and Twitter card tags (share image:
+`assets/share-1200x630.png`), and a `HomeAndConstructionBusiness` JSON-LD block. `content.js`
+rewrites the JSON-LD's name, telephone and email from the CMS on every load, so contact details
+are never a second place to edit. There is deliberately **no `aggregateRating`** — marking up
+review scores that are not tied to real collected reviews is a Google policy violation, not just
+a cosmetic problem. Add it once the reviews are real and verifiable.
 
 ## Known limits — read before going live
 

@@ -64,21 +64,29 @@ export default async (req, context) => {
   }
 
   if (req.method === 'PATCH') {
-    if (!id) return json({ error: 'Missing id' }, 400);
+    /* id is a bigserial; a non-numeric path segment would make Postgres
+       throw and surface as a 500 rather than an honest 404 */
+    if (!/^\d+$/.test(String(id || ''))) return json({ error: 'Missing id' }, 400);
     let b; try { b = await req.json(); } catch { return json({ error: 'Bad request' }, 400); }
+    if (b.status !== undefined && !STATUSES.includes(b.status)) {
+      return json({ error: 'Unknown status' }, 400);
+    }
 
-    if (b.status !== undefined) {
-      if (!STATUSES.includes(b.status)) return json({ error: 'Unknown status' }, 400);
-      await db.sql`update leads set status = ${b.status} where id = ${id}`;
-    }
-    if (b.read !== undefined) {
-      await db.sql`update leads set read = ${!!b.read} where id = ${id}`;
-    }
+    /* One statement, so a lead deleted by the other phone reports 404
+       instead of a silent no-op the admin UI shows as saved. */
+    const rows = await db.sql`
+      update leads
+         set status = coalesce(${b.status ?? null}::text, status),
+             read   = coalesce(${b.read === undefined ? null : !!b.read}::boolean, read)
+       where id = ${id}
+      returning id`;
+    if (!rows.length) return json({ error: 'Not found' }, 404);
     return json({ ok: true });
   }
 
   if (req.method === 'DELETE') {
-    if (!id) return json({ error: 'Missing id' }, 400);
+    if (!/^\d+$/.test(String(id || ''))) return json({ error: 'Missing id' }, 400);
+    /* deleting an already-deleted lead is the outcome the caller wanted */
     await db.sql`delete from leads where id = ${id}`;
     return json({ ok: true });
   }

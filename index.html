@@ -9,7 +9,17 @@
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="assets/favicon-16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="public.webmanifest">
+<link rel="canonical" href="https://530sprayfoam.netlify.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="530 Spray Foam">
+<meta property="og:url" content="https://530sprayfoam.netlify.app/">
+<meta property="og:title" content="530 Spray Foam — Insulation in Redding &amp; the North Valley">
+<meta property="og:description" content="Closed-cell and open-cell spray foam insulation across Shasta, Tehama, Butte and Glenn. Free walkthrough, fixed-price quote.">
+<meta property="og:image" content="https://530sprayfoam.netlify.app/assets/share-1200x630.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Fonts load without blocking the parser: a slow or unreachable CDN
@@ -19,6 +29,34 @@
       media="print" onload="this.media='all';this.onload=null">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap"></noscript>
 <link rel="stylesheet" href="styles.css">
+<!-- Local-business markup for search results. content.js keeps telephone,
+     name and areaServed in step with the CMS, so this block is not a second
+     place to edit copy. No aggregateRating: marking up review scores that
+     are not tied to real collected reviews violates Google's policy. -->
+<script type="application/ld+json" id="ldBiz">
+{
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  "name": "530 Spray Foam",
+  "url": "https://530sprayfoam.netlify.app/",
+  "image": "https://530sprayfoam.netlify.app/assets/share-1200x630.png",
+  "logo": "https://530sprayfoam.netlify.app/assets/icon-512.png",
+  "telephone": "(530) 555-0182",
+  "email": "info@530sprayfoam.com",
+  "priceRange": "$$",
+  "areaServed": [
+    { "@type": "AdministrativeArea", "name": "Shasta County, CA" },
+    { "@type": "AdministrativeArea", "name": "Tehama County, CA" },
+    { "@type": "AdministrativeArea", "name": "Butte County, CA" },
+    { "@type": "AdministrativeArea", "name": "Glenn County, CA" }
+  ],
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+    "opens": "07:00", "closes": "18:00"
+  }]
+}
+</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -323,29 +361,29 @@
     <form class="qform rv" data-d="1" id="quoteForm" novalidate>
       <div class="qrow">
         <div class="fld"><label class="sr" for="qname">Name</label>
-          <input id="qname" name="name" placeholder="Name" autocomplete="name" required>
-          <span class="msg" data-for="qname"></span></div>
+          <input id="qname" aria-describedby="qname-err" name="name" placeholder="Name" autocomplete="name" required>
+          <span class="msg" id="qname-err" data-for="qname" aria-live="polite"></span></div>
         <div class="fld"><label class="sr" for="qphone">Phone</label>
-          <input id="qphone" name="phone" type="tel" inputmode="tel" placeholder="Phone" autocomplete="tel" required>
-          <span class="msg" data-for="qphone"></span></div>
+          <input id="qphone" aria-describedby="qphone-err" name="phone" type="tel" inputmode="tel" placeholder="Phone" autocomplete="tel" required>
+          <span class="msg" id="qphone-err" data-for="qphone" aria-live="polite"></span></div>
       </div>
       <div class="qrow three">
         <div class="fld"><label class="sr" for="qzip">ZIP</label>
-          <input id="qzip" name="zip" inputmode="numeric" maxlength="5" placeholder="ZIP" autocomplete="postal-code" required>
-          <span class="msg" data-for="qzip"></span></div>
+          <input id="qzip" aria-describedby="qzip-err" name="zip" inputmode="numeric" maxlength="5" placeholder="ZIP" autocomplete="postal-code" required>
+          <span class="msg" id="qzip-err" data-for="qzip" aria-live="polite"></span></div>
         <div class="fld"><label class="sr" for="qsqft">Sq ft</label>
-          <input id="qsqft" name="sqft" type="number" inputmode="numeric" min="100" max="200000" placeholder="Sq ft" required>
-          <span class="msg" data-for="qsqft"></span></div>
+          <input id="qsqft" aria-describedby="qsqft-err" name="sqft" type="number" inputmode="numeric" min="100" max="200000" placeholder="Sq ft" required>
+          <span class="msg" id="qsqft-err" data-for="qsqft" aria-live="polite"></span></div>
         <div class="fld"><label class="sr" for="qzone">What we're foaming</label>
-          <select id="qzone" name="zone" required>
-            <option value="">Attic</option>
+          <select id="qzone" name="zone" required aria-describedby="qzone-err">
+            <option value="" disabled selected>What we’re foaming</option>
             <option>Attic / roofline</option>
             <option>Crawlspace</option>
             <option>Walls / new build</option>
             <option>Shop or barn</option>
             <option>Not sure yet</option>
           </select>
-          <span class="msg" data-for="qzone"></span></div>
+          <span class="msg" id="qzone-err" data-for="qzone" aria-live="polite"></span></div>
       </div>
       <div class="fld"><label class="sr" for="qnotes">What are we looking at?</label>
         <textarea id="qnotes" name="notes" placeholder="What are we looking at?"></textarea></div>

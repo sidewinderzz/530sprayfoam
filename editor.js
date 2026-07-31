@@ -240,10 +240,12 @@ function markDirty() {
   $('#cmsSave').disabled = !dirty;
   $('#cmsRevert').disabled = !dirty;
   $('#cmsDirty').hidden = !dirty;
-  if (dirty) {
-    window.SFContent.saveDraft(draft);
-    refreshPreview();
-  }
+  /* Persist either way. Typing a character and deleting it again leaves the
+     editor clean but used to leave the draft in storage, so the change came
+     back as pending on the next reload. */
+  if (dirty) window.SFContent.saveDraft(draft);
+  else window.SFContent.clearDraft();
+  refreshPreview();
 }
 
 /* ── render ──────────────────────────────────────────────── */
@@ -380,7 +382,7 @@ function wire() {
       const arr = (dig(draft, path) || []).slice();
       arr.push(add.dataset.plain === 'true' ? ''
         : path === 'reviews.items' ? { quote: '', who: '' }
-        : path === 'area.towns' ? { name: '', meta: '', x: 250, y: 200, hq: false }
+        : path === 'area.towns' ? { name: '', meta: '', lat: '', lng: '', hq: false }
         : {});
       put(draft, path, arr);
       markDirty(); refresh(add.closest('.cms-sec').dataset.sec);
@@ -597,7 +599,7 @@ async function publish() {
   btn.disabled = true; btn.textContent = 'Publishing…';
   draft.updated = new Date().toISOString();
 
-  let ok = false;
+  let ok = false, noApi = false;
   const DB = window.SFDB;
   if (DB) await DB.ready;
   if (DB && DB.online) {
@@ -610,6 +612,7 @@ async function publish() {
     }
   } else {
     ok = await window.SFContent.publish(draft);
+    noApi = !ok;
   }
   btn.textContent = 'Publish changes';
 
@@ -618,13 +621,21 @@ async function publish() {
     window.SFContent.clearDraft();
     markDirty();
     refreshPreview(true);
+    /* a previous failure may have raised this; the site clearly has a
+       backend now, so stop telling the user it does not */
+    $('#cmsNoApi').hidden = true;
     window.sfToast && window.sfToast('Published — the site is updated');
-  } else {
-    /* No backend yet. The edits are real and saved locally; this is the
+  } else if (noApi) {
+    /* No backend at all. The edits are real and saved locally; this is the
        manual publish path until the API is deployed. */
     $('#cmsNoApi').hidden = false;
     btn.disabled = false;
     window.sfToast && window.sfToast('No publish server yet — download the file instead');
+  } else {
+    /* There is a server, it just did not accept this — a retry usually works,
+       and telling the user to hand-edit a JSON file would be wrong. */
+    btn.disabled = false;
+    window.sfToast && window.sfToast('Publish failed — check your connection and try again');
   }
 }
 
@@ -642,8 +653,8 @@ async function boot() {
   $('#cmsRevert').addEventListener('click', () => {
     if (!confirm('Discard all unpublished changes and go back to what is live?')) return;
     draft = clone(base);
-    window.SFContent.clearDraft();
     render();
+    markDirty();
     refreshPreview(true);
     window.sfToast && window.sfToast('Changes discarded');
   });
