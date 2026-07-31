@@ -1,9 +1,10 @@
 /* 530 Spray Foam — service worker (offline shell + notifications) */
-const CACHE = '530sf-v7';
+const CACHE = '530sf-v8';
 const SHELL = [
   './', './index.html', './admin.html', './styles.css', './app.js', './admin.js', './admin.css',
   './content.js', './content.json', './editor.js', './db.js', './map.js',
-  './manifest.webmanifest', './assets/logo-530-tight.png'
+  './manifest.webmanifest', './assets/icon-192.png', './assets/apple-touch-icon.png',
+  './assets/favicon-32.png'
 ];
 
 self.addEventListener('install', e => {
@@ -69,8 +70,8 @@ self.addEventListener('message', e => {
     body: d.body || '',
     tag: d.tag || 'sf-lead',
     renotify: true,
-    icon: './assets/logo-530-tight.png',
-    badge: './assets/logo-530-tight.png',
+    icon: './assets/icon-192.png',
+    badge: './assets/icon-192.png',
     data: { url: d.url || './admin.html#new' },
     vibrate: [90, 40, 90],
     requireInteraction: false
@@ -84,7 +85,7 @@ self.addEventListener('push', e => {
   e.waitUntil(self.registration.showNotification(p.title || 'New lead — 530 Spray Foam', {
     body: p.body || 'Open the admin inbox to review it.',
     tag: p.tag || 'sf-lead', renotify: true,
-    icon: './assets/logo-530-tight.png', badge: './assets/logo-530-tight.png',
+    icon: './assets/icon-192.png', badge: './assets/icon-192.png',
     data: { url: p.url || './admin.html#new' }
   }));
 });

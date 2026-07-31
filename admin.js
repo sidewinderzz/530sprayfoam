@@ -181,7 +181,7 @@ function notify(title, body, tag = 'sf-lead') {
   if (swReg && swReg.active) {
     swReg.active.postMessage({ type: 'notify', title, body, tag, url: './admin.html#new' });
   } else {
-    try { new Notification(title, { body, tag, icon: 'assets/logo-530-tight.png' }); } catch {}
+    try { new Notification(title, { body, tag, icon: 'assets/icon-192.png' }); } catch {}
   }
   if (navigator.vibrate) navigator.vibrate([90, 40, 90]);
 }

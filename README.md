@@ -43,7 +43,7 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 | `editor.js` | The admin content editor and live preview |
 | `map.js` | Google Maps service-area map (modified Snazzy Maps #7846) |
 | `assets/logo-530*.png` | Logos from the handoff (resized to 900px, ~300KB each) |
-| `assets/icon-*.png` | PWA icons generated from `logo-530-tight.png` |
+| `assets/icon-*.png`, `apple-touch-icon.png`, `favicon-*.png` | App and browser icons, generated from `logo-530-tight.png` |
 
 ## Public site
 
