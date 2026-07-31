@@ -29,7 +29,8 @@ const ICON = {
   financing:svg('<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/>'),
   form:     svg('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2.5 6.5l9.5 7 9.5-7"/>'),
   seo:      svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>'),
-  map:      svg('<path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15M15 6v15"/>')
+  map:      svg('<path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15M15 6v15"/>'),
+  pricing:  svg('<path d="M12 1v22"/><path d="M17 5.5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>')
 };
 
 /* ── schema: what is editable, and how ───────────────────────
@@ -97,6 +98,30 @@ const SCHEMA = [
       ['foam.cards.1.r', 'Card 2 — R-value', 'text'],
       ['foam.cards.1.body', 'Card 2 — description', 'textarea'],
       ['foam.specNote', 'Note under the spec table', 'textarea']
+    ] },
+
+  { id: 'pricing', icon: ICON.pricing, anchor: '#savings', title: 'Pricing &amp; estimates',
+    hint: 'Drives the price range the estimator shows. Rates are dollars per square foot of the ' +
+          'area being sprayed, installed. Set "Show prices" to false to hide the range entirely ' +
+          'and leave only the savings figure.',
+    fields: [
+      ['pricing.enabled', 'Show prices (true / false)', 'text'],
+      ['pricing.rates.attic.open',   'Attic — open cell, $/sq ft', 'text'],
+      ['pricing.rates.attic.closed', 'Attic — closed cell, $/sq ft', 'text'],
+      ['pricing.rates.crawl.open',   'Crawlspace / rim — open cell, $/sq ft', 'text'],
+      ['pricing.rates.crawl.closed', 'Crawlspace / rim — closed cell, $/sq ft', 'text'],
+      ['pricing.rates.walls.open',   'Walls — open cell, $/sq ft', 'text'],
+      ['pricing.rates.walls.closed', 'Walls — closed cell, $/sq ft', 'text'],
+      ['pricing.removalPerSqft', 'Removing old insulation, $/sq ft', 'text'],
+      ['pricing.minimumJob', 'Minimum job price, $', 'text'],
+      ['pricing.spreadPct', 'Range width either side of the estimate, %', 'text'],
+      ['pricing.heading', 'Label above the price', 'text'],
+      ['pricing.note', 'Fine print under the price', 'textarea'],
+      ['pricing.foamLabel', 'Foam question label', 'text'],
+      ['pricing.openLabel', 'Open cell — label', 'text'],
+      ['pricing.closedLabel', 'Closed cell — label', 'text'],
+      ['pricing.removalLabel', 'Remove old insulation — label', 'text'],
+      ['estimator.payback', 'Payback line wording', 'text']
     ] },
 
   { id: 'area', icon: ICON.area, anchor: '#area', title: 'Service area',

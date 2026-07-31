@@ -51,6 +51,12 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 - **Savings estimator** — sq ft slider, current-insulation radios, area checkboxes; live monthly
   and annual figures. Calibrated so the mockup's defaults (2,150 sq ft, no insulation, attic) land
   on **$148/month**, exactly as drawn. "Get exact quote" carries the numbers into the form.
+- **Price estimator** — the same controls also produce a project cost range: foam type (open /
+  closed), optional removal of old insulation, per-zone rates × the area being sprayed, a minimum
+  job price, and a ±spread rounded to $50. Shows how long the job takes to pay for itself. The
+  range travels into the quote form and is stored on the lead, so the crew sees what the customer
+  was quoted. Every number lives in **Admin → Website → Pricing & estimates**, including an
+  on/off switch that hides prices entirely.
 - Open vs closed cards, with 1C's spec sheet behind a disclosure
 - 40% band with a count-up
 - **Interactive service-area map** — seven towns as SVG pins, hover/click/keyboard, synced to the
@@ -99,7 +105,7 @@ Manifest icons all return 200.
 
 ## Content editor
 
-`/admin.html` → **Website** tab. Eleven sections covering what a contractor actually changes:
+`/admin.html` → **Website** tab. Thirteen sections covering what a contractor actually changes:
 contact details, headline, numbers and claims, job photos, reviews, service cards, service area,
 process steps, financing, quote form, and the Google listing. Layout, colours and structure stay
 in code — the editor cannot break the design.
@@ -236,7 +242,10 @@ rendered by the map control; do not remove it.
    CSS-art panels. Replace the `art` values in the `JOBS` array in `app.js` with `<img>` tags.
 5. **All copy stats are the mockup's stand-ins** — phone `(530) 555-0182`, `CSLB #1091234`, 900+
    homes, 212 reviews, the 40% figure, and the four review quotes. Replace before publishing.
-6. **The estimator is a marketing ballpark**, not an energy audit. Constants are `RATE`, `INS` and
+6. **The prices are placeholders too.** The `pricing.rates` in `content.json` are stand-in
+   dollars-per-square-foot, not the client's numbers. A published price is a quotable claim —
+   replace them in the CMS before launch, or set **Show prices** to false.
+7. **The savings estimator is a marketing ballpark**, not an energy audit. Constants are `RATE`, `INS` and
    `ZONE` at the top of the estimator block in `app.js`.
 
 The form `submit` handler in `app.js` and `saveLead()` in `admin.js` are the only two places that

@@ -69,7 +69,8 @@
       "attic": 1.0,
       "crawl": 0.45,
       "walls": 0.55
-    }
+    },
+    "payback": "Pays for itself in"
   },
   "foam": {
     "heading": "Open cell or closed cell?",
@@ -318,5 +319,36 @@
   },
   "footer": {
     "blurb": "Redding, CA · CSLB #1091234 · Fully insured\nServing Shasta, Tehama, Butte & Glenn\nMon–Sat 7a–6p"
+  },
+  "pricing": {
+    "enabled": true,
+    "heading": "Estimated project cost",
+    "note": "Ballpark from recent north-valley jobs at the thickness each area usually needs. Your walkthrough gives the fixed price.",
+    "spreadPct": 15,
+    "minimumJob": 950,
+    "removalPerSqft": 0.85,
+    "removalLabel": "Remove old insulation",
+    "foamLabel": "Foam type",
+    "openLabel": "Open cell",
+    "closedLabel": "Closed cell",
+    "rates": {
+      "attic": {
+        "open": 1.85,
+        "closed": 3.1
+      },
+      "crawl": {
+        "open": 2.1,
+        "closed": 3.4
+      },
+      "walls": {
+        "open": 2.0,
+        "closed": 3.25
+      }
+    },
+    "areaFactor": {
+      "attic": 1.0,
+      "crawl": 0.9,
+      "walls": 0.85
+    }
   }
 }

@@ -240,6 +240,17 @@ fieldset.est-grp{border:0;margin:0;padding:0;min-width:0}
 .opt input:checked+span{border-color:var(--amber);background:rgba(233,161,59,.15);color:#fff}
 .opt input:focus-visible+span{outline:3px solid var(--amber);outline-offset:2px}
 
+.est-check{display:flex;align-items:center;gap:9px;margin-top:10px;cursor:pointer;
+  font-size:15px;color:var(--on-navy)}
+.est-check input{width:17px;height:17px;flex:none;accent-color:var(--amber);margin:0}
+
+.est-price{border-top:1px solid rgba(255,255,255,.18);padding-top:20px;display:grid;gap:2px}
+.est-price-lbl{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--on-navy-dim)}
+.est-price b{font-family:var(--dsp);font-weight:800;font-size:38px;line-height:1.05;color:#fff}
+.est-price-sub{font-size:13.5px;color:var(--on-navy-dim)}
+@media (max-width:1024px){.est-price b{font-size:30px}}
+
 .est-out{border-top:1px solid rgba(255,255,255,.18);padding-top:22px;
   display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .est-out .est-num{display:flex;flex-direction:column}
