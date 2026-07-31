@@ -278,6 +278,19 @@
       "caption": "Palo Cedro · 1978 ranch · 2,150 sq ft · one day"
     }
   },
+  "about": {
+    "eyebrow": "About us",
+    "heading": "Northern California, one building at a time",
+    "body": "530 Spray Foam is committed to serving Northern California with quality spray foam insulation and roof coatings. We're local, licensed and insured, and we treat every job like it's going on our own house — masked off, sprayed right, cleaned up before we go.",
+    "points": [
+      "Spray foam insulation — attics, crawlspaces, walls, shops and barns",
+      "Roof coatings that seal and reflect, on metal and flat roofs",
+      "Free walkthrough and a fixed price before we start"
+    ],
+    "cta": "Get a free walkthrough",
+    "facebookLabel": "See recent work on Facebook",
+    "photo": ""
+  },
   "reviews": {
     "score": "★★★★★ 4.9 · 212 reviews",
     "items": [
@@ -359,5 +372,8 @@
       "crawl": 0.9,
       "walls": 0.85
     }
+  },
+  "social": {
+    "facebook": ""
   }
 }

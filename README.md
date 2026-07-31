@@ -65,6 +65,10 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
   town list and a detail card
 - Process (three cards on desktop, connected timeline on mobile, per 1B)
 - Job gallery with a keyboard-navigable lightbox, plus a drag/touch/arrow-key before-after slider
+- **About us** — short "who we are" block with a crew/truck photo, bullet points, the email
+  address and a Facebook link. Every word, the photo, the bullets and the Facebook URL are
+  CMS-editable; the Facebook buttons stay hidden until a URL is set, and a URL that is not
+  facebook.com is ignored rather than linked
 - Review carousel (swipeable, autoplaying, pausable), financing disclosure
 - **Quote form** with per-field validation, phone masking and estimator prefill. Asks for email
   (optional, validated when filled) and a timeline, and lets the customer **attach up to three
@@ -117,9 +121,9 @@ Manifest icons all return 200.
 
 ## Content editor
 
-`/admin.html` → **Website** tab. Thirteen sections covering what a contractor actually changes:
-contact details, headline, numbers and claims, job photos, reviews, service cards, service area,
-process steps, financing, quote form, and the Google listing. Layout, colours and structure stay
+`/admin.html` → **Website** tab. Fourteen sections covering what a contractor actually changes:
+contact details, headline, numbers and claims, job photos, about us, reviews, service cards,
+pricing, service area, map, process steps, financing, quote form, and the Google listing. Layout, colours and structure stay
 in code — the editor cannot break the design.
 
 - Photos upload from a phone and are resized in the browser to 1600×1200 JPEG before storage
@@ -276,10 +280,14 @@ a cosmetic problem. Add it once the reviews are real and verifiable.
    CSS-art panels. Replace the `art` values in the `JOBS` array in `app.js` with `<img>` tags.
 5. **All copy stats are the mockup's stand-ins** — phone `(530) 555-0182`, `CSLB #1091234`, 900+
    homes, 212 reviews, the 40% figure, and the four review quotes. Replace before publishing.
-6. **The prices are placeholders too.** The `pricing.rates` in `content.json` are stand-in
+6. **Photos must be yours or properly licensed.** Pulling images off a search results page is
+   copyright infringement, and stock-photo companies do send invoices for it. Use the crew's own
+   phone photos where possible; otherwise Unsplash, Pexels or Openverse, which are free for
+   commercial use. Never claim a stock photo as "our work" next to a town name.
+7. **The prices are placeholders too.** The `pricing.rates` in `content.json` are stand-in
    dollars-per-square-foot, not the client's numbers. A published price is a quotable claim —
    replace them in the CMS before launch, or set **Show prices** to false.
-7. **The savings estimator is a marketing ballpark**, not an energy audit. Constants are `RATE`, `INS` and
+8. **The savings estimator is a marketing ballpark**, not an energy audit. Constants are `RATE`, `INS` and
    `ZONE` at the top of the estimator block in `app.js`.
 
 The form `submit` handler in `app.js` and `saveLead()` in `admin.js` are the only two places that

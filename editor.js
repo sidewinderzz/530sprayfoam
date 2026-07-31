@@ -30,7 +30,8 @@ const ICON = {
   form:     svg('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2.5 6.5l9.5 7 9.5-7"/>'),
   seo:      svg('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>'),
   map:      svg('<path d="M9 3L3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15M15 6v15"/>'),
-  pricing:  svg('<path d="M12 1v22"/><path d="M17 5.5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>')
+  pricing:  svg('<path d="M12 1v22"/><path d="M17 5.5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'),
+  about:    svg('<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>')
 };
 
 /* ── schema: what is editable, and how ───────────────────────
@@ -79,6 +80,20 @@ const SCHEMA = [
   { id: 'photos', icon: ICON.photos, anchor: '#work', title: 'Job photos',
     hint: 'Tap a slot to upload from your phone. Photos are resized automatically. These are what sell the job.',
     gallery: true },
+
+  { id: 'about', icon: ICON.about, anchor: '#about', title: 'About us',
+    hint: 'The short "who we are" block. A real photo of the crew or a truck does more here ' +
+          'than any wording. Leave the Facebook link blank and the Facebook buttons stay hidden.',
+    photo: ['about.photo', 'Crew or truck photo'],
+    fields: [
+      ['about.eyebrow', 'Small line above the heading', 'text'],
+      ['about.heading', 'Heading', 'text'],
+      ['about.body', 'Paragraph', 'textarea'],
+      ['about.cta', 'Button label', 'text'],
+      ['social.facebook', 'Facebook page URL', 'text'],
+      ['about.facebookLabel', 'Facebook link wording', 'text']
+    ],
+    list: 'about.points', listLabel: 'Bullet points', max: 6, plain: true },
 
   { id: 'reviews', icon: ICON.reviews, anchor: '#reviews', title: 'Customer reviews',
     hint: 'Add reviews as they come in. Only publish words a customer actually said.',
@@ -297,6 +312,19 @@ function listBlock(sec) {
   </div>`;
 }
 
+/* one photo slot, for sections that are not the job gallery */
+function photoBlock(path, label) {
+  const v = dig(draft, path);
+  return `<div class="cms-grid two"><div class="cms-shot">
+    <label class="cms-drop" data-photo="${path}">
+      ${v ? `<img src="${esc(v)}" alt="">`
+          : `<span class="cms-ph">${esc(label)}<br><i>tap to upload</i></span>`}
+      <input type="file" accept="image/*" hidden data-photo-input="${path}">
+    </label>
+    ${v ? `<button type="button" class="ghost sm" data-clear="${path}">Remove photo</button>` : ''}
+  </div></div>`;
+}
+
 function galleryBlock() {
   const jobs = dig(draft, 'work.jobs') || [];
   const cells = GALLERY.map((g, i) => {
@@ -348,6 +376,7 @@ function render() {
         ${sec.hint ? `<p class="cms-hint">${sec.hint}</p>` : ''}
         ${(sec.fields || []).map(f => fieldRow(f[0], f[1], f[2])).join('')}
         ${sec.gallery ? galleryBlock() : ''}
+        ${sec.photo ? photoBlock(sec.photo[0], sec.photo[1]) : ''}
         ${sec.list ? `<h4 class="cms-sub">${esc(sec.listLabel)}</h4>${listBlock(sec)}` : ''}
       </div>
     </section>`).join('');
