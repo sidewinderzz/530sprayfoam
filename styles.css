@@ -212,7 +212,7 @@ p{margin:0}
 .kpi span{font-size:14px;font-weight:600;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
 @media (max-width:1240px){.hero-in{grid-template-columns:1fr 430px;gap:40px}}
 @media (max-width:1024px){
-  .hero{padding:34px 0 0}
+  .hero{padding:34px 0 26px}
   .hero-in{grid-template-columns:1fr;gap:28px}
   .hero-copy{padding-top:0;gap:16px}
   .kpis{gap:26px}
@@ -285,11 +285,18 @@ fieldset.est-grp{border:0;margin:0;padding:0;min-width:0}
 
 /* ══ trust bar ═════════════════════════════════════════════ */
 .trust{background:var(--ink)}
-.trust-in{display:grid;grid-template-columns:repeat(3,1fr);max-width:var(--wrap);margin-inline:auto}
-.trust div{padding:18px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
-.trust div+div{border-left:1px solid rgba(255,255,255,.12)}
-.trust b{font-family:var(--dsp);font-weight:800;font-size:22px;color:var(--amber)}
-.trust span{font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+.trust-in{display:grid;grid-template-columns:repeat(3,1fr);max-width:var(--wrap);margin-inline:auto;
+  padding-inline:var(--pad)}
+/* `.trust div` also matched .trust-in itself, so flex-direction:column beat
+   the grid and the three facts stacked into a tall column. Child selector. */
+.trust-in>div{padding:18px 6px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;text-align:center;min-width:0}
+.trust-in>div+div{border-left:1px solid rgba(255,255,255,.12)}
+.trust b{font-family:var(--dsp);font-weight:800;font-size:clamp(15px,4.4vw,22px);color:var(--amber);
+  line-height:1.1;text-wrap:balance}
+.trust span{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;
+  line-height:1.25}
+@media (max-width:400px){.trust span{letter-spacing:.06em;font-size:9.5px}}
 @media (min-width:1025px){.trust b{font-size:28px}.trust span{font-size:11.5px}}
 
 /* ══ section shells ════════════════════════════════════════ */

@@ -65,6 +65,14 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js')
     .then(r => { swReg = r; })
     .catch(() => { /* file:// or unsupported — notifications fall back to page-level */ });
+  /* A new worker taking over means the code on screen is the old build.
+     Reload once so the crew is never editing against a stale page. */
+  let swSwapped = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (swSwapped) return;
+    swSwapped = true;
+    location.reload();
+  });
 }
 let installEvt = null;
 addEventListener('beforeinstallprompt', e => {

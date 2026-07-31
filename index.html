@@ -124,7 +124,7 @@
       <div class="kpis">
         <div class="kpi"><b data-c="kpis.0.value">1 day</b><span data-c="kpis.0.label">Typical home</span></div>
         <div class="kpi"><b data-c="kpis.1.value">10 yr</b><span data-c="kpis.1.label">Workmanship warranty</span></div>
-        <div class="kpi"><b data-c="kpis.2.value">4.9★</b><span data-c="kpis.2.label">212 reviews</span></div>
+        <div class="kpi"><b data-c="kpis.2.value">Free</b><span data-c="kpis.2.label">Walkthrough &amp; quote</span></div>
       </div>
     </div>
 
@@ -348,7 +348,7 @@
 </section>
 
 <!-- ══ reviews ═════════════════════════════════════════════ -->
-<section class="sec sec-wash" id="reviews">
+<section class="sec sec-wash" id="reviews" hidden>
   <div class="wrap">
     <p class="rev-score rv" data-c="reviews.score">★★★★★ 4.9 · 212 reviews</p>
     <div class="rev-view rv" data-d="1" style="margin-top:14px">
@@ -480,7 +480,7 @@
   <div class="wrap">
     <div class="ftr-in">
       <div class="ftr-brand">
-        <img src="assets/logo-530-halo.png" alt="530 Spray Foam" width="900" height="671">
+        <img src="assets/logo-530-tight.png" alt="530 Spray Foam" width="900" height="644">
         <p data-c="footer.blurb">Redding, CA · CSLB #1091234 · Fully insured<br>Serving Shasta, Tehama, Butte &amp; Glenn<br>Mon–Sat 7a–6p</p>
       </div>
       <div class="ftr-cols">
@@ -492,7 +492,7 @@
         </div>
         <div class="ftr-col">
           <h4>Company</h4>
-          <a href="#about">About us</a><a href="#reviews">Reviews</a>
+          <a href="#about">About us</a><a class="rev-link" href="#reviews" hidden>Reviews</a>
           <a href="#financing">Financing &amp; rebates</a><a href="#quote">Contact</a>
           <a href="mailto:info@530sprayfoam.com" data-mail="text">info@530sprayfoam.com</a>
           <a class="ftr-fb" href="#" target="_blank" rel="noopener me" hidden>Facebook</a>
@@ -533,6 +533,15 @@
 <script>
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    /* When a new service worker takes over, the page in front of the user is
+       still the old one — which is how a phone ends up showing content that
+       was published hours ago. Reload once, the first time control changes. */
+    let swapped = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (swapped) return;
+      swapped = true;
+      location.reload();
+    });
   }
 </script>
 </body>

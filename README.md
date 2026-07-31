@@ -69,7 +69,10 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
   address and a Facebook link. Every word, the photo, the bullets and the Facebook URL are
   CMS-editable; the Facebook buttons stay hidden until a URL is set, and a URL that is not
   facebook.com is ignored rather than linked
-- Review carousel (swipeable, autoplaying, pausable), financing disclosure
+- Review carousel (swipeable, autoplaying, pausable) — **off until there are real reviews**: it
+  needs both the CMS switch and at least one review, and while it is off any headline stat that
+  advertises a star rating is replaced. An unearned rating is the most exposed claim a contractor
+  site can carry. Financing disclosure
 - **Quote form** with per-field validation, phone masking and estimator prefill. Asks for email
   (optional, validated when filled) and a timeline, and lets the customer **attach up to three
   photos** of the space — resized in the browser first, so a 8MB phone photo does not have to
