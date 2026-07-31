@@ -315,7 +315,16 @@
     "body": "Tell us the basics and we'll come out, crawl it, and leave you with a fixed price — usually within the week.",
     "telNote": "or call us direct",
     "cta": "Send it",
-    "consent": "OK to text me about scheduling. We never sell your info."
+    "consent": "OK to text me about scheduling. We never sell your info.",
+    "timelinePlaceholder": "When are you looking to do this?",
+    "timelines": [
+      "As soon as you can",
+      "Next month or so",
+      "This season",
+      "Just pricing it out"
+    ],
+    "photoLabel": "Add photos of the space — attic hatch, crawlspace, shop wall",
+    "photoHint": "Optional, up to 3. Photos let us price most jobs without a second trip."
   },
   "footer": {
     "blurb": "Redding, CA · CSLB #1091234 · Fully insured\nServing Shasta, Tehama, Butte & Glenn\nMon–Sat 7a–6p"

@@ -166,11 +166,20 @@ const SCHEMA = [
     list: 'financing.points', listLabel: 'Bullet points', max: 8, plain: true },
 
   { id: 'form', icon: ICON.form, anchor: '#quote', title: 'Quote form',
+    hint: 'The photo prompt is worth keeping — photos are what let you price a job without ' +
+          'driving out twice.',
     fields: [
       ['quote.heading', 'Heading', 'text'],
       ['quote.body', 'Text above the form', 'textarea'],
       ['quote.cta', 'Button label', 'text'],
-      ['quote.consent', 'Consent checkbox wording', 'textarea']
+      ['quote.consent', 'Consent checkbox wording', 'textarea'],
+      ['quote.timelinePlaceholder', 'Timeline question', 'text'],
+      ['quote.timelines.0', 'Timeline option 1', 'text'],
+      ['quote.timelines.1', 'Timeline option 2', 'text'],
+      ['quote.timelines.2', 'Timeline option 3', 'text'],
+      ['quote.timelines.3', 'Timeline option 4', 'text'],
+      ['quote.photoLabel', 'Photo upload prompt', 'text'],
+      ['quote.photoHint', 'Photo upload fine print', 'textarea']
     ] },
 
   { id: 'seo', icon: ICON.seo, anchor: 'header', title: 'Google listing',

@@ -43,7 +43,7 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 | `content.json` | Every editable word and photo on the site |
 | `content.js` | Loads content and binds it over the HTML |
 | `editor.js` | The admin content editor and live preview |
-| `map.js` | Google Maps service-area map (modified Snazzy Maps #7846) |
+| `map.js` | MapLibre + OpenFreeMap service-area map |
 | `assets/logo-530*.png` | Logos from the handoff (resized to 900px, ~300KB each) |
 | `assets/icon-*.png`, `apple-touch-icon.png`, `favicon-*.png` | App and browser icons, generated from `logo-530-tight.png` |
 
@@ -66,7 +66,11 @@ Tokens are lifted directly from the mockup source: navy `#1E3160`, deep navy `#1
 - Process (three cards on desktop, connected timeline on mobile, per 1B)
 - Job gallery with a keyboard-navigable lightbox, plus a drag/touch/arrow-key before-after slider
 - Review carousel (swipeable, autoplaying, pausable), financing disclosure
-- Quote form with per-field validation, phone masking and estimator prefill
+- **Quote form** with per-field validation, phone masking and estimator prefill. Asks for email
+  (optional, validated when filled) and a timeline, and lets the customer **attach up to three
+  photos** of the space — resized in the browser first, so a 8MB phone photo does not have to
+  cross rural LTE. Photos are the difference between pricing a job from the truck and driving to
+  Red Bluff twice.
 - Sticky call bar, back-to-top, scroll reveals, `prefers-reduced-motion` and `:focus-visible` support
 
 ## Crew inbox (`/admin.html`)
@@ -76,8 +80,13 @@ never reaches the browser.
 
 - Lock screen with optional "stay signed in"
 - Stat tiles, status filters, search, four sort orders, CSV export
-- Expandable lead cards with call/text/email, status pipeline (new → contacted → quoted → won →
-  lost), read/unread, delete
+- Expandable lead cards with call/text/email, the customer's photos, status pipeline (new →
+  contacted → quoted → won → lost), read/unread, delete
+- **Follow-up nudges** — a lead still `new` after 2 hours, `contacted` for 2 days or `quoted` for
+  5 days is flagged on the card, counted in its own tile, and collected under a **Needs follow-up**
+  filter. `netlify/functions/digest.mjs` runs once a day and pushes a single "3 leads need a
+  follow-up" notification, but only when there is something to chase. The windows live in `COLD`
+  in `admin.js` and in the digest's SQL — change both together.
 - Manual entry for phone-in leads
 - Installable PWA with notifications and an app-icon badge count
 
@@ -138,10 +147,13 @@ deploy; there is nothing to create by hand and no project limit to run into.
 | --- | --- |
 | `netlify.toml` | Static publish from the repo root, functions dir, security headers |
 | `netlify/database/migrations/001_init/` | `content`, `leads`, `login_attempts` tables |
+| `netlify/database/migrations/003_photos_timeline/` | Lead `photos`, and `upload_attempts` for the public upload throttle |
+| `netlify/functions/digest.mjs` | Scheduled daily follow-up digest |
 | `netlify/functions/login.mjs` | Passcode → HttpOnly session cookie |
 | `netlify/functions/content.mjs` | `GET` public, `PUT` crew-only |
 | `netlify/functions/leads.mjs` | `POST` public, list/patch/delete crew-only |
 | `netlify/functions/photos.mjs` | Upload to Netlify Blobs, serve back cached |
+
 | `netlify/lib/auth.mjs` | HMAC session signing and verification |
 | `db.js` | The only front-end module that talks to storage |
 | `tools/mock-api.mjs` | Local stand-in for the API, for development |
@@ -186,6 +198,16 @@ minutes with a delay on each failure.
 The important shift is that the browser no longer decides anything. Reading leads requires a
 valid cookie the server verifies; a visitor viewing source learns nothing. Previously the
 password was in `admin.js` for anyone to read.
+
+### Customer photo uploads
+
+`POST /api/photos?from=quote` is deliberately **unauthenticated** — putting the upload behind a
+login would mean nobody sends photos, and photos are what let a job be priced without a second
+drive out. It is bounded rather than gated: the browser resizes to 1600×1200 JPEG first, the
+server caps a public upload at 3MB and JPEG/PNG/WebP only, and `upload_attempts` throttles each IP
+to 12 uploads an hour. A lead may carry at most 3 photos, and `leads.mjs` only accepts URLs this
+API itself issued — anything else is dropped, so a lead card can never be turned into a tracking
+pixel or an off-site link.
 
 ### Local development
 

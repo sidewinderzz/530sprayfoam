@@ -104,6 +104,20 @@ body.admin{background:var(--wash)}
 .tag.s-quoted{background:#4C4A8F;color:#fff}
 .tag.s-won{background:#2E7D53;color:#fff}
 .tag.s-lost{background:#8C4636;color:#fff}
+/* going cold: loud enough to act on, not so loud it becomes wallpaper */
+.tag.cold{background:#FBE7D8;color:#8C4636;border:1px solid #E8B79C}
+.tag.photos{background:var(--wash);color:var(--navy);border:1px solid var(--line)}
+.tile.cold{border-color:#E8B79C;background:#FEF6F0}
+.tile.cold b{color:#8C4636}
+.tabs button.nudge{border-color:#E8B79C;color:#8C4636}
+.tabs button.nudge.on{background:#8C4636;border-color:#8C4636;color:#fff}
+
+/* customer-supplied photos on a lead */
+.lead-shots{display:flex;flex-wrap:wrap;gap:8px}
+.lead-shots a{display:block;width:104px;height:104px;border-radius:10px;overflow:hidden;
+  border:1px solid var(--line);background:var(--wash)}
+.lead-shots img{width:100%;height:100%;object-fit:cover;display:block}
+.lead-shots a:hover{border-color:var(--navy)}
 .lead-when{font-size:13px;color:var(--dim);white-space:nowrap}
 .lead-body{display:none;padding:0 18px 18px;border-top:1px solid var(--line)}
 .lead.open .lead-body{display:block}

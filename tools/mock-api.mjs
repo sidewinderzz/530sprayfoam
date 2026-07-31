@@ -27,6 +27,12 @@ if (!PASSCODE) {
 const SECRET = process.env.SESSION_SECRET || 'dev-only-secret';
 
 const db = { content: {}, leads: [], attempts: [], photos: new Map(), subs: [], alerts: [] };
+
+/* same allowlist as netlify/functions/leads.mjs — only URLs this API issued */
+const photoList = v => (Array.isArray(v) ? v : [])
+  .map(u => String(u || ''))
+  .filter(u => /^\/api\/photos\/[A-Za-z0-9._-]+$/.test(u))
+  .slice(0, 3);
 let nextId = 1;
 
 /* ── session cookie, same scheme as netlify/lib/auth.mjs ──── */
@@ -135,7 +141,7 @@ const server = createServer(async (req, res) => {
           id: String(nextId++), ref, at: new Date().toISOString(), name: b.name, phone: b.phone,
           email: b.email, city: b.city, zip: b.zip, sqft: b.sqft, buildingType: b.buildingType,
           areas: b.areas || [], timeline: b.timeline, notes: b.notes, consent: !!b.consent,
-          estimate: b.estimate, status: 'new', read: false
+          estimate: b.estimate, photos: photoList(b.photos), status: 'new', read: false
         });
         /* record what the real functions would have sent */
         db.alerts.push({
@@ -214,7 +220,10 @@ const server = createServer(async (req, res) => {
         return send(res, 200, p.buf, { 'Content-Type': p.type, 'Cache-Control': 'public, max-age=31536000, immutable' });
       }
       if (req.method === 'POST') {
-        if (!authed(req)) return send(res, 401, { error: 'Not signed in.' });
+        /* mirrors the real function: the quote form may upload without a
+           session, everything else may not */
+        const fromQuote = (req.url.split('?')[1] || '').includes('from=quote');
+        if (!authed(req) && !fromQuote) return send(res, 401, { error: 'Not signed in.' });
         const type = (req.headers['content-type'] || '').split(';')[0].trim();
         if (!['image/jpeg','image/png','image/webp'].includes(type)) {
           return send(res, 415, { error: 'Only JPEG, PNG or WebP images are accepted.' });

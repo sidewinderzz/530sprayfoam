@@ -45,7 +45,10 @@ export function summarise(lead) {
 }
 
 /* ── push ────────────────────────────────────────────────── */
-export async function sendPush(db, lead) {
+/* Send one notification to every registered device. Shared by the
+   new-lead alert and the daily follow-up digest, so dead-subscription
+   pruning only lives in one place. */
+export async function pushToAll(db, note) {
   if (!initVapid()) return { sent: 0, skipped: 'not-configured' };
 
   let subs = [];
@@ -53,12 +56,7 @@ export async function sendPush(db, lead) {
   catch (e) { console.error('could not read push subscriptions:', e.message); return { sent: 0 }; }
   if (!subs.length) return { sent: 0 };
 
-  const payload = JSON.stringify({
-    title: `New lead — ${lead.name}`,
-    body: `${summarise(lead)}\n${lead.phone}`,
-    tag: `lead-${lead.ref}`,
-    url: '/admin.html#new'
-  });
+  const payload = JSON.stringify(note);
 
   let sent = 0;
   const dead = [];
@@ -88,6 +86,15 @@ export async function sendPush(db, lead) {
   return { sent, pruned: dead.length };
 }
 
+export function sendPush(db, lead) {
+  return pushToAll(db, {
+    title: `New lead — ${lead.name}`,
+    body: `${summarise(lead)}\n${lead.phone}`,
+    tag: `lead-${lead.ref}`,
+    url: '/admin.html#new'
+  });
+}
+
 /* ── email ───────────────────────────────────────────────── */
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -98,6 +105,8 @@ export async function sendEmail(lead) {
   const to = process.env.ALERT_EMAIL_TO.split(',').map(s => s.trim()).filter(Boolean);
   const from = process.env.ALERT_EMAIL_FROM || 'leads@530sprayfoam.com';
   const tel = String(lead.phone).replace(/\D/g, '');
+  const site = (process.env.URL || 'https://530sprayfoam.netlify.app').replace(/\/$/, '');
+  const photos = (lead.photos || []).filter(u => /^\/api\/photos\//.test(String(u)));
 
   const rows = [
     ['Phone', `<a href="tel:${esc(tel)}">${esc(lead.phone)}</a>`],
@@ -107,6 +116,7 @@ export async function sendEmail(lead) {
     ['Size', lead.sqft ? esc(Number(lead.sqft).toLocaleString('en-US')) + ' sq ft' : '—'],
     ['Areas', esc((lead.areas || []).join(', ') || '—')],
     ['Timeline', esc(lead.timeline || '—')],
+    ['Photos', photos.length ? String(photos.length) : '—'],
     ['Text OK', lead.consent ? 'Yes' : 'No'],
     ['Ref', esc(lead.ref)]
   ];
@@ -127,6 +137,13 @@ export async function sendEmail(lead) {
     </table>
     ${lead.notes ? `<div style="margin-top:16px;background:#F4F6F9;border-radius:8px;padding:14px;
       font-size:14px;line-height:1.55;color:#3A4252;white-space:pre-wrap">${esc(lead.notes)}</div>` : ''}
+    ${photos.length ? `<div style="margin-top:16px">
+      <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#66748F;
+        margin-bottom:8px">Photos from the customer</div>
+      ${photos.map(u => `<a href="${esc(site + u)}"><img src="${esc(site + u)}" width="150"
+        style="width:150px;height:112px;object-fit:cover;border-radius:8px;margin:0 6px 6px 0"
+        alt=""></a>`).join('')}
+    </div>` : ''}
     <div style="margin-top:20px">
       <a href="tel:${esc(tel)}" style="display:inline-block;background:#E9A13B;color:#0E1116;
         text-decoration:none;font-weight:800;padding:13px 22px;border-radius:8px">Call ${esc(lead.phone)}</a>
@@ -138,7 +155,8 @@ export async function sendEmail(lead) {
     `New lead — ${lead.name}`,
     summarise(lead),
     ...rows.map(([k, v]) => `${k}: ${String(v).replace(/<[^>]+>/g, '')}`),
-    lead.notes ? `\nNotes:\n${lead.notes}` : ''
+    lead.notes ? `\nNotes:\n${lead.notes}` : '',
+    photos.length ? `\nPhotos:\n${photos.map(u => site + u).join('\n')}` : ''
   ].join('\n');
 
   try {

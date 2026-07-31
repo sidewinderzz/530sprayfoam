@@ -109,6 +109,7 @@ const DB = {
             city: lead.city || null, zip: lead.zip || null, sqft: lead.sqft || null,
             buildingType: lead.buildingType || null, areas: lead.areas || [],
             timeline: lead.timeline || null, notes: lead.notes || null,
+            photos: lead.photos || [], website: lead.website || '',
             consent: !!lead.consent, estimate: lead.estimate || null
           })
         });
@@ -215,12 +216,17 @@ const DB = {
   /* Uploads to Netlify Blobs and returns a URL. Without the API the
      image stays inline as a data URL, which works but only in this
      browser — callers surface that difference. */
-  async uploadPhoto(dataUrl) {
+  async uploadPhoto(dataUrl, name, opts = {}) {
     await this.ready;
-    if (!this.online || !this.authed) return { ok: true, url: dataUrl, mode: 'inline' };
+    /* opts.public is a customer attaching a photo to their own quote —
+       that path is open on purpose, rate limited server-side. Everything
+       else still needs a crew session. */
+    if (!this.online || (!this.authed && !opts.public)) {
+      return { ok: true, url: dataUrl, mode: 'inline' };
+    }
     try {
       const blob = await (await fetch(dataUrl)).blob();
-      const res = await req('/api/photos', {
+      const res = await req(opts.public ? '/api/photos?from=quote' : '/api/photos', {
         method: 'POST',
         headers: { 'Content-Type': blob.type || 'image/jpeg' },
         body: blob
