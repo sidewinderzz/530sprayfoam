@@ -68,9 +68,15 @@ const DB = {
 
   async login(passcode) {
     await this.ready;
+    /* Local mode means there is no server: no shared leads, no published
+       content, nothing but this browser's own storage. There is nothing to
+       protect and nowhere to check a passcode, so never compare one here —
+       a literal in this file would be the real crew passcode, readable by
+       anyone who opens db.js from the public site. */
     if (!this.online) {
-      const ok = String(passcode).trim().toLowerCase() === 'marc';
-      return ok ? { ok: true, mode: 'local' } : { ok: false, error: 'Wrong password.' };
+      return String(passcode).trim()
+        ? { ok: true, mode: 'local' }
+        : { ok: false, error: 'Enter the password.' };
     }
     try {
       await req('/api/login', {
