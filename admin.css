@@ -67,7 +67,12 @@ body.admin{background:var(--wash)}
 
 /* ── controls ───────────────────────────────────────────── */
 .ctrl{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;margin-bottom:18px}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+/* The pills still swipe sideways on a narrow phone, but the scrollbar itself
+   is hidden — on desktop Linux/Windows it renders as a permanent grey bar
+   under the row and reads as a broken layout. */
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{width:0;height:0;display:none}
 .tabs button{padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:#fff;
   color:var(--muted);font:700 14px var(--txt);cursor:pointer;white-space:nowrap;transition:.16s}
 .tabs button:hover{color:var(--ink);border-color:var(--ph-line)}
