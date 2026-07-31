@@ -367,6 +367,22 @@
           <input id="qphone" aria-describedby="qphone-err" name="phone" type="tel" inputmode="tel" placeholder="Phone" autocomplete="tel" required>
           <span class="msg" id="qphone-err" data-for="qphone" aria-live="polite"></span></div>
       </div>
+      <div class="qrow">
+        <div class="fld"><label class="sr" for="qemail">Email</label>
+          <input id="qemail" aria-describedby="qemail-err" name="email" type="email"
+                 inputmode="email" placeholder="Email (so we can send your quote)"
+                 autocomplete="email">
+          <span class="msg" id="qemail-err" data-for="qemail" aria-live="polite"></span></div>
+        <div class="fld"><label class="sr" for="qwhen">When are you looking to do this?</label>
+          <select id="qwhen" name="timeline" aria-describedby="qwhen-err">
+            <option value="" disabled selected data-c="quote.timelinePlaceholder">When are you looking to do this?</option>
+            <option data-c="quote.timelines.0">As soon as you can</option>
+            <option data-c="quote.timelines.1">Next month or so</option>
+            <option data-c="quote.timelines.2">This season</option>
+            <option data-c="quote.timelines.3">Just pricing it out</option>
+          </select>
+          <span class="msg" id="qwhen-err" data-for="qwhen" aria-live="polite"></span></div>
+      </div>
       <div class="qrow three">
         <div class="fld"><label class="sr" for="qzip">ZIP</label>
           <input id="qzip" aria-describedby="qzip-err" name="zip" inputmode="numeric" maxlength="5" placeholder="ZIP" autocomplete="postal-code" required>
@@ -387,6 +403,27 @@
       </div>
       <div class="fld"><label class="sr" for="qnotes">What are we looking at?</label>
         <textarea id="qnotes" name="notes" placeholder="What are we looking at?"></textarea></div>
+
+      <!-- photos: the single biggest thing that saves a drive out -->
+      <div class="qshots">
+        <label class="qshots-add" for="qphotos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="6" width="18" height="14" rx="2"/>
+            <path d="M8 6l1.6-2.4h4.8L16 6"/><circle cx="12" cy="13" r="3.4"/>
+          </svg>
+          <span data-c="quote.photoLabel">Add photos of the space — attic hatch, crawlspace, shop wall</span>
+          <input id="qphotos" type="file" accept="image/*" multiple capture="environment" hidden>
+        </label>
+        <p class="qshots-hint" data-c="quote.photoHint">Optional, up to 3. Photos let us price most jobs without a second trip.</p>
+        <div class="qshots-list" id="qshotsList"></div>
+      </div>
+
+      <!-- honeypot: real people never fill this in, bots always do -->
+      <div class="hp" aria-hidden="true">
+        <label for="qsite">Leave this empty</label>
+        <input id="qsite" name="website" tabindex="-1" autocomplete="off">
+      </div>
       <label class="consent"><input type="checkbox" id="qconsent" name="consent" checked>
         <span data-c="quote.consent">OK to text me about scheduling. We never sell your info.</span></label>
       <button class="btn btn-block" type="submit" id="qsend" data-c="quote.cta">Send it</button>

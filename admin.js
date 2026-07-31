@@ -306,6 +306,21 @@ function startWatch() {
 addEventListener('storage', e => { if (e.key === STORE) checkNew(); });
 addEventListener('visibilitychange', () => { if (!document.hidden && !app.hidden) checkNew(); });
 
+/* ── going cold ────────────────────────────────────────────
+   A quote nobody chased is where the money leaks. These are the
+   two moments that matter: a new lead nobody has called, and a
+   quote sitting unanswered. */
+const COLD = { new: 2 * 3600e3, contacted: 2 * 864e5, quoted: 5 * 864e5 };
+function overdue(l) {
+  const limit = COLD[l.status || 'new'];
+  if (!limit) return 0;                       // won and lost need no chasing
+  const age = Date.now() - new Date(l.at).getTime();
+  return age > limit ? age : 0;
+}
+const nudgeLabel = l => ({
+  new: 'Not called yet', contacted: 'No answer yet', quoted: 'Waiting on them'
+})[l.status || 'new'] || '';
+
 /* ── filtering / sorting ───────────────────────────────── */
 const state = { status: 'all', q: '', sort: 'new' };
 /* the class alone leaves a screen reader announcing "All, selected" no
@@ -322,13 +337,17 @@ $$('#statusTabs button').forEach(b => b.addEventListener('click', () => {
 }));
 $('#search').addEventListener('input', e => { state.q = e.target.value.toLowerCase().trim(); render(); });
 $('#sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
-if (location.hash === '#new') {
-  state.status = 'new';
-  setStatusTab('new');
+/* the notification's deep link decides which filter opens */
+const HASH_TAB = { '#new': 'new', '#followup': 'followup' }[location.hash];
+if (HASH_TAB) {
+  state.status = HASH_TAB;
+  setStatusTab(HASH_TAB);
 }
 
 function visible(list) {
-  let out = list.filter(l => state.status === 'all' || (l.status || 'new') === state.status);
+  let out = state.status === 'followup'
+    ? list.filter(overdue)
+    : list.filter(l => state.status === 'all' || (l.status || 'new') === state.status);
   if (state.q) out = out.filter(l =>
     [l.name, l.city, l.zip, l.phone, l.email, l.buildingType, l.notes]
       .join(' ').toLowerCase().includes(state.q));
@@ -356,8 +375,10 @@ function render() {
   document.title = unread ? `(${unread}) Crew inbox — 530 Spray Foam` : 'Crew inbox — 530 Spray Foam';
   syncBadge(unread);
 
+  const cold = all.filter(overdue).length;
   $('#tiles').innerHTML = [
     ['Total leads', all.length], ['New', newCount, 'hot'],
+    ['Needs follow-up', cold, cold ? 'cold' : ''],
     ['Last 7 days', week], ['Won', won],
     ['Open est. savings/yr', '$' + money(pipeline)]
   ].map(([k, v, cls]) => `<div class="tile ${cls || ''}"><span>${k}</span><b>${v}</b></div>`).join('');
@@ -381,6 +402,8 @@ function render() {
         <div class="tagr">
           <span class="tag s-${st}">${st}</span>
           ${l.timeline ? `<span class="tag">${esc(l.timeline)}</span>` : ''}
+          ${overdue(l) ? `<span class="tag cold">${esc(nudgeLabel(l))} · ${ago(l.at)}</span>` : ''}
+          ${(l.photos || []).length ? `<span class="tag photos">${l.photos.length} photo${l.photos.length > 1 ? 's' : ''}</span>` : ''}
         </div>
         <span class="lead-when">${ago(l.at)}</span>
       </div>
@@ -396,6 +419,10 @@ function render() {
           <div><span>Ref</span><b>${esc(l.id)}</b></div>
         </div>
         ${l.notes ? `<div class="lead-notes">${esc(l.notes)}</div>` : ''}
+        ${(l.photos || []).length ? `<div class="lead-shots">${
+          l.photos.map((u, n) => `<a href="${esc(u)}" target="_blank" rel="noopener"
+            aria-label="Photo ${n + 1} from ${esc(l.name)}"><img src="${esc(u)}" alt="" loading="lazy"></a>`).join('')
+        }</div>` : ''}
         <div class="lead-acts">
           <a href="tel:${esc(l.phone.replace(/\D/g, ''))}">Call</a>
           <a href="sms:${esc(l.phone.replace(/\D/g, ''))}">Text</a>
@@ -502,8 +529,8 @@ $('#seedBtn').addEventListener('click', () => {
 $('#exportBtn').addEventListener('click', () => {
   const list = visible(load());
   if (!list.length) return toast('Nothing to export');
-  const cols = ['id', 'at', 'status', 'name', 'phone', 'email', 'city', 'zip',
-                'buildingType', 'sqft', 'timeline', 'areas', 'consent', 'notes'];
+  const cols = ['id', 'at', 'status', 'name', 'phone', 'email', 'timeline', 'city', 'zip',
+                'buildingType', 'sqft', 'areas', 'consent', 'notes'];
   const cell = v => `"${String(Array.isArray(v) ? v.join('; ') : v ?? '').replace(/"/g, '""')}"`;
   const csv = [cols.join(','), ...list.map(l => cols.map(c => cell(l[c])).join(','))].join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));

@@ -577,6 +577,27 @@ fieldset.est-grp{border:0;margin:0;padding:0;min-width:0}
   .fld input,.fld select,.fld textarea{padding:15px;font-size:16px}
   .fld select{background-position:calc(100% - 18px) 22px,calc(100% - 12px) 22px}
 }
+/* ── customer photos on the quote form ── */
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.qshots{display:flex;flex-direction:column;gap:8px}
+.qshots-add{display:flex;align-items:center;gap:12px;cursor:pointer;
+  background:rgba(255,255,255,.1);border:1px dashed rgba(255,255,255,.4);
+  border-radius:var(--r-ctl);padding:16px 18px;font-size:16px;font-weight:600;
+  color:var(--on-navy-dim);transition:border-color .16s,background .16s,color .16s}
+.qshots-add:hover,.qshots-add:focus-within{border-color:var(--amber);color:#fff;
+  background:rgba(255,255,255,.16)}
+.qshots-add svg{width:24px;height:24px;flex:none;color:var(--amber)}
+.qshots-hint{font-size:13px;color:var(--on-navy-dim);padding:0 2px}
+.qshots-list{display:flex;flex-wrap:wrap;gap:10px}
+.qshot{position:relative;width:84px;height:84px;border-radius:10px;overflow:hidden;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28)}
+.qshot img{width:100%;height:100%;object-fit:cover;display:block}
+.qshot button{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;
+  border:0;background:rgba(14,17,22,.72);color:#fff;font:700 15px var(--txt);line-height:1;
+  cursor:pointer;display:grid;place-items:center}
+.qshot button:hover{background:#0E1116}
+.qshot.busy::after{content:"";position:absolute;inset:0;background:rgba(14,17,22,.5)}
+
 .qform .btn{margin-top:2px;font-size:22px;padding:19px}
 .qform .consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--on-navy-dim);
   cursor:pointer;padding:2px}

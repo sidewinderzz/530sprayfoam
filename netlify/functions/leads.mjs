@@ -8,6 +8,14 @@ import { alertNewLead } from '../lib/notify.mjs';
 import { randomBytes } from 'node:crypto';
 
 const str = (v, max) => (v === undefined || v === null) ? null : String(v).slice(0, max);
+
+/* Photos are the URLs /api/photos handed back. Take nothing else: a lead
+   is rendered in the admin and emailed to the owner, so an arbitrary
+   attacker-supplied URL there would be a tracking pixel at best. */
+const photoList = v => (Array.isArray(v) ? v : [])
+  .map(u => String(u || ''))
+  .filter(u => /^\/api\/photos\/[A-Za-z0-9._-]+$/.test(u))
+  .slice(0, 3);
 const STATUSES = ['new', 'contacted', 'quoted', 'won', 'lost'];
 
 export default async (req, context) => {
@@ -32,12 +40,13 @@ export default async (req, context) => {
 
     const [row] = await db.sql`
       insert into leads (ref, name, phone, email, city, zip, sqft, building_type,
-                         areas, timeline, notes, consent, estimate)
+                         areas, timeline, notes, consent, estimate, photos)
       values (${ref}, ${name}, ${phone}, ${str(b.email, 200)}, ${str(b.city, 80)},
               ${str(b.zip, 12)}, ${sqft}, ${str(b.buildingType, 80)},
               ${JSON.stringify(Array.isArray(b.areas) ? b.areas.slice(0, 20) : [])}::jsonb,
               ${str(b.timeline, 60)}, ${str(b.notes, 4000)}, ${!!b.consent},
-              ${b.estimate ? JSON.stringify(b.estimate) : null}::jsonb)
+              ${b.estimate ? JSON.stringify(b.estimate) : null}::jsonb,
+              ${JSON.stringify(photoList(b.photos))}::jsonb)
       returning *`;
 
     /* The lead is saved. Alerts are best-effort from here: a failing
@@ -59,7 +68,7 @@ export default async (req, context) => {
       email: r.email, city: r.city, zip: r.zip, sqft: r.sqft,
       buildingType: r.building_type, areas: r.areas || [], timeline: r.timeline,
       notes: r.notes, consent: r.consent, estimate: r.estimate,
-      status: r.status, read: r.read
+      photos: r.photos || [], status: r.status, read: r.read
     })));
   }
 

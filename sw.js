@@ -1,5 +1,5 @@
 /* 530 Spray Foam — service worker (offline shell + notifications) */
-const CACHE = '530sf-v11';
+const CACHE = '530sf-v12';
 const SHELL = [
   './', './index.html', './admin.html', './styles.css', './app.js', './admin.js', './admin.css',
   './content.js', './content.json', './editor.js', './db.js', './map.js',
@@ -114,7 +114,14 @@ self.addEventListener('notificationclick', e => {
   const url = (e.notification.data && e.notification.data.url) || './admin.html';
   e.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-      for (const c of list) if (c.url.includes('admin.html')) return c.focus();
+      for (const c of list) {
+        if (!c.url.includes('admin.html')) continue;
+        /* an inbox is already open: take it to the filter this notification
+           is about, otherwise tapping "3 leads need a follow-up" lands on
+           whatever was last on screen */
+        if (c.navigate) return c.navigate(url).then(w => (w || c).focus()).catch(() => c.focus());
+        return c.focus();
+      }
       return self.clients.openWindow(url);
     })
   );

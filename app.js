@@ -541,7 +541,11 @@ const RULES = {
   qphone: v => v.replace(/\D/g, '').length >= 10 ? '' : 'A 10-digit phone number.',
   qzip:   v => /^\d{5}$/.test(v.trim()) ? '' : '5-digit ZIP.',
   qsqft:  v => (+v >= 100 && +v <= 200000) ? '' : 'Rough square footage.',
-  qzone:  v => v ? '' : 'Pick what we’re foaming.'
+  qzone:  v => v ? '' : 'Pick what we’re foaming.',
+  /* Email is optional — asking for it must never cost us a lead — but a
+     typo'd one is worse than none, so it is checked when filled in. */
+  qemail: v => (!v.trim() || /^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$/.test(v.trim()))
+    ? '' : 'That email looks off — or leave it blank.'
 };
 function check(id) {
   const el = $('#' + id), msg = RULES[id](el.value);
@@ -555,7 +559,8 @@ Object.keys(RULES).forEach(id => {
   el.addEventListener('blur', () => check(id));
   el.addEventListener('input', () => { if (el.closest('.fld').classList.contains('bad')) check(id); });
 });
-$('#qzone').addEventListener('change', e => e.target.classList.toggle('set', !!e.target.value));
+$$('#qzone, #qwhen').forEach(sel =>
+  sel.addEventListener('change', e => e.target.classList.toggle('set', !!e.target.value)));
 /* "+1 (530) 555-0182" pasted from a contacts app is 11 digits. Taking the
    first 10 would shift every digit and store a number nobody can call, so
    drop the country code first. */
@@ -570,6 +575,77 @@ $('#qphone').addEventListener('input', e => {
                  : d.length > 3 ? `(${d.slice(0,3)}) ${d.slice(3)}`
                  : d.length     ? `(${d}` : '';
 });
+
+/* ── customer photos ─────────────────────────────────────────
+   A phone photo is 4-8MB. Resize in the browser before it ever
+   touches the network: on rural LTE an unresized upload is the
+   difference between a lead and an abandoned form. */
+const MAX_SHOTS = 3, SHOT_W = 1600, SHOT_H = 1200, SHOT_Q = 0.8;
+const shots = [];                       // { url } for each uploaded photo
+const shotList = $('#qshotsList'), shotInput = $('#qphotos');
+
+function shrink(file) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) return reject(new Error('That is not an image.'));
+    if (file.size > 25 * 1024 * 1024) return reject(new Error('That photo is too large.'));
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error('Could not read that photo.'));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('That photo could not be opened.'));
+      img.onload = () => {
+        const scale = Math.min(1, SHOT_W / img.width, SHOT_H / img.height);
+        const cv = document.createElement('canvas');
+        cv.width = Math.round(img.width * scale);
+        cv.height = Math.round(img.height * scale);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        resolve(cv.toDataURL('image/jpeg', SHOT_Q));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+function drawShots() {
+  if (!shotList) return;
+  shotList.innerHTML = shots.map((s, i) => `
+    <div class="qshot${s.url ? '' : ' busy'}">
+      <img src="${esc(s.thumb)}" alt="">
+      <button type="button" data-shot="${i}" aria-label="Remove photo ${i + 1}">×</button>
+    </div>`).join('');
+  const add = $('.qshots-add');
+  if (add) add.hidden = shots.length >= MAX_SHOTS;
+}
+
+if (shotInput) {
+  shotInput.addEventListener('change', async e => {
+    const files = [...e.target.files].slice(0, MAX_SHOTS - shots.length);
+    e.target.value = '';                              // so the same file can be re-picked
+    for (const f of files) {
+      let thumb;
+      try { thumb = await shrink(f); }
+      catch (err) { window.alert(err.message); continue; }
+      const slot = { thumb, url: '' };
+      shots.push(slot); drawShots();
+      try {
+        const res = await window.SFDB.uploadPhoto(thumb, f.name, { public: true });
+        /* In local mode there is no server: keep the data URL so the crew
+           still sees the photo on this device rather than losing it. */
+        slot.url = (res && res.url) || thumb;
+      } catch {
+        slot.url = thumb;
+      }
+      drawShots();
+    }
+  });
+  shotList.addEventListener('click', e => {
+    const b = e.target.closest('[data-shot]');
+    if (!b) return;
+    shots.splice(+b.dataset.shot, 1);
+    drawShots();
+  });
+}
 
 const STORE = 'sf-submissions';
 let sending = false;
@@ -593,11 +669,15 @@ form.addEventListener('submit', async e => {
     name: $('#qname').value.trim(),
     phone: $('#qphone').value.trim(),
     zip: $('#qzip').value.trim(),
-    city: '', email: '',
+    city: '',
+    email: $('#qemail').value.trim(),
     sqft: +$('#qsqft').value,
     buildingType: zoneSel.value,
     areas: [zoneSel.value],
-    timeline: '', notes: $('#qnotes').value.trim(),
+    timeline: $('#qwhen').value,
+    photos: shots.map(s => s.url).filter(Boolean),
+    notes: $('#qnotes').value.trim(),
+    website: $('#qsite').value,          // honeypot; the API drops anything filled in
     consent: $('#qconsent').checked,
     estimate: estimate ? {
       monthly: estimate.monthly, annual: estimate.annual,
@@ -629,7 +709,8 @@ $('#again').addEventListener('click', () => {
   form.reset();
   $$('.fld.bad').forEach(f => f.classList.remove('bad'));
   $$('.msg').forEach(m => m.textContent = '');
-  $('#qzone').classList.remove('set');
+  $$('#qzone, #qwhen').forEach(s => s.classList.remove('set'));
+  shots.length = 0; drawShots();
   const btn = $('#qsend');
   btn.disabled = false; btn.textContent = 'Send it';
   sending = false;
