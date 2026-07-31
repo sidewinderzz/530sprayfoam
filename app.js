@@ -401,8 +401,13 @@ const safePhoto = v => {
     return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : '';
   } catch { return ''; }
 };
+/* Single quotes inside url(), because this string is written into a
+   double-quoted HTML style attribute — url("…") ended the attribute at the
+   first quote, so an uploaded job photo never reached the card even though
+   the same string worked in the lightbox, which is assigned via cssText.
+   safePhoto has already rejected anything containing a quote. */
 const jobArt = j => j && safePhoto(j.photo)
-  ? `background-image:url("${safePhoto(j.photo)}");background-size:cover;background-position:center;`
+  ? `background-image:url('${safePhoto(j.photo)}');background-size:cover;background-position:center;`
   : artCss(j && j.art) + artFoam((j && j.art && j.art[2]) || ART_FALLBACK[2]);
 const artFoam = c =>
   `background-image:radial-gradient(circle at 22% 78%,${c}cc 0 8px,transparent 9px),` +
@@ -473,11 +478,11 @@ addEventListener('keydown', e => {
 /* ═══ before / after ════════════════════════════════════════ */
 const ba = $('#ba'), baBar = $('#baBar');
 const BA = pick(C.work && C.work.beforeAfter, {});
-$('#baB').style.cssText += BA.beforePhoto
-  ? `background-image:url("${String(BA.beforePhoto).replace(/"/g, '&quot;')}");background-size:cover;background-position:center;`
+$('#baB').style.cssText += safePhoto(BA.beforePhoto)
+  ? `background-image:url('${safePhoto(BA.beforePhoto)}');background-size:cover;background-position:center;`
   : 'background:linear-gradient(150deg,#2a3140,#59667f 60%,#8b98ad);';
-$('#baA').style.cssText += BA.afterPhoto
-  ? `background-image:url("${String(BA.afterPhoto).replace(/"/g, '&quot;')}");background-size:cover;background-position:center;`
+$('#baA').style.cssText += safePhoto(BA.afterPhoto)
+  ? `background-image:url('${safePhoto(BA.afterPhoto)}');background-size:cover;background-position:center;`
   : 'background:linear-gradient(150deg,#e8e5db,#f7f5f0 55%,#fffdf8);' + artFoam('#dcd7c8');
 let drag = false;
 const setX = v => {
@@ -509,7 +514,7 @@ setX(50);
 const A = C.about || {};
 const aboutArt = $('#aboutArt');
 if (aboutArt && safePhoto(A.photo)) {
-  aboutArt.style.backgroundImage = `url("${safePhoto(A.photo)}")`;
+  aboutArt.style.backgroundImage = `url('${safePhoto(A.photo)}')`;
 }
 const aboutPts = $('#aboutPts');
 if (aboutPts) {
