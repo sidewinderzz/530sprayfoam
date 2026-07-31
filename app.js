@@ -289,13 +289,14 @@ const withGeo = t => {
   return hit ? { ...t, lat: hit[0], lng: hit[1] } : t;
 };
 const TOWNS = pick(C.area && C.area.towns, [
-  { name: 'Redding',    x: 258, y: 104, hq: true, meta: 'Home base · 2 crews · same-week walkthroughs' },
-  { name: 'Anderson',   x: 236, y: 158, meta: '18 min out · 60+ crawlspaces sealed' },
-  { name: 'Palo Cedro', x: 316, y: 128, meta: '15 min out · ranch retrofits, wide lots' },
-  { name: 'Cottonwood', x: 214, y: 200, meta: '25 min out · shops and pole barns' },
-  { name: 'Red Bluff',  x: 246, y: 262, meta: '40 min out · weekly route' },
-  { name: 'Chico',      x: 292, y: 330, meta: '75 min out · new construction and multi-family' },
-  { name: 'Orland',     x: 196, y: 316, meta: '70 min out · ag buildings and cold storage' }
+  { name: 'Willows',    x: 210, y: 300, hq: true, meta: 'Home base · same-week walkthroughs' },
+  { name: 'Redding',    x: 258, y: 104, meta: 'North end of the run · same-week walkthroughs' },
+  { name: 'Anderson',   x: 236, y: 158, meta: '60+ crawlspaces sealed' },
+  { name: 'Palo Cedro', x: 316, y: 128, meta: 'Ranch retrofits, wide lots' },
+  { name: 'Cottonwood', x: 214, y: 200, meta: 'Shops and pole barns' },
+  { name: 'Red Bluff',  x: 246, y: 262, meta: 'On the weekly route' },
+  { name: 'Chico',      x: 292, y: 330, meta: 'New construction and multi-family' },
+  { name: 'Orland',     x: 196, y: 316, meta: 'Ag buildings and cold storage' }
 ]).map(withGeo);
 /* The drawn map is an SVG with a 520x420 viewBox. Rather than storing pixel
    coordinates a crew user could never reason about, project the town's real
@@ -311,7 +312,10 @@ const projectTowns = list => {
   /* equirectangular, with longitude squeezed by cos(latitude) so the shape
      is not stretched, then one scale for both axes so it stays proportional */
   const kx = Math.cos((minLat + maxLat) / 2 * Math.PI / 180);
-  const pad = 62, W = 520 - pad * 2, H = 420 - pad * 2;
+  /* the readout card overlays the bottom of the map, so the southernmost
+     town needs room to sit above it rather than behind it */
+  const pad = 56, padBottom = 170;
+  const W = 520 - pad * 2, H = 420 - pad - padBottom;
   const spanX = ((maxLng - minLng) * kx) || 1e-6, spanY = (maxLat - minLat) || 1e-6;
   const s = Math.min(W / spanX, H / spanY);
   const offX = pad + (W - spanX * s) / 2, offY = pad + (H - spanY * s) / 2;
@@ -329,14 +333,40 @@ const projectTowns = list => {
 /* The CMS says the first town is home base, so make that literally true
    when no town carries the flag — hq is not editable in the admin UI. */
 const anyHq = TOWNS.some(t => t.hq);
-const TOWN_PINS = projectTowns(TOWNS).map((t, i) => ({ ...t, hq: anyHq ? !!t.hq : i === 0 }));
+/* Towns this close together collide label-on-label. Try each label to the
+   right of its dot first, then the left, then progressively above and below,
+   and take the first spot that does not overlap one already placed. */
+const LABEL_H = 15;
+const projected = projectTowns(TOWNS);
+/* every dot is an obstacle too, or a label lands across a neighbour's pin */
+const boxes = projected.map(t => ({ x1: t.x - 10, x2: t.x + 10, y1: t.y - 10, y2: t.y + 10 }));
+const overlaps = (a, b) =>
+  a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
+const place = t => {
+  const w = String(t.name || '').length * 6.4 + 10;
+  const offsets = [0, 14, -14, 28, -28, 42, -42];
+  for (const dy of offsets) {
+    for (const left of [false, true]) {
+      const x = left ? t.x - 13 - w : t.x + 13;
+      const box = { x1: x, x2: x + w, y1: t.y + dy - LABEL_H / 2, y2: t.y + dy + LABEL_H / 2 };
+      if (boxes.some(b => overlaps(box, b))) continue;
+      boxes.push(box);
+      return { left, dy };
+    }
+  }
+  return { left: false, dy: 0 };
+};
+const TOWN_PINS = projected.map((t, i) => ({
+  ...t, hq: anyHq ? !!t.hq : i === 0, ...place(t)
+}));
 const pins = $('#pins'), townWrap = $('#towns');
 pins.innerHTML = TOWN_PINS.map((t, i) => `
   <g class="pin ${t.hq ? 'hq' : ''}${i === 0 ? ' on' : ''}" data-i="${i}" tabindex="0" role="button"
      aria-label="${esc(t.name)}">
     <circle class="halo" cx="${t.x}" cy="${t.y}" r="14"></circle>
     <circle class="dot" cx="${t.x}" cy="${t.y}" r="${t.hq ? 8 : 6.5}"></circle>
-    <text x="${t.x + 13}" y="${t.y + 5}">${esc(t.name)}</text>
+    <text x="${t.left ? t.x - 13 : t.x + 13}" y="${t.y + (t.dy || 0) + 5}"
+      text-anchor="${t.left ? 'end' : 'start'}">${esc(t.name)}</text>
   </g>`).join('');
 townWrap.innerHTML = TOWNS.map((t, i) =>
   `<button type="button" data-i="${i}"${i === 0 ? ' class="on"' : ''}>${esc(t.name)}</button>`).join('') +
@@ -361,6 +391,12 @@ $$('#towns button[data-i]').forEach(b => {
   b.addEventListener('click', () => pickTown(+b.dataset.i));
   b.addEventListener('mouseenter', () => pickTown(+b.dataset.i));
 });
+/* the card ships with the first town's copy in the HTML; once content has
+   loaded that may be a different town, so put the real one in */
+if (TOWNS.length) {
+  $('#mapTown').textContent = TOWNS[0].name || '';
+  $('#mapMeta').textContent = TOWNS[0].meta || '';
+}
 
 /* Real map, if a Google Maps key is configured. Returns false and
    leaves the drawn SVG alone when there is no key or the key is

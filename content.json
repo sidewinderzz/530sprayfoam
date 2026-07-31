@@ -8,8 +8,8 @@
     "email": "info@530sprayfoam.com",
     "license": "CSLB #1091234",
     "hours": "Mon–Sat 7a–6p",
-    "city": "Redding, CA",
-    "area": "Serving Shasta, Tehama, Butte & Glenn"
+    "city": "Willows, CA",
+    "area": "Serving Glenn, Butte, Tehama, Shasta & Colusa"
   },
   "seo": {
     "title": "530 Spray Foam — Insulation in Redding & the North Valley",
@@ -130,15 +130,24 @@
   },
   "area": {
     "heading": "Where we work",
-    "body": "Two crews out of Redding, on site anywhere in the north valley. Same-week walkthroughs most of the year.",
+    "body": "Out of Willows, on site anywhere in the north valley — Chico, Orland, Red Bluff, Redding and everywhere between. Same-week walkthroughs most of the year.",
     "askLabel": "Anywhere in the 530 — ask",
     "towns": [
+      {
+        "name": "Willows",
+        "meta": "Home base · same-week walkthroughs",
+        "lat": 39.5243,
+        "lng": -122.1936,
+        "hq": true,
+        "x": 210,
+        "y": 300
+      },
       {
         "name": "Redding",
         "x": 258,
         "y": 104,
-        "hq": true,
-        "meta": "Home base · 2 crews · same-week walkthroughs",
+        "hq": false,
+        "meta": "North end of the run · same-week walkthroughs",
         "lat": 40.5865,
         "lng": -122.3917
       },
@@ -147,7 +156,7 @@
         "x": 236,
         "y": 158,
         "hq": false,
-        "meta": "18 min out · 60+ crawlspaces sealed",
+        "meta": "60+ crawlspaces sealed",
         "lat": 40.4482,
         "lng": -122.2978
       },
@@ -156,7 +165,7 @@
         "x": 316,
         "y": 128,
         "hq": false,
-        "meta": "15 min out · ranch retrofits, wide lots",
+        "meta": "Ranch retrofits, wide lots",
         "lat": 40.5646,
         "lng": -122.2386
       },
@@ -165,7 +174,7 @@
         "x": 214,
         "y": 200,
         "hq": false,
-        "meta": "25 min out · shops and pole barns",
+        "meta": "Shops and pole barns",
         "lat": 40.3866,
         "lng": -122.2811
       },
@@ -174,7 +183,7 @@
         "x": 246,
         "y": 262,
         "hq": false,
-        "meta": "40 min out · weekly route",
+        "meta": "On the weekly route",
         "lat": 40.1785,
         "lng": -122.2358
       },
@@ -183,7 +192,7 @@
         "x": 292,
         "y": 330,
         "hq": false,
-        "meta": "75 min out · new construction and multi-family",
+        "meta": "New construction and multi-family",
         "lat": 39.7285,
         "lng": -121.8375
       },
@@ -192,15 +201,15 @@
         "x": 196,
         "y": 316,
         "hq": false,
-        "meta": "70 min out · ag buildings and cold storage",
+        "meta": "Ag buildings and cold storage",
         "lat": 39.7474,
         "lng": -122.1961
       }
     ],
     "map": {
       "enabled": true,
-      "lat": 40.5865,
-      "lng": -122.3917,
+      "lat": 39.5243,
+      "lng": -122.1936,
       "radiusMiles": 100,
       "zoom": 6.4
     }
@@ -324,7 +333,7 @@
     "photoHint": "Optional, up to 3. Photos let us price most jobs without a second trip."
   },
   "footer": {
-    "blurb": "Redding, CA · CSLB #1091234 · Fully insured\nServing Shasta, Tehama, Butte & Glenn\nMon–Sat 7a–6p"
+    "blurb": "Willows, CA · CSLB #1091234 · Fully insured\nServing Glenn, Butte, Tehama, Shasta & Colusa\nMon–Sat 7a–6p"
   },
   "pricing": {
     "enabled": true,
