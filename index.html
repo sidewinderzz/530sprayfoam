@@ -109,6 +109,25 @@
         </div>
       </fieldset>
 
+      <fieldset class="est-grp" id="foamGrp">
+        <span id="foamLbl" data-c="pricing.foamLabel">Foam type</span>
+        <div class="opts" role="radiogroup" aria-labelledby="foamLbl">
+          <label class="opt"><input type="radio" name="foam" value="open" checked>
+            <span data-c="pricing.openLabel">Open cell</span></label>
+          <label class="opt"><input type="radio" name="foam" value="closed">
+            <span data-c="pricing.closedLabel">Closed cell</span></label>
+        </div>
+        <label class="est-check"><input type="checkbox" id="removal">
+          <span data-c="pricing.removalLabel">Remove old insulation</span></label>
+      </fieldset>
+
+      <!-- price estimate -->
+      <div class="est-price" id="estPrice" aria-live="polite">
+        <span class="est-price-lbl" data-c="pricing.heading">Estimated project cost</span>
+        <b id="priceOut">$3,400 – $4,600</b>
+        <span class="est-price-sub" id="paybackOut"></span>
+      </div>
+
       <div class="est-out" aria-live="polite">
         <span class="est-num">
           <span data-c="estimator.outLabel">Est. monthly savings</span>

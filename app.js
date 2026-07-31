@@ -92,8 +92,33 @@ const INS  = pick(EST.insulation, { none: 1.00, batts: 0.62, blown: 0.70 });
 const ZONE = pick(EST.zones, { attic: 1.00, crawl: 0.45, walls: 0.55 });
 const ZONE_LABEL = { attic: 'Attic / roofline', crawl: 'Crawlspace', walls: 'Walls / new build' };
 
+/* ── pricing ─────────────────────────────────────────────────
+   Every number here is CMS-editable, so `num()` coerces: the editor
+   stores fields as strings and "2.10" * x would be fine but "2.10" + x
+   would silently concatenate. */
+const n = (v, fallback) => { const x = parseFloat(v); return Number.isFinite(x) ? x : fallback; };
+const P = C.pricing || {};
+const PRICING_ON = P.enabled !== false && P.enabled !== 'false';
+const RATES = P.rates || {
+  attic: { open: 1.85, closed: 3.10 },
+  crawl: { open: 2.10, closed: 3.40 },
+  walls: { open: 2.00, closed: 3.25 }
+};
+const AREA_F = P.areaFactor || { attic: 1.0, crawl: 0.9, walls: 0.85 };
+const SPREAD  = n(P.spreadPct, 15) / 100;
+const MINIMUM = n(P.minimumJob, 950);
+const REMOVAL = n(P.removalPerSqft, 0.85);
+
 const sqft = $('#sqft'), sqftOut = $('#sqftOut'), saveOut = $('#save'), estFine = $('#estFine');
+const priceOut = $('#priceOut'), paybackOut = $('#paybackOut'), pricePanel = $('#estPrice');
+const foamGrp = $('#foamGrp'), removalBox = $('#removal');
 let estimate = null;
+
+/* the client can switch prices off entirely without touching code */
+if (!PRICING_ON) {
+  if (pricePanel) pricePanel.hidden = true;
+  if (foamGrp) foamGrp.hidden = true;
+}
 
 function paintSlider() {
   sqft.style.setProperty('--p', ((sqft.value - sqft.min) / (sqft.max - sqft.min)) * 100 + '%');
@@ -110,15 +135,44 @@ function estimator() {
   sqftOut.textContent = num(ft) + ' sq ft';
   saveOut.textContent = num(monthly);
   estFine.textContent = zones.length
-    ? `Roughly $${num(annual)} a year. Ballpark from metered north-valley retrofits — your ` +
-      `walkthrough gives the real number.`
+    ? `Roughly $${num(annual)} a year in savings. ` +
+      pick(P.note, 'Ballpark only — your walkthrough gives the fixed price.')
     : 'Pick at least one area to foam.';
 
-  estimate = { sqft: ft, ins, zones, monthly: Math.round(monthly), annual: Math.round(annual) };
+  /* ── project cost ── */
+  const foamEl = $('input[name=foam]:checked');
+  const foam = foamEl ? foamEl.value : 'open';
+  const stripOld = !!(removalBox && removalBox.checked);
+
+  let mid = zones.reduce((sum, z) => {
+    const area = ft * n(AREA_F[z], 1);
+    const rate = n((RATES[z] || {})[foam], 2);
+    return sum + area * rate + (stripOld ? area * REMOVAL : 0);
+  }, 0);
+  if (mid > 0) mid = Math.max(mid, MINIMUM);
+
+  const lo = Math.round(mid * (1 - SPREAD) / 50) * 50;
+  const hi = Math.round(mid * (1 + SPREAD) / 50) * 50;
+  const payYears = (monthly > 0 && mid > 0) ? (mid / (monthly * 12)) : 0;
+
+  if (PRICING_ON && priceOut) {
+    priceOut.textContent = zones.length ? `$${num(lo)} – $${num(hi)}` : 'Pick an area';
+    paybackOut.textContent = (zones.length && payYears > 0)
+      ? `${pick(C.estimator && C.estimator.payback, 'Pays for itself in')} ` +
+        `about ${payYears < 1 ? 'a year' : payYears.toFixed(payYears < 10 ? 1 : 0) + ' years'}`
+      : '';
+  }
+
+  estimate = {
+    sqft: ft, ins, zones, foam, removal: stripOld,
+    monthly: Math.round(monthly), annual: Math.round(annual),
+    priceLo: lo, priceHi: hi, payback: payYears
+  };
 }
 paintSlider();
 sqft.addEventListener('input', () => { paintSlider(); estimator(); });
-$$('input[name=ins],input[name=zone]').forEach(i => i.addEventListener('change', estimator));
+$$('input[name=ins],input[name=zone],input[name=foam]').forEach(i => i.addEventListener('change', estimator));
+if (removalBox) removalBox.addEventListener('change', estimator);
 $('#est').addEventListener('submit', e => e.preventDefault());
 estimator();
 
@@ -132,9 +186,13 @@ $('#estGo').addEventListener('click', () => {
       if (opt) { $('#qzone').value = opt.value || opt.text; $('#qzone').classList.add('set'); }
     }
     const insTxt = { none: 'no insulation', batts: 'fiberglass batts', blown: 'blown-in' }[estimate.ins];
+    const foamTxt = estimate.foam === 'closed' ? 'closed cell' : 'open cell';
     $('#qnotes').value =
       `From the estimator: ${num(estimate.sqft)} sq ft, currently ${insTxt}, ` +
-      `foaming ${estimate.zones.map(z => ZONE_LABEL[z].toLowerCase()).join(' + ') || 'TBD'}. ` +
+      `foaming ${estimate.zones.map(z => ZONE_LABEL[z].toLowerCase()).join(' + ') || 'TBD'} ` +
+      `with ${foamTxt}${estimate.removal ? ', removing old insulation' : ''}. ` +
+      (PRICING_ON && estimate.priceHi
+        ? `Quoted range $${num(estimate.priceLo)}–$${num(estimate.priceHi)}. ` : '') +
       `Shown $${num(estimate.monthly)}/mo ($${num(estimate.annual)}/yr) estimated savings.`;
   }
   $('#quote').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
@@ -415,7 +473,11 @@ form.addEventListener('submit', async e => {
     areas: [zoneSel.value || zoneSel.options[0].text],
     timeline: '', notes: $('#qnotes').value.trim(),
     consent: $('#qconsent').checked,
-    estimate: estimate ? { monthly: estimate.monthly, annual: estimate.annual } : null
+    estimate: estimate ? {
+      monthly: estimate.monthly, annual: estimate.annual,
+      priceLo: estimate.priceLo, priceHi: estimate.priceHi,
+      foam: estimate.foam, removal: estimate.removal
+    } : null
   };
   /* "saved" means the business will actually see this lead. A local-only
      copy while a server is configured means the insert failed — the lead
