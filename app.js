@@ -281,7 +281,8 @@ const GEO = {
   orland: [39.7474, -122.1961], willows: [39.5243, -122.1936],
   shasta_lake: [40.6807, -122.3706], 'shasta lake': [40.6807, -122.3706],
   corning: [39.9277, -122.1792], paradise: [39.7596, -121.6219],
-  oroville: [39.5138, -121.5564], sacramento: [38.5816, -121.4944]
+  oroville: [39.5138, -121.5564], sacramento: [38.5816, -121.4944],
+  'elk grove': [38.4088, -121.3716], 'clear lake': [38.9582, -122.6264]
 };
 const withGeo = t => {
   if (Number.isFinite(+t.lat) && Number.isFinite(+t.lng)) return t;
@@ -614,7 +615,7 @@ const REVIEWS = (pick(C.reviews && C.reviews.items, [
   { quote: 'Crew masked everything, sprayed the whole crawlspace in a day, and my floors aren\u2019t freezing anymore. Bill dropped $90 the first month.', who: 'Dana R., Anderson CA' },
   { quote: 'Upstairs used to run ten degrees hotter than down. They foamed the roof deck and the AC finally shuts off in the afternoon.', who: 'Marcus T., Redding CA' },
   { quote: 'Sprayed our 40\u00d760 shop in two days, masked the whole slab, and the condensation drip off the metal is completely gone.', who: 'Loretta M., Cottonwood CA' },
-  { quote: 'Fixed price, showed up when they said, and filed the rebate paperwork without me chasing it. Framers had zero delay.', who: 'Kyle D., general contractor, Chico CA' }
+  { quote: 'Fixed price, showed up when they said, and kept the project moving without delaying the framers.', who: 'Kyle D., general contractor, Chico CA' }
 ])).map(r => Array.isArray(r) ? { quote: r[0], who: r[1] } : r);
 const rt = $('#revTrack'), rd = $('#revDots');
 rt.innerHTML = REVIEWS.map(r =>
@@ -683,7 +684,7 @@ Object.keys(RULES).forEach(id => {
 });
 $$('#qzone, #qwhen').forEach(sel =>
   sel.addEventListener('change', e => e.target.classList.toggle('set', !!e.target.value)));
-/* "+1 (530) 555-0182" pasted from a contacts app is 11 digits. Taking the
+/* A number pasted from a contacts app may include a leading +1. Taking the
    first 10 would shift every digit and store a number nobody can call, so
    drop the country code first. */
 const tenDigits = v => {
@@ -824,7 +825,7 @@ form.addEventListener('submit', async e => {
       ? `Thanks ${rec.name.split(' ')[0]} — request ${ref} is in. We'll call ${rec.phone} to set ` +
         `the walkthrough, usually same day.`
       : `Thanks ${rec.name.split(' ')[0]} — we could not get your request through to us just now. ` +
-        `Please call ${(C.business && C.business.phone) || '(530) 555-0182'} so we don't miss you.`;
+        `Please call ${(C.business && C.business.phone) || '(530) 966-3609'} so we don't miss you.`;
   }, 650);
 });
 $('#again').addEventListener('click', () => {

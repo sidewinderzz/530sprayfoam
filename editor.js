@@ -177,7 +177,7 @@ const SCHEMA = [
       ['process.steps.2.body', 'Step 3 — text', 'textarea']
     ] },
 
-  { id: 'financing', icon: ICON.financing, anchor: '#financing', title: 'Financing &amp; rebates',
+  { id: 'financing', icon: ICON.financing, anchor: '#financing', title: 'Financing',
     hint: 'Only promise terms your lender actually offers.',
     fields: [
       ['financing.heading', 'Heading', 'text'],
