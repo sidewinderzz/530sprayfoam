@@ -130,51 +130,56 @@
   },
   "area": {
     "heading": "Where we work",
-    "body": "Serving homes, shops and commercial buildings across Northern California, including Redding, Chico, Sacramento, Elk Grove and Clear Lake.",
-    "askLabel": "Anywhere in the 530 — ask",
+    "body": "Based in Willows and serving homes, shops and commercial buildings across Northern California, including Redding, Chico, Sacramento, Elk Grove and Clear Lake.",
+    "askLabel": "Outside these areas? Ask us",
     "towns": [
+      {
+        "name": "Willows",
+        "meta": "Home base",
+        "lat": 39.5243,
+        "lng": -122.1936,
+        "hq": true
+      },
       {
         "name": "Redding",
         "meta": "Spray foam insulation service",
         "lat": 40.5865,
         "lng": -122.3917,
-        "hq": true,
-        "x": 210,
-        "y": 300
+        "hq": false
       },
       {
         "name": "Chico",
-        "hq": false,
         "meta": "Spray foam insulation service",
         "lat": 39.7285,
-        "lng": -121.8375
+        "lng": -121.8375,
+        "hq": false
       },
       {
         "name": "Sacramento",
-        "hq": false,
         "meta": "Spray foam insulation service",
         "lat": 38.5816,
-        "lng": -121.4944
+        "lng": -121.4944,
+        "hq": false
       },
       {
         "name": "Elk Grove",
-        "hq": false,
         "meta": "Spray foam insulation service",
         "lat": 38.4088,
-        "lng": -121.3716
+        "lng": -121.3716,
+        "hq": false
       },
       {
         "name": "Clear Lake",
-        "hq": false,
         "meta": "Spray foam insulation service",
         "lat": 38.9582,
-        "lng": -122.6264
+        "lng": -122.6264,
+        "hq": false
       }
     ],
     "map": {
       "enabled": true,
-      "lat": 39.45,
-      "lng": -122.0,
+      "lat": 39.5243,
+      "lng": -122.1936,
       "radiusMiles": 180,
       "zoom": 6
     }
