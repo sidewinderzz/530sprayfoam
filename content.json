@@ -4,37 +4,37 @@
   "updated": null,
   "business": {
     "name": "530 Spray Foam",
-    "phone": "(530) 555-0182",
-    "email": "info@530sprayfoam.com",
-    "license": "CSLB #1091234",
+    "phone": "(530) 966-3609",
+    "email": "marc@530sprayfoam.com",
+    "license": "Licensed, bonded and insured",
     "hours": "Mon–Sat 7a–6p",
     "city": "Willows, CA",
-    "area": "Serving Glenn, Butte, Tehama, Shasta & Colusa"
+    "area": "Serving Redding, Chico, Sacramento, Elk Grove & Clear Lake"
   },
   "seo": {
-    "title": "530 Spray Foam — Insulation in Redding & the North Valley",
-    "description": "Closed-cell and open-cell spray foam insulation across Shasta, Tehama, Butte and Glenn. Free walkthrough, fixed-price quote, 10-year workmanship warranty."
+    "title": "530 Spray Foam — Spray Foam Insulation in Northern California",
+    "description": "Certified open-cell and closed-cell spray foam installation serving Redding, Chico, Sacramento, Elk Grove and Clear Lake. Free walkthrough and fixed-price quote."
   },
   "strip": {
     "a": "Free walkthrough & fixed-price quote",
-    "b": "CSLB #1091234 · Fully insured",
+    "b": "Licensed, bonded and insured",
     "c": "Mon–Sat 7a–6p"
   },
   "hero": {
-    "eyebrow": "North valley insulation since 2013",
+    "eyebrow": "Certified spray foam installers",
     "line1": "Your house is",
     "line2": "leaking money",
     "line3": "every hour",
-    "lede": "A 2,000 sq ft home in Redding loses roughly a third of its conditioned air through the attic. Foam stops it in a day — and we file the utility rebate for you."
+    "lede": "Spray foam helps seal the gaps that let conditioned air escape. We install both open-cell and closed-cell foam, with a recommendation and timeline tailored to your building."
   },
   "kpis": [
     {
-      "value": "1 day",
-      "label": "Typical home"
+      "value": "Tailored",
+      "label": "Timeline by project"
     },
     {
-      "value": "10 yr",
-      "label": "Workmanship warranty"
+      "value": "Both",
+      "label": "Open & closed cell"
     },
     {
       "value": "Free",
@@ -43,16 +43,16 @@
   ],
   "trust": [
     {
-      "value": "LIC #1091234",
+      "value": "Licensed",
       "label": "Bonded & insured"
     },
     {
-      "value": "900+",
-      "label": "Homes sealed"
+      "value": "Certified",
+      "label": "Professional installation"
     },
     {
-      "value": "12 yrs",
-      "label": "Locally owned"
+      "value": "Local",
+      "label": "New company, ready to serve"
     }
   ],
   "estimator": {
@@ -126,92 +126,62 @@
   "band": {
     "figure": "40%",
     "heading": "Average drop in heating and cooling load",
-    "note": "Based on 148 metered retrofits across the north valley, 2019–2025."
+    "note": "Potential savings depend on the building, existing insulation, HVAC system and energy use."
   },
   "area": {
     "heading": "Where we work",
-    "body": "Out of Willows, on site anywhere in the north valley — Chico, Orland, Red Bluff, Redding and everywhere between. Same-week walkthroughs most of the year.",
-    "askLabel": "Anywhere in the 530 — ask",
+    "body": "Based in Willows and serving homes, shops and commercial buildings across Northern California, including Redding, Chico, Sacramento, Elk Grove and Clear Lake.",
+    "askLabel": "Outside these areas? Ask us",
     "towns": [
       {
         "name": "Willows",
-        "meta": "Home base · same-week walkthroughs",
+        "meta": "Home base",
         "lat": 39.5243,
         "lng": -122.1936,
-        "hq": true,
-        "x": 210,
-        "y": 300
+        "hq": true
       },
       {
         "name": "Redding",
-        "x": 258,
-        "y": 104,
-        "hq": false,
-        "meta": "North end of the run · same-week walkthroughs",
+        "meta": "Spray foam insulation service",
         "lat": 40.5865,
-        "lng": -122.3917
-      },
-      {
-        "name": "Anderson",
-        "x": 236,
-        "y": 158,
-        "hq": false,
-        "meta": "60+ crawlspaces sealed",
-        "lat": 40.4482,
-        "lng": -122.2978
-      },
-      {
-        "name": "Palo Cedro",
-        "x": 316,
-        "y": 128,
-        "hq": false,
-        "meta": "Ranch retrofits, wide lots",
-        "lat": 40.5646,
-        "lng": -122.2386
-      },
-      {
-        "name": "Cottonwood",
-        "x": 214,
-        "y": 200,
-        "hq": false,
-        "meta": "Shops and pole barns",
-        "lat": 40.3866,
-        "lng": -122.2811
-      },
-      {
-        "name": "Red Bluff",
-        "x": 246,
-        "y": 262,
-        "hq": false,
-        "meta": "On the weekly route",
-        "lat": 40.1785,
-        "lng": -122.2358
+        "lng": -122.3917,
+        "hq": false
       },
       {
         "name": "Chico",
-        "x": 292,
-        "y": 330,
-        "hq": false,
-        "meta": "New construction and multi-family",
+        "meta": "Spray foam insulation service",
         "lat": 39.7285,
-        "lng": -121.8375
+        "lng": -121.8375,
+        "hq": false
       },
       {
-        "name": "Orland",
-        "x": 196,
-        "y": 316,
-        "hq": false,
-        "meta": "Ag buildings and cold storage",
-        "lat": 39.7474,
-        "lng": -122.1961
+        "name": "Sacramento",
+        "meta": "Spray foam insulation service",
+        "lat": 38.5816,
+        "lng": -121.4944,
+        "hq": false
+      },
+      {
+        "name": "Elk Grove",
+        "meta": "Spray foam insulation service",
+        "lat": 38.4088,
+        "lng": -121.3716,
+        "hq": false
+      },
+      {
+        "name": "Clear Lake",
+        "meta": "Spray foam insulation service",
+        "lat": 38.9582,
+        "lng": -122.6264,
+        "hq": false
       }
     ],
     "map": {
       "enabled": true,
       "lat": 39.5243,
       "lng": -122.1936,
-      "radiusMiles": 100,
-      "zoom": 6.4
+      "radiusMiles": 180,
+      "zoom": 6
     }
   },
   "process": {
@@ -223,11 +193,11 @@
       },
       {
         "title": "Mask & spray",
-        "body": "One day for most homes. You stay out of the space 4 hours after we finish."
+        "body": "We confirm the schedule based on the size and scope, then mask, spray and clean up carefully."
       },
       {
-        "title": "Rebate filed",
-        "body": "We send the paperwork to your utility and warranty the work 10 years."
+        "title": "Final walkthrough",
+        "body": "We inspect the finished installation with you. Quality workmanship is backed by our warranty."
       }
     ]
   },
@@ -290,9 +260,10 @@
   "about": {
     "eyebrow": "About us",
     "heading": "Northern California, one building at a time",
-    "body": "530 Spray Foam is committed to serving Northern California with quality spray foam insulation and roof coatings. We're local, licensed and insured, and we treat every job like it's going on our own house — masked off, sprayed right, cleaned up before we go.",
+    "body": "530 Spray Foam is a new local company built on certified spray foam training and a commitment to quality workmanship. We're licensed, bonded and insured, and we treat every job like it's going on our own house — masked off, sprayed right and cleaned up before we go.",
     "points": [
       "Spray foam insulation — attics, crawlspaces, walls, shops and barns",
+      "Removal of old batt and blown-in insulation",
       "Roof coatings that seal and reflect, on metal and flat roofs",
       "Free walkthrough and a fixed price before we start"
     ],
@@ -306,14 +277,15 @@
     "items": []
   },
   "financing": {
-    "heading": "Financing & rebates",
-    "body": "0% for 18 months on approved credit, and we file your utility rebate paperwork for you.",
-    "toggleLabel": "See what you qualify for →",
+    "enabled": true,
+    "heading": "Financing through Hearth",
+    "body": "Flexible financing options are available through Hearth, including promotional 0% intro APR credit cards for qualifying customers.",
+    "toggleLabel": "How financing works →",
     "points": [
-      "0% APR for 18 months, or fixed terms out to 84 months on approved credit.",
-      "We prepare and submit the utility rebate paperwork — you sign, we file.",
-      "Federal 25C energy-efficiency credit paperwork included with your invoice.",
-      "Quotes are fixed-price. No change orders unless you change the scope."
+      "See available options based on your credit profile and project needs.",
+      "Promotional 0% intro APR credit cards may be available to qualifying customers.",
+      "The promotional period, credit limit and ongoing APR depend on the card offer and applicant approval.",
+      "Financing is provided by Hearth's lending partners; Hearth is not the lender."
     ]
   },
   "quote": {
@@ -333,10 +305,10 @@
     "photoHint": "Optional, up to 3. Photos let us price most jobs without a second trip."
   },
   "footer": {
-    "blurb": "Willows, CA · CSLB #1091234 · Fully insured\nServing Glenn, Butte, Tehama, Shasta & Colusa\nMon–Sat 7a–6p"
+    "blurb": "Licensed, bonded and insured\nServing Redding, Chico, Sacramento, Elk Grove & Clear Lake\nMon–Sat 7a–6p"
   },
   "pricing": {
-    "enabled": true,
+    "enabled": false,
     "heading": "Estimated project cost",
     "note": "Ballpark from recent north-valley jobs at the thickness each area usually needs. Your walkthrough gives the fixed price.",
     "spreadPct": 15,
