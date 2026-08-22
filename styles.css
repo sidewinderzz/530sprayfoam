@@ -66,7 +66,10 @@ a:hover{color:var(--amber-dk)}
 
 /* ── type scale ─────────────────────────────────────────── */
 .dsp{font-family:var(--dsp);font-weight:800;text-transform:uppercase;line-height:1;color:var(--ink);margin:0}
-h1,h2,h3,h4{margin:0;font-family:var(--dsp);font-weight:800;text-transform:uppercase;color:var(--ink);line-height:1}
+h1,h2,h3,h4{margin:0;font-family:var(--dsp);font-weight:800;text-transform:uppercase;color:var(--ink);line-height:1;
+  /* condensed uppercase headings break badly at narrow widths; balance stops
+     the one-or-two-word orphan line that reads as homemade */
+  text-wrap:balance}
 h1{font-size:clamp(36px,6.5vw,94px);line-height:.9;letter-spacing:-.015em;overflow-wrap:break-word}
 h2{font-size:clamp(31px,4vw,56px)}
 h3{font-size:clamp(21px,2.2vw,30px);font-weight:700}
@@ -491,6 +494,18 @@ fieldset.est-grp{border:0;margin:0;padding:0;min-width:0}
   .step-n{width:34px;height:34px;font-size:19px;position:relative}
   .step-rail{display:flex;flex-direction:column;align-items:center;flex:none}
   .step-rail .line{width:2px;flex:1;background:var(--line);margin-top:2px}
+  /* The rail fills as each step scrolls up: a job advancing, one stage at a
+     time. Scroll-driven, so it tracks the finger rather than firing on a
+     timer. Where animation-timeline is unsupported (Firefox today) the line
+     simply stays drawn, which is what it looks like now. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .step-rail .line{transform-origin:top;scale:1 0;
+        animation:railDraw linear both;
+        animation-timeline:view();
+        animation-range:entry 60% cover 55%}
+    }
+  }
   .step:last-child .step-rail .line{display:none}
   .step-txt{display:flex;flex-direction:column;gap:4px}
   .step h3{font-size:21px}
@@ -657,6 +672,7 @@ fieldset.est-grp{border:0;margin:0;padding:0;min-width:0}
 .sent-tick{width:60px;height:60px;border-radius:50%;background:var(--amber);color:var(--ink);
   display:grid;place-items:center;font-size:28px;font-weight:800;animation:pop .4s var(--ease) both}
 @keyframes pop{from{transform:scale(.4);opacity:0}}
+@keyframes railDraw{from{scale:1 0}to{scale:1 1}}
 .sent h3{color:#fff;font-size:32px}
 .sent p{color:var(--on-navy);font-size:16px;line-height:1.5;max-width:44ch}
 .sent button{margin-top:8px}
