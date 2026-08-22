@@ -278,14 +278,14 @@
   },
   "financing": {
     "enabled": true,
-    "heading": "Financing through Hearth",
-    "body": "Flexible financing options are available through Hearth, including promotional 0% intro APR credit cards for qualifying customers.",
+    "heading": "Financing available",
+    "body": "Financing is available for qualifying customers, with rates as low as 0% APR. Your rate and term are based on your credit, so we'll go over your exact numbers with your quote.",
     "toggleLabel": "How financing works →",
     "points": [
-      "See available options based on your credit profile and project needs.",
-      "Promotional 0% intro APR credit cards may be available to qualifying customers.",
-      "The promotional period, credit limit and ongoing APR depend on the card offer and applicant approval.",
-      "Financing is provided by Hearth's lending partners; Hearth is not the lender."
+      "Rates start as low as 0% APR for customers who qualify.",
+      "Your rate, term and approved amount depend on your credit profile and the size of the project.",
+      "Financing is arranged through a third-party lender — 530 Spray Foam is not the lender.",
+      "Ask about financing at your free walkthrough and we'll go over the options open to you."
     ]
   },
   "quote": {
