@@ -180,7 +180,7 @@
       "enabled": true,
       "lat": 39.5243,
       "lng": -122.1936,
-      "radiusMiles": 180,
+      "radiusMiles": 100,
       "zoom": 6
     }
   },
