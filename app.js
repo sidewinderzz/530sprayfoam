@@ -373,24 +373,49 @@ townWrap.innerHTML = TOWNS.map((t, i) =>
   `<button type="button" data-i="${i}"${i === 0 ? ' class="on"' : ''}>${esc(t.name)}</button>`).join('') +
   `<button type="button" class="ask" disabled>${pick(C.area && C.area.askLabel, 'Anywhere in the 530 — ask')}</button>`;
 
+/* Hovering used to fly the map. Sweeping the mouse down the town list on
+   desktop yanked it town to town and zoomed to 8, which buried the
+   service-area overview the section exists to show — and mobile, having no
+   hover, behaved differently again. Hover now only lights the pin up;
+   moving the map is a deliberate click, tap or Enter, so both platforms do
+   the same thing. */
+let selectedTown = 0;
+
+function paintTown(i) {
+  $$('#pins .pin').forEach(p => p.classList.toggle('on', +p.dataset.i === i));
+  $$('#towns button[data-i]').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+}
+/* leaving a town restores the highlight to the one actually selected, so the
+   pin and the info card never disagree */
+const hoverTown = i => paintTown(i);
+const leaveTown = () => paintTown(selectedTown);
+
 function pickTown(i) {
+  selectedTown = i;
   const t = TOWNS[i];
   $('#mapTown').textContent = t.name;
   $('#mapMeta').textContent = t.meta;
   if (window.SFMap && window.SFMap.ready) window.SFMap.focus(i);
-  $$('#pins .pin').forEach(p => p.classList.toggle('on', +p.dataset.i === i));
-  $$('#towns button[data-i]').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+  paintTown(i);
 }
 $$('#pins .pin').forEach(p => {
-  p.addEventListener('click', () => pickTown(+p.dataset.i));
-  p.addEventListener('mouseenter', () => pickTown(+p.dataset.i));
+  const i = () => +p.dataset.i;
+  p.addEventListener('click', () => pickTown(i()));
+  p.addEventListener('mouseenter', () => hoverTown(i()));
+  p.addEventListener('mouseleave', leaveTown);
+  p.addEventListener('focus', () => hoverTown(i()));
+  p.addEventListener('blur', leaveTown);
   p.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickTown(+p.dataset.i); }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickTown(i()); }
   });
 });
 $$('#towns button[data-i]').forEach(b => {
-  b.addEventListener('click', () => pickTown(+b.dataset.i));
-  b.addEventListener('mouseenter', () => pickTown(+b.dataset.i));
+  const i = () => +b.dataset.i;
+  b.addEventListener('click', () => pickTown(i()));
+  b.addEventListener('mouseenter', () => hoverTown(i()));
+  b.addEventListener('mouseleave', leaveTown);
+  b.addEventListener('focus', () => hoverTown(i()));
+  b.addEventListener('blur', leaveTown);
 });
 /* the card ships with the first town's copy in the HTML; once content has
    loaded that may be a different town, so put the real one in */
