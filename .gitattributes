@@ -1,0 +1,7 @@
+# Migration checksums are content-hashed by Netlify DB; CRLF checkouts on
+# Windows change those hashes and break deploys. Keep the tree LF everywhere.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.webp binary
