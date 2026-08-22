@@ -181,7 +181,7 @@
       "lat": 39.5243,
       "lng": -122.1936,
       "radiusMiles": 100,
-      "zoom": 6
+      "zoom": 6.4
     }
   },
   "process": {
@@ -202,6 +202,7 @@
     ]
   },
   "work": {
+    "enabled": false,
     "heading": "Recent work",
     "linkLabel": "See all jobs →",
     "jobs": [
@@ -264,7 +265,6 @@
     "points": [
       "Spray foam insulation — attics, crawlspaces, walls, shops and barns",
       "Removal of old batt and blown-in insulation",
-      "Roof coatings that seal and reflect, on metal and flat roofs",
       "Free walkthrough and a fixed price before we start"
     ],
     "cta": "Get a free walkthrough",

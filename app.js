@@ -453,7 +453,30 @@ const artFoam = c =>
   `radial-gradient(circle at 76% 86%,${c}99 0 14px,transparent 15px),` +
   `radial-gradient(circle at 88% 70%,${c}cc 0 9px,transparent 10px);`;
 
-$('#shots').innerHTML = JOBS.map((j, i) => `
+/* ═══ recent work ═══════════════════════════════════════════
+   Off until there are real job photos. The stand-in jobs carry
+   invented towns, square footages and timelines, and the before/after
+   slider is two gradients — a portfolio nobody built is a claim in
+   exactly the way a star rating nobody earned is. A job only reaches
+   the gallery once it has an actual photo on it. Admin → Website →
+   Recent work → "Show the recent work section" turns it back on.
+   The before/after needs a real pair; one photo against placeholder
+   art is worse than showing nothing. */
+const WORK = C.work || {};
+const WORK_ENABLED = WORK.enabled === true || WORK.enabled === 'true';
+const GALLERY = WORK_ENABLED ? JOBS.filter(j => safePhoto(j && j.photo)) : [];
+const BA = pick(C.work && C.work.beforeAfter, {});
+const BA_ON = WORK_ENABLED && !!safePhoto(BA.beforePhoto) && !!safePhoto(BA.afterPhoto);
+const workSection = $('#work');
+if (workSection) workSection.hidden = !(GALLERY.length || BA_ON);
+$$('.shots, .sec-hd', workSection || document).forEach(el => {
+  if (!GALLERY.length) el.hidden = true;
+});
+[$('.ba-hd'), $('#ba'), $('.ba-meta')].forEach(el => {
+  if (el && !BA_ON) el.hidden = true;
+});
+
+$('#shots').innerHTML = GALLERY.map((j, i) => `
   <button class="shot" data-i="${i}" type="button">
     <span class="shot-art" style="${jobArt(j)}"></span>
     <span class="shot-cap"><b>${esc(j.title)}</b>${esc(j.place)}</span>
@@ -463,8 +486,9 @@ $('#shots').innerHTML = JOBS.map((j, i) => `
 const lb = $('#lb');
 let lbi = 0, lbOpen = false, lbTimer, lbOpener = null;
 function openLb(i) {
-  lbi = (i + JOBS.length) % JOBS.length;
-  const j = JOBS[lbi];
+  if (!GALLERY.length) return;
+  lbi = (i + GALLERY.length) % GALLERY.length;
+  const j = GALLERY[lbi];
   $('#lbArt').style.cssText = jobArt(j);
   $('#lbTitle').textContent = `${j.title} — ${j.place}`;
   $('#lbMeta').textContent = j.meta;
@@ -514,7 +538,6 @@ addEventListener('keydown', e => {
 
 /* ═══ before / after ════════════════════════════════════════ */
 const ba = $('#ba'), baBar = $('#baBar');
-const BA = pick(C.work && C.work.beforeAfter, {});
 $('#baB').style.cssText += safePhoto(BA.beforePhoto)
   ? `background-image:url('${safePhoto(BA.beforePhoto)}');background-size:cover;background-position:center;`
   : 'background:linear-gradient(150deg,#2a3140,#59667f 60%,#8b98ad);';
@@ -557,7 +580,6 @@ const aboutPts = $('#aboutPts');
 if (aboutPts) {
   const pts = pick(A.points, [
     'Spray foam insulation — attics, crawlspaces, walls, shops and barns',
-    'Roof coatings that seal and reflect, on metal and flat roofs',
     'Free walkthrough and a fixed price before we start'
   ]).filter(p => String(p || '').trim());
   aboutPts.innerHTML = pts.map(p => `<li>${esc(p)}</li>`).join('');

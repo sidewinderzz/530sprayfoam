@@ -195,7 +195,15 @@ const SFMap = {
     const ring = circlePolygon(center[1], center[0], miles).geometry.coordinates[0];
     const b = ring.reduce((bb, c) => bb.extend(c),
       new window.maplibregl.LngLatBounds(ring[0], ring[0]));
-    map.fitBounds(b, { padding: 26, duration: 0 });
+    map.fitBounds(b, { padding: 48, duration: 0 });
+    /* fitBounds measures in Mercator, where a circle's north and south edges
+       are not symmetric about its centre, so the home town ends up off-centre.
+       Put it back. */
+    map.setCenter(center);
+    /* fitBounds used to have the last word on zoom, which quietly made the
+       admin's "Starting zoom" field do nothing. An explicit zoom now wins;
+       with none set, the fitted framing stands. */
+    if (Number.isFinite(+cfg.zoom)) map.setZoom(+cfg.zoom);
 
     const svg = host.parentElement.querySelector('svg');
     if (svg) svg.style.display = 'none';

@@ -78,7 +78,13 @@ const SCHEMA = [
     ] },
 
   { id: 'photos', icon: ICON.photos, anchor: '#work', title: 'Job photos',
-    hint: 'Tap a slot to upload from your phone. Photos are resized automatically. These are what sell the job.',
+    hint: 'The section stays hidden until you switch it on AND a slot has a real photo — ' +
+          'a job with a caption but no photo is a claim with nothing behind it. Tap a slot ' +
+          'to upload from your phone. Photos are resized automatically. The before/after ' +
+          'slider needs both halves before it shows.',
+    fields: [
+      ['work.enabled', 'Show the recent work section (true / false)', 'text']
+    ],
     gallery: true },
 
   { id: 'about', icon: ICON.about, anchor: '#about', title: 'About us',
