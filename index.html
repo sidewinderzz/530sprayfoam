@@ -324,7 +324,16 @@
 <!-- ══ about ═══════════════════════════════════════════════ -->
 <section class="sec" id="about">
   <div class="wrap about">
-    <div class="about-art rv" id="aboutArt" role="img" aria-label="The 530 Spray Foam crew"></div>
+    <div class="about-art rv has-vid" id="aboutArt">
+      <video class="about-vid" id="aboutVid" poster="assets/about-attic-poster.jpg"
+             muted loop playsinline autoplay preload="metadata"
+             aria-label="Closed-cell spray foam being sprayed between attic rafters">
+        <source src="assets/about-attic.mp4" type="video/mp4">
+      </video>
+      <button type="button" class="vid-btn" id="vidBtn" aria-label="Pause video">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+      </button>
+    </div>
     <div class="about-copy rv" data-d="1">
       <p class="eyebrow" data-c="about.eyebrow">About us</p>
       <h2 data-c="about.heading">Northern California, one building at a time</h2>

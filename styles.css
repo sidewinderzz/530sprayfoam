@@ -384,6 +384,18 @@ fieldset.est-grp{border:0;margin:0;padding:0;min-width:0}
   position:relative;overflow:hidden}
 /* until a real crew photo is uploaded, a quiet brand panel rather than a
    grey box that reads as a broken image */
+/* With the attic clip in place the panel follows the footage's 16:9 rather
+   than cropping it — the overlay captions sit near the left edge and a
+   cover-crop clipped them. Two classes so it also beats the mobile height. */
+.about-art.has-vid{height:auto;aspect-ratio:16/9;background:var(--ink)}
+.about-art.has-vid::after{content:none}
+.about-vid{width:100%;height:100%;display:block;object-fit:cover}
+.vid-btn{position:absolute;right:10px;bottom:10px;width:38px;height:38px;border-radius:50%;
+  border:0;background:rgba(14,17,22,.62);color:#fff;display:grid;place-items:center;
+  cursor:pointer;transition:background .18s var(--ease);backdrop-filter:blur(3px)}
+.vid-btn:hover{background:rgba(14,17,22,.85)}
+.vid-btn:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.vid-btn svg{width:16px;height:16px;fill:currentColor}
 .about-art:not([style*="url"])::after{content:"530";position:absolute;inset:0;
   display:grid;place-items:center;font-family:var(--dsp);font-style:italic;font-weight:800;
   font-size:96px;color:rgba(30,49,96,.13);letter-spacing:.04em}

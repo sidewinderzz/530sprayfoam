@@ -269,7 +269,9 @@
     ],
     "cta": "Get a free walkthrough",
     "facebookLabel": "See recent work on Facebook",
-    "photo": ""
+    "photo": "",
+    "video": "assets/about-attic.mp4",
+    "videoPoster": "assets/about-attic-poster.jpg"
   },
   "reviews": {
     "enabled": false,

@@ -454,6 +454,16 @@ const artCss = (art) => {
 /* Only ever build a CSS url() from something that really is an image URL.
    The value comes from the CMS, and anything containing a quote, a paren or
    a newline could otherwise close the url() and inject further declarations. */
+/* safePhoto guards a CSS url(); this guards a src attribute — same host
+   rules, but it must also accept .mp4 rather than only data:image. */
+const safeSrc = v => {
+  const s = String(v || '').trim();
+  if (!s || /["'()\s\\]/.test(s)) return '';
+  try {
+    const u = new URL(s, location.href);
+    return (u.protocol === 'https:' || u.protocol === 'http:') ? u.href : '';
+  } catch { return ''; }
+};
 const safePhoto = v => {
   const s = String(v || '').trim();
   if (!s || /["'()\s\\]/.test(s)) return '';
@@ -597,8 +607,52 @@ setX(50);
 
 /* ═══ about ═════════════════════════════════════════════════ */
 const A = C.about || {};
-const aboutArt = $('#aboutArt');
-if (aboutArt && safePhoto(A.photo)) {
+/* ── about panel: clip, else photo, else the brand panel ────
+   The attic clip is Marc's own footage with the audio track stripped at
+   encode time, so it is silent whatever the browser does with `muted`.
+   A looping clip is motion running well past five seconds, so it has to be
+   stoppable (WCAG 2.2.2) — hence the pause button. Reduced-motion visitors
+   get the poster frame and start it themselves. */
+const aboutArt = $('#aboutArt'), aboutVid = $('#aboutVid'), vidBtn = $('#vidBtn');
+const ICON_PAUSE = '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
+const ICON_PLAY  = '<path d="M8 5v14l11-7z"/>';
+
+const vidSrc = safeSrc(A.video);
+if (aboutVid && A.video !== undefined && !vidSrc) {
+  /* CMS cleared the clip — drop back to the photo or the brand panel */
+  aboutVid.remove(); if (vidBtn) vidBtn.remove();
+  if (aboutArt) {
+    aboutArt.classList.remove('has-vid');
+    aboutArt.setAttribute('role', 'img');
+    aboutArt.setAttribute('aria-label', 'The 530 Spray Foam crew');
+  }
+} else if (aboutVid) {
+  if (vidSrc) aboutVid.src = vidSrc;
+  const poster = safeSrc(A.videoPoster);
+  if (poster) aboutVid.poster = poster;
+
+  const setBtn = playing => {
+    if (!vidBtn) return;
+    vidBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      (playing ? ICON_PAUSE : ICON_PLAY) + '</svg>';
+    vidBtn.setAttribute('aria-label', playing ? 'Pause video' : 'Play video');
+  };
+  if (reduced) { aboutVid.removeAttribute('autoplay'); aboutVid.pause(); }
+  aboutVid.addEventListener('play',  () => setBtn(true));
+  aboutVid.addEventListener('pause', () => setBtn(false));
+  setBtn(!reduced);
+  if (vidBtn) vidBtn.addEventListener('click', () => {
+    if (aboutVid.paused) aboutVid.play().catch(() => {}); else aboutVid.pause();
+  });
+  /* autoplay can still be refused; fall back to the poster and the play button */
+  if (!reduced) {
+    const p = aboutVid.play();
+    if (p && p.catch) p.catch(() => setBtn(false));
+  }
+}
+
+/* a still photo is only used when there is no clip */
+if (aboutArt && !aboutArt.classList.contains('has-vid') && safePhoto(A.photo)) {
   aboutArt.style.backgroundImage = `url('${safePhoto(A.photo)}')`;
 }
 const aboutPts = $('#aboutPts');

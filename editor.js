@@ -97,7 +97,9 @@ const SCHEMA = [
       ['about.body', 'Paragraph', 'textarea'],
       ['about.cta', 'Button label', 'text'],
       ['social.facebook', 'Facebook page URL', 'text'],
-      ['about.facebookLabel', 'Facebook link wording', 'text']
+      ['about.facebookLabel', 'Facebook link wording', 'text'],
+      ['about.video', 'Video file path (blank = use the photo instead)', 'text'],
+      ['about.videoPoster', 'Video still shown before it plays', 'text']
     ],
     list: 'about.points', listLabel: 'Bullet points', max: 6, plain: true },
 
