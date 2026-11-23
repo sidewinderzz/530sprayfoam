@@ -105,7 +105,7 @@ export async function sendEmail(lead) {
   const to = process.env.ALERT_EMAIL_TO.split(',').map(s => s.trim()).filter(Boolean);
   const from = process.env.ALERT_EMAIL_FROM || 'leads@530sprayfoam.com';
   const tel = String(lead.phone).replace(/\D/g, '');
-  const site = (process.env.URL || 'https://530sprayfoam.netlify.app').replace(/\/$/, '');
+  const site = (process.env.URL || 'https://530sprayfoam.com').replace(/\/$/, '');
   const photos = (lead.photos || []).filter(u => /^\/api\/photos\//.test(String(u)));
 
   const rows = [

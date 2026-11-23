@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin.html
 Disallow: /api/
 
-Sitemap: https://530sprayfoam.netlify.app/sitemap.xml
+Sitemap: https://530sprayfoam.com/sitemap.xml

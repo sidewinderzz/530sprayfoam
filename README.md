@@ -150,7 +150,7 @@ Publishing writes to `/api/content` and takes effect immediately — see the bac
 
 ## Backend — Netlify DB + Functions
 
-The site already deploys to **530sprayfoam.netlify.app**. The database provisions itself on
+The site deploys to **530sprayfoam.com** (Netlify, also at 530sprayfoam.netlify.app; DNS lives at Squarespace). The database provisions itself on
 deploy; there is nothing to create by hand and no project limit to run into.
 
 | File | What it does |
